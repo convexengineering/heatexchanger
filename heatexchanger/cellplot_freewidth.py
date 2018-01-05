@@ -10,8 +10,8 @@ def plot_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
     for i in range(m.Nwaterpipes):
         wpos = 0
         for j in range(m.Nairpipes):
-            wcell = sol(m.airpipes.w)[j].magnitude
-            dcell = sol(m.waterpipes.w)[i].magnitude
+            wcell = sol(m.airpipes.w[j, i]).magnitude
+            dcell = sol(m.waterpipes.w[i, j]).magnitude
             if not zscale:
                 z = ((Z[j, i] - Zmin)/(Zmax-Zmin)).magnitude
             else:
@@ -25,9 +25,9 @@ def plot_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
                 else:
                     labelx += 0.4*dcell
                 a.text(labelx, labely, label)
-            wpos += wcell
+            wpos += sol(m.airpipes.w).magnitude[j, :].max()
             a.add_patch(r)
-        dpos += dcell
+        dpos += sol(m.waterpipes.w).magnitude[i, :].max()
     ylim([0, wpos])
     xlim([0, dpos])
     a.set_frame_on(False)
@@ -37,7 +37,7 @@ def plot_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
 
 
 if __name__ == "__main__":
-    from layer import Layer
+    from layer_freewidth import Layer
     Nw, Na = 5, 5
     m = Layer(Nw, Na)
     m.cost = 1/m.Q

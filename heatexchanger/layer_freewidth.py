@@ -1,7 +1,7 @@
 from gpkit import Model, parse_variables, Vectorize, SignomialsEnabled
 from fluids import Air, Water
 from hxarea import HXArea
-from rectpipe import RectangularPipe
+from rectpipe_freewidth import RectangularPipe
 
 
 class Layer(Model):
@@ -54,10 +54,10 @@ class Layer(Model):
             V >= d*w*h,
             h >= h_liq + h_air,
             waterpipes,
-            d >= waterpipes.w.sum(),
+            d >= waterpipes.w.sum(axis=1),
             h_liq == waterpipes.h,
             airpipes,
-            w >= airpipes.w.sum(),
+            w >= airpipes.w.sum(axis=1),
             h_air == airpipes.h,
 
             # CONSERVATION OF HEAT
@@ -66,7 +66,7 @@ class Layer(Model):
             c.dQ == airpipes.dQ.T,   # airpipes are rotated 90deg
 
             # HEAT EXCHANGE
-            c, c.A_hx == airpipes.w.outer(waterpipes.w),
+            c, c.A_hx == (airpipes.w[1:].T*waterpipes.w[1:]*airpipes.w[:-1].T*waterpipes.w[:-1])**0.5,
             c.T_hot == waterpipes.T[1:],  # Tcell = Tout (conservative)
             # NOTE: cell temperature could instead be a geometric mean
             #       of input and output
