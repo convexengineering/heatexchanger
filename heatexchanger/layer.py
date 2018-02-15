@@ -1,7 +1,8 @@
-from gpkit import Model, parse_variables, Vectorize, SignomialsEnabled
+from gpkit import Model, parse_variables, Vectorize, SignomialsEnabled, units
 from fluids import Air, Water
 from hxarea import HXArea
 from rectpipe import RectangularPipe
+import numpy as np
 
 
 class Layer(Model):
@@ -49,6 +50,16 @@ class Layer(Model):
             #       it's already alllllmost GP, solving in 3-9 GP solves
             SP_Qsum = Q <= c.dQ.sum()
 
+            waterCf = []
+            airCf = []
+            for i in range(Nwaterpipes):
+                for j in range(Nairpipes):
+                    waterCf.extend([waterpipes.l[i,j] >= sum(airpipes.w[0:j+1])])
+
+            for i in range(Nairpipes):
+                for j in range(Nwaterpipes):
+                    airCf.extend([airpipes.l[i,j] >= sum(waterpipes.w[0:j+1])])
+
         return [
             # SIZING
             V >= d*w*h,
@@ -71,11 +82,15 @@ class Layer(Model):
             # NOTE: cell temperature could instead be a geometric mean
             #       of input and output
             c.T_cld == airpipes.T[1:].T,  # airpipes are rotated 90deg
+
+            #DRAG
+            waterCf,
+            airCf,
         ]
 
 
 if __name__ == "__main__":
     m = Layer(5, 5)
-    m.cost = 1/m.Q
+    m.cost = 1/m.Q + m.waterpipes.l.sum()*units('1/m/W') + m.airpipes.l.sum()*units('1/m/W')
     sol = m.localsolve()
     print sol(m.Q)
