@@ -21,8 +21,10 @@ class RectangularPipe(Model):
     -----------------------------
     dT       [K]      Change in fluid temperature over segment
     dQ       [W]      Magnitude of heat transfer over segment
-    Cf       [-]      Coefficient of friction over segment 
+    v_avg    [m/s]    Average fluid velocity over segment
     l        [m]      Reference flow length
+    Re       [-]      Reynolds number
+    Cf       [-]      Coefficient of friction over segment 
 
     Upper Unbounded
     ---------------
@@ -30,7 +32,7 @@ class RectangularPipe(Model):
 
     Lower Unbounded
     ---------------
-    dQ, T_out (if not increasingT), l
+    dQ, T_out (if not increasingT)
 
     """
     def setup(self, Nsegments, fluid, increasingT):
@@ -47,5 +49,7 @@ class RectangularPipe(Model):
             mdot == fluid.rho*v*A,
             A == w*h,
             dQ <= mdot*fluid.c*dT,
-            Cf == 0.059/(fluid.rho*v_in*l/fluid.mu)
+            v_avg**2 == v[0:-1]*v[1:],
+            Re == (fluid.rho*v_avg*l/fluid.mu),
+            Cf**5*Re == (0.059)**5
         ]
