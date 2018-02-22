@@ -55,10 +55,17 @@ class Layer(Model):
             SP_Qsum = Q <= c.dQ.sum()
             for i in range(Nwaterpipes):
                 for j in range(Nairpipes):
-                    waterCf.extend([waterpipes.l[i,j] >= sum(airpipes.w[0:j+1])])
+                    waterCf.extend([waterpipes.l[i,j] <= sum(airpipes.w[0:j+1]),
+                                    waterpipes.D_seg[i,j] >= 0.5*water.rho*waterpipes.v_avg[i,j]**2*waterpipes.Cf[i,j]*waterpipes.w[i]*airpipes.w[j],
+                                            ])
             for i in range(Nairpipes):
                 for j in range(Nwaterpipes):
-                    airCf.extend([airpipes.l[i,j] >= sum(waterpipes.w[0:j+1])])
+                    airCf.extend([airpipes.l[i,j] <= sum(waterpipes.w[0:j+1]),
+                                airpipes.D_seg[i,j] >= 0.5*air.rho*airpipes.v_avg[i,j]**2*airpipes.Cf[i,j]*airpipes.w[i]*waterpipes.w[j],
+                                            ])
+
+            waterCf.extend([waterpipes.D >= sum(waterpipes.D_seg)])
+            airCf.extend([airpipes.D >= sum(airpipes.D_seg)])
 
         return [
             # SIZING
@@ -84,14 +91,13 @@ class Layer(Model):
             c.T_cld == airpipes.T[1:].T,  # airpipes are rotated 90deg
 
             #DRAG
-            #waterCf,
-            #airCf,
+            waterCf,
+            airCf,
         ]
 
 
 if __name__ == "__main__":
     m = Layer(5, 5)
-    m.cost = 1/m.Q + m.waterpipes.l.sum()*units('1/m/W') + m.airpipes.l.sum()*units('1/m/W') + m.waterpipes.Cf.sum()*units('1/W') + m.waterpipes.Cf.sum()*units('1/W')
-    m = Model(m.cost, Bounded(m))
+    m.cost = 1/m.Q + m.waterpipes.D.sum()*units('1/(N*W)') + m.airpipes.D.sum()*units('1/(N*W)')
     sol = m.localsolve(verbosity=4)
     print sol(m.Q)

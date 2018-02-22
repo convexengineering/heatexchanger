@@ -11,6 +11,7 @@ class RectangularPipe(Model):
     A        [m^2]    pipe area
     T_in     [K]      input temperature
     v_in     [m/s]    input velocity
+    D        [N]      total drag
 
     Variables of length Nsegments+1
     -------------------------------
@@ -25,6 +26,7 @@ class RectangularPipe(Model):
     l        [m]      Reference flow length
     Re       [-]      Reynolds number
     Cf       [-]      Coefficient of friction over segment 
+    D_seg    [N]      Drag over segment
 
     Upper Unbounded
     ---------------
@@ -51,5 +53,5 @@ class RectangularPipe(Model):
             dQ <= mdot*fluid.c*dT,
             v_avg**2 == v[0:-1]*v[1:],
             Re == (fluid.rho*v_avg*l/fluid.mu),
-            Cf**5*Re == (0.059)**5
+            Cf**5*Re == (0.059)**5,
         ]
