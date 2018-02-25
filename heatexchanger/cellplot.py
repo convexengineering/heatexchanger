@@ -39,30 +39,27 @@ def plot_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
 if __name__ == "__main__":
     from layer import Layer
     Nw, Na = 5, 5
-    m = Layer(Nw, Na)
-    m.cost = 1/m.Q
-    sol = m.localsolve()
     print sol(m.c.dQ).min(), 0.625/Nw/Na
 
-    f, a = plot_cells(m, sol(m.c.T_hot), verbosity=0)
+    f, a = plot_cells(m, sol(m.c.T_hot), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
     a.set_title("Liquid Temperature [K]")
     f.savefig("T_liq.png")
 
     Q = sol(m.Q).magnitude
-    f, a = plot_cells(m, sol(m.c.dQ), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na)
+    f, a = plot_cells(m, sol(m.c.dQ), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
     a.set_title("Heat Transfer (%.2f Watts total)" % Q)
     f.savefig("dQ.png")
 
     # Water drag in each cell
     waterD = sum(sum(sol(m.waterpipes.D_seg).magnitude))
-    f, a = plot_cells(m, sol(m.waterpipes.D_seg), cm=cm.Blues, zscale=1/Nw/Na, zoff=0.625/Nw/Na)
+    f, a = plot_cells(m, sol(m.waterpipes.D_seg), cm=cm.Blues, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
     a.set_title("Drag force due to each water cell (%.2f Watts total)" % waterD)
     f.savefig("waterD.png")
 
     # Air drag in each cell
     airD = sum(sum(sol(m.airpipes.D_seg).magnitude))
-    f, a = plot_cells(m, sol(m.airpipes.D_seg), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na)
-    a.set_title("Drag force due to each air cell (%.2f Watts total)" % airD)
+    f, a = plot_cells(m, sol(m.airpipes.D_seg), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
+    a.set_title("Drag force due to each air cell (%.2f N total)" % airD)
     f.savefig("airD.png")
 
 
