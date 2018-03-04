@@ -3,6 +3,7 @@ from gpkit.constraints.bounded import Bounded
 from fluids import Air, Water
 from hxarea import HXArea
 from rectpipe import RectangularPipe
+from relaxed_constants import relaxed_constants
 import numpy as np
 
 
@@ -24,6 +25,8 @@ class Layer(Model):
 
     """
     def setup(self, Nairpipes, Nwaterpipes):
+        calc_p0in = lambda self, c: c[self.P_i] + 0.5*c[self.rho_i]*c[self.V_i]**2
+
         exec parse_variables(Layer.__doc__)
         self.Nairpipes = Nairpipes
         self.Nwaterpipes = Nwaterpipes
@@ -54,19 +57,21 @@ class Layer(Model):
             #       it's already alllllmost GP, solving in 3-9 GP solves
             SP_Qsum = Q <= c.dQ.sum()
             for i in range(Nwaterpipes):
+                waterCf.extend([#waterpipes.D >= 0.5*water.rho*(waterpipes.v_in**2 - waterpipes.v_out**2)*waterpipes.w[i]*h
+                                waterpipes.D >= waterpipes.fr*waterpipes.w[i]*h])
                 for j in range(Nairpipes):
                     waterCf.extend([waterpipes.l[i,j] <= sum(airpipes.w[0:j+1]),
-                                    waterpipes.D_seg[i,j] >= 0.5*water.rho*waterpipes.v_avg[i,j]**2*waterpipes.Cf[i,j]*waterpipes.w[i]*airpipes.w[j],
+                                    waterpipes.dP[i,j] >= 0.5*water.rho*waterpipes.v_avg[i,j]**2*waterpipes.Cf[i,j]*airpipes.w[j]/waterpipes.dh[i],
+                                    waterpipes.D_seg[i,j] == 0.5*water.rho*waterpipes.v_avg[i,j]**2*waterpipes.Cf[i,j]*waterpipes.w[i]*airpipes.w[j],
                                             ])
             for i in range(Nairpipes):
+                airCf.extend([#airpipes.D >= 0.5*air.rho*(airpipes.v_in**2 - airpipes.v_out**2)*airpipes.w[i]*h
+                               airpipes.D >= airpipes.fr*airpipes.w[i]*h])
                 for j in range(Nwaterpipes):
                     airCf.extend([airpipes.l[i,j] <= sum(waterpipes.w[0:j+1]),
-                                airpipes.D_seg[i,j] >= 0.5*air.rho*airpipes.v_avg[i,j]**2*airpipes.Cf[i,j]*airpipes.w[i]*waterpipes.w[j],
+                                airpipes.dP[i,j] == 0.5*air.rho*airpipes.v_avg[i,j]**2*airpipes.Cf[i,j]*waterpipes.w[j]/airpipes.dh[i],
+                                airpipes.D_seg[i,j] == 0.5*air.rho*airpipes.v_avg[i,j]**2*airpipes.Cf[i,j]*airpipes.w[i]*waterpipes.w[j],
                                             ])
-
-            waterCf.extend([waterpipes.D >= sum(waterpipes.D_seg)])
-            airCf.extend([airpipes.D >= sum(airpipes.D_seg)])
-
         return [
             # SIZING
             V >= d*w*h,
@@ -98,6 +103,8 @@ class Layer(Model):
 
 if __name__ == "__main__":
     m = Layer(5, 5)
-    m.cost = 1/m.Q + m.waterpipes.D.sum()*units('1/(N*W)') + m.airpipes.D.sum()*units('1/(N*W)')
+    m.substitutions.update()
+    m.cost = 1/m.Q + m.waterpipes.D.sum()*units('1/(N*W)')+m.airpipes.D.sum()*units('1/(N*W)')
+    #
     sol = m.localsolve(verbosity=4)
     print sol(m.Q)

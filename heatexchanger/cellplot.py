@@ -1,5 +1,10 @@
 from matplotlib.pyplot import *
 
+def nsf(num, n=1):
+    """n-Significant Figures"""
+    numstr = ("{0:.%ie}" % (n-1)).format(num)
+    return float(numstr)
+
 
 def plot_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
     "Plots a given array for every heat-exchange cell"
@@ -43,24 +48,24 @@ if __name__ == "__main__":
 
     f, a = plot_cells(m, sol(m.c.T_hot), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
     a.set_title("Liquid Temperature [K]")
-    f.savefig("T_liq.png")
+    f.savefig("plots/T_liq.png")
 
     Q = sol(m.Q).magnitude
     f, a = plot_cells(m, sol(m.c.dQ), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
     a.set_title("Heat Transfer (%.2f Watts total)" % Q)
-    f.savefig("dQ.png")
+    f.savefig("plots/dQ.png")
 
     # Water drag in each cell
     waterD = sum(sum(sol(m.waterpipes.D_seg).magnitude))
     f, a = plot_cells(m, sol(m.waterpipes.D_seg), cm=cm.Blues, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
     a.set_title("Drag force due to each water cell (%.2f Watts total)" % waterD)
-    f.savefig("waterD.png")
+    f.savefig("plots/waterD.png")
 
     # Air drag in each cell
     airD = sum(sum(sol(m.airpipes.D_seg).magnitude))
     f, a = plot_cells(m, sol(m.airpipes.D_seg), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
     a.set_title("Drag force due to each air cell (%.2f N total)" % airD)
-    f.savefig("airD.png")
+    f.savefig("plots/airD.png")
 
 
 
