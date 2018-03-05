@@ -103,6 +103,6 @@ if __name__ == "__main__":
     m = Layer(5, 5)
     m.substitutions.update()
     m.cost = 1/m.Q + m.waterpipes.D.sum()*units('1/(N*W)')+m.airpipes.D.sum()*units('1/(N*W)')
-    #
+    m = Model(m.cost, Bounded(m))
     sol = m.localsolve(verbosity=4)
     print sol(m.Q)
