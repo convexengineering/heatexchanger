@@ -57,16 +57,14 @@ class Layer(Model):
             #       it's already alllllmost GP, solving in 3-9 GP solves
             SP_Qsum = Q <= c.dQ.sum()
             for i in range(Nwaterpipes):
-                waterCf.extend([#waterpipes.D >= 0.5*water.rho*(waterpipes.v_in**2 - waterpipes.v_out**2)*waterpipes.w[i]*h
-                                waterpipes.D >= waterpipes.fr*waterpipes.w[i]*h])
+                waterCf.extend([waterpipes.D >= waterpipes.fr*waterpipes.w[i]*h])
                 for j in range(Nairpipes):
                     waterCf.extend([waterpipes.l[i,j] <= sum(airpipes.w[0:j+1]),
                                     waterpipes.dP[i,j] >= 0.5*water.rho*waterpipes.v_avg[i,j]**2*waterpipes.Cf[i,j]*airpipes.w[j]/waterpipes.dh[i],
                                     waterpipes.D_seg[i,j] == 0.5*water.rho*waterpipes.v_avg[i,j]**2*waterpipes.Cf[i,j]*waterpipes.w[i]*airpipes.w[j],
                                             ])
             for i in range(Nairpipes):
-                airCf.extend([#airpipes.D >= 0.5*air.rho*(airpipes.v_in**2 - airpipes.v_out**2)*airpipes.w[i]*h
-                               airpipes.D >= airpipes.fr*airpipes.w[i]*h])
+                airCf.extend([airpipes.D >= airpipes.fr*airpipes.w[i]*h])
                 for j in range(Nwaterpipes):
                     airCf.extend([airpipes.l[i,j] <= sum(waterpipes.w[0:j+1]),
                                 airpipes.dP[i,j] == 0.5*air.rho*airpipes.v_avg[i,j]**2*airpipes.Cf[i,j]*waterpipes.w[j]/airpipes.dh[i],
