@@ -25,8 +25,6 @@ class Layer(Model):
 
     """
     def setup(self, Nairpipes, Nwaterpipes):
-        calc_p0in = lambda self, c: c[self.P_i] + 0.5*c[self.rho_i]*c[self.V_i]**2
-
         exec parse_variables(Layer.__doc__)
         self.Nairpipes = Nairpipes
         self.Nwaterpipes = Nwaterpipes
@@ -34,14 +32,14 @@ class Layer(Model):
         air = Air()
         with Vectorize(Nairpipes):
             airpipes = RectangularPipe(Nwaterpipes, air, increasingT=True,
-                                       substitutions={"T_in": 303*units('K'),
-                                                      "v_in": 20*units('m/s')})
+                                       substitutions={"T_in": 303,
+                                                      "v_in": 20})
             self.airpipes = airpipes
         water = Water()
         with Vectorize(Nwaterpipes):
             waterpipes = RectangularPipe(Nairpipes, water, increasingT=False,
-                                         substitutions={"T_in": 500*units('K'),
-                                                        "v_in": 5*units('m/s')})
+                                         substitutions={"T_in": 500,
+                                                        "v_in": 5})
             self.waterpipes = waterpipes
         with Vectorize(Nwaterpipes):
             with Vectorize(Nairpipes):
@@ -101,8 +99,7 @@ class Layer(Model):
 
 if __name__ == "__main__":
     m = Layer(5, 5)
-    m.substitutions.update()
     m.cost = 1/m.Q + m.waterpipes.D.sum()*units('1/(N*W)')+m.airpipes.D.sum()*units('1/(N*W)')
-    m = Model(m.cost, Bounded(m))
+    m = relaxed_constants(m)
     sol = m.localsolve(verbosity=4)
-    print sol(m.Q)
+    print sol('Q')

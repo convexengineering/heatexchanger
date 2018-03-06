@@ -50,6 +50,8 @@ class RectangularPipe(Model):
 
     """
     def setup(self, Nsegments, fluid, increasingT):
+        calc_p0in = lambda self, c: c[self.P_i] + 0.5*c[self.rho_i]*c[self.V_i]**2
+
         exec parse_variables(RectangularPipe.__doc__)
         self.increasingT = increasingT
         self.T_out = T[-1]

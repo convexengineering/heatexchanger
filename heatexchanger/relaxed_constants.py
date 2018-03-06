@@ -23,6 +23,7 @@ def relaxed_constants(model, include_only=None, exclude=None):
         constsrelaxed = ConstantsRelaxed(model, include_only, exclude)
         feas = Model(constsrelaxed.relaxvars.prod()**20 * model.cost + model.cost,
                      constsrelaxed)
+        feas.original = model
         # NOTE: It hasn't yet been seen but might be possible that
         #       the model.cost component above could cause infeasibility
     else:

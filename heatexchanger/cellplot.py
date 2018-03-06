@@ -10,13 +10,15 @@ def plot_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
     "Plots a given array for every heat-exchange cell"
     f, a = subplots(figsize=(12, 12))
     sol = m.solution
+    Nwaterpipes = m.original.Nwaterpipes
+    Nairpipes = m.original.Nairpipes
     Zmin, Zmax = Z.min(), Z.max()
     dpos = 0
-    for i in range(m.Nwaterpipes):
+    for i in range(Nwaterpipes):
         wpos = 0
-        for j in range(m.Nairpipes):
-            wcell = sol(m.airpipes.w)[j].magnitude
-            dcell = sol(m.waterpipes.w)[i].magnitude
+        for j in range(Nairpipes):
+            wcell = sol(m.original.airpipes.w)[j].magnitude
+            dcell = sol(m.original.waterpipes.w)[i].magnitude
             if not zscale:
                 z = ((Z[j, i] - Zmin)/(Zmax-Zmin)).magnitude
             else:
@@ -44,26 +46,26 @@ def plot_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
 if __name__ == "__main__":
     from layer import Layer
     Nw, Na = 5, 5
-    print sol(m.c.dQ).min(), 0.625/Nw/Na
+    print sol(m.original.c.dQ).min(), 0.625/Nw/Na
 
-    f, a = plot_cells(m, sol(m.c.T_hot), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
+    f, a = plot_cells(m, sol(m.original.c.T_hot), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
     a.set_title("Liquid Temperature [K]")
     f.savefig("plots/T_liq.png")
 
-    Q = sol(m.Q).magnitude
-    f, a = plot_cells(m, sol(m.c.dQ), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
+    Q = sol(m.original.Q).magnitude
+    f, a = plot_cells(m, sol(m.original.c.dQ), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
     a.set_title("Heat Transfer (%.2f Watts total)" % Q)
     f.savefig("plots/dQ.png")
 
     # Water drag in each cell
-    waterD = sum(sum(sol(m.waterpipes.D_seg).magnitude))
-    f, a = plot_cells(m, sol(m.waterpipes.D_seg), cm=cm.Blues, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
+    waterD = sum(sum(sol(m.original.waterpipes.D_seg).magnitude))
+    f, a = plot_cells(m, sol(m.original.waterpipes.D_seg), cm=cm.Blues, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
     a.set_title("Drag force due to each water cell (%.2f Watts total)" % waterD)
     f.savefig("plots/waterD.png")
 
     # Air drag in each cell
-    airD = sum(sum(sol(m.airpipes.D_seg).magnitude))
-    f, a = plot_cells(m, sol(m.airpipes.D_seg), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
+    airD = sum(sum(sol(m.original.airpipes.D_seg).magnitude))
+    f, a = plot_cells(m, sol(m.original.airpipes.D_seg), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
     a.set_title("Drag force due to each air cell (%.2f N total)" % airD)
     f.savefig("plots/airD.png")
 
