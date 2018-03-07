@@ -69,5 +69,11 @@ if __name__ == "__main__":
     a.set_title("Drag force due to each air cell (%.2f N total)" % airD)
     f.savefig("plots/airD.png")
 
+    # Wall temperature
+    f, a = plot_cells(m, sol(m.original.c.T_r), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
+    a.set_title("Mean wall temperature (K)")
+    f.savefig("plots/Tr.png")
+
+
 
 

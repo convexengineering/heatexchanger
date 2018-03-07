@@ -39,6 +39,7 @@ class RectangularPipe(Model):
     Re                    [-]      Reynolds number
     D_seg                 [N]      segment drag
     dP                    [Pa]     segment pressure drop
+    Tr_int                [K]      wall-fluid interface temperature
   
     Upper Unbounded
     ---------------
@@ -56,9 +57,15 @@ class RectangularPipe(Model):
         self.increasingT = increasingT
         self.T_out = T[-1]
         if increasingT:
-            temp = T[1:] >= T[:-1] + dT
+            with SignomialsEnabled():
+                temp = [T[1:] >= T[:-1] + dT,
+                dT <= (Tr_int-T[0:-1])*eta_h,
+                Tr_int >= T[1:]]
         else:
-            temp = T[:-1] >= T[1:] + dT
+            with SignomialsEnabled():
+                temp = [T[:-1] >= T[1:] + dT,
+                dT <= (T[0:-1]-Tr_int)*eta_h,
+                Tr_int <= T[1:]]
 
         Pf_rat = Pf/Pf_ref
         Re_rat = Re/Re_ref
@@ -66,8 +73,7 @@ class RectangularPipe(Model):
         alpha = T[1:]/T[:-1]
 
         with SignomialsEnabled():
-            pressure = [#alpha >= 1 + dT*eta_h,
-                        v_in == v[0],
+            pressure = [v_in == v[0],
                         v_out == v[-1],
                         fr == Pf*(0.5*fluid.rho*v_in**2),  # force per frontal area
                         P0[0] <= P_in + 0.5*fluid.rho*v_in**2, # inlet total pressure
