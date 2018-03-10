@@ -7,9 +7,7 @@ class RectangularPipe(Model):
     ---------
     mdot                  [kg/s]   mass flow rate
     w                     [m]      pipe width
-    h                     [m]      pipe height
     dh                    [m]      hydraulic diameter
-    A                     [m^2]    pipe area
     T_in                  [K]      input temperature
     v_in                  [m/s]    input velocity
     v_out                 [m/s]    output velocity
@@ -24,7 +22,7 @@ class RectangularPipe(Model):
     fr                    [Pa]     force per frontal area
     
     Variables of length Nsegments+1
-    -------------------------------
+    -------------------------------sol
     v                     [m/s]    fluid velocity
     T                     [K]      fluid temperature
     P0                    [Pa]     fluid total pressure
@@ -35,6 +33,10 @@ class RectangularPipe(Model):
     dQ                    [W]      Magnitude of heat transfer over segment
     v_avg                 [m/s]    Average fluid velocity over segment
     l                     [m]      Reference flow length
+    V_seg                 [m^3]    Segment volume
+    A_seg                 [m^2]    Segment frontal area
+    h_seg                 [m]      Segment height
+    l_seg                 [m]      Segment flow length
     Cf                    [-]      Coefficient of friction over segment 
     Re                    [-]      Reynolds number
     D_seg                 [N]      segment drag
@@ -92,10 +94,11 @@ class RectangularPipe(Model):
         return [
             fluid, temp, 
             pressure,
-            T[0] == T_in, v[0] == v_in,
-            mdot == fluid.rho*v*A,
-            A == w*h,
-            dh*(w*h)**0.5 == 2*A, # hydraulic diameter with geometric mean approximation
+            T[0] == T_in,
+            mdot == fluid.rho*v_avg*A_seg,
+            A_seg == w*h_seg,
+            V_seg == A_seg*l_seg,
+            dh*(w*h_seg)**0.5 == 2*A_seg, # hydraulic diameter with geometric mean approximation
             dQ <= mdot*fluid.c*dT,
             v_avg**2 == v[0:-1]*v[1:],
             Re == (fluid.rho*v_avg*l/fluid.mu),

@@ -12,12 +12,7 @@ class Layer(Model):
     Variables
     ---------
     Q          [W]       heat transferred from air to liquid
-    w          [m]       width
-    d          [m]       depth
-    h          [m]       height
-    V        1 [cm^3]    volume
-    h_liq      [m]       height of liquid layer
-    h_air      [m]       height of air layer
+    V_tot    1 [cm^3]    total volume
 
     Lower Unbounded
     ---------------
@@ -55,29 +50,33 @@ class Layer(Model):
             #       it's already alllllmost GP, solving in 3-9 GP solves
             SP_Qsum = Q <= c.dQ.sum()
             for i in range(Nwaterpipes):
-                waterCf.extend([waterpipes.D[i] >= waterpipes.fr[i]*waterpipes.w[i]*h])
+                waterCf.extend([waterpipes.D[i] >= waterpipes.fr[i]*waterpipes.w[i]*waterpipes.h_seg[i,0]])
                 for j in range(Nairpipes):
                     waterCf.extend([waterpipes.l[i,j] <= sum(airpipes.w[0:j+1]),
                                     waterpipes.dP[i,j] >= 0.5*water.rho*waterpipes.v_avg[i,j]**2*waterpipes.Cf[i,j]*airpipes.w[j]/waterpipes.dh[i],
                                     waterpipes.D_seg[i,j] == 0.5*water.rho*waterpipes.v_avg[i,j]**2*waterpipes.Cf[i,j]*waterpipes.w[i]*airpipes.w[j],
                                             ])
             for i in range(Nairpipes):
-                airCf.extend([airpipes.D[i] >= airpipes.fr[i]*airpipes.w[i]*h])
+                airCf.extend([airpipes.D[i] >= airpipes.fr[i]*airpipes.w[i]*airpipes.h_seg[i,0]])
                 for j in range(Nwaterpipes):
                     airCf.extend([airpipes.l[i,j] <= sum(waterpipes.w[0:j+1]),
                                 airpipes.dP[i,j] == 0.5*air.rho*airpipes.v_avg[i,j]**2*airpipes.Cf[i,j]*waterpipes.w[j]/airpipes.dh[i],
                                 airpipes.D_seg[i,j] == 0.5*air.rho*airpipes.v_avg[i,j]**2*airpipes.Cf[i,j]*airpipes.w[i]*waterpipes.w[j],
                                             ])
+        geom = [V_tot >= sum(sum(c.V_hot)) + sum(sum(c.V_cold))]
+        for i in range(Nwaterpipes):
+            for j in range(Nairpipes):
+                    geom.extend([c.w_cell[i,j] == waterpipes.w[i],
+                                 c.d_cell[i,j] == airpipes.w[j],
+                                 c.w_cell[i,j] >= 1*units('cm'),
+                                 c.d_cell[i,j] >= 1*units('cm'),
+                                 c.h_cold[i,j] >= 0.1*units('cm'),
+                                 c.h_hot[i,j] >= 0.1*units('cm')])
         return [
             # SIZING
-            V >= d*w*h,
-            h >= h_liq + h_air,
+            geom,
             waterpipes,
-            d >= waterpipes.w.sum(),
-            h_liq == waterpipes.h,
             airpipes,
-            w >= airpipes.w.sum(),
-            h_air == airpipes.h,
 
             # CONSERVATION OF HEAT
             SP_Qsum,
@@ -93,6 +92,12 @@ class Layer(Model):
             #       of input and output
             c.T_cld == airpipes.T[1:].T,  # airpipes are rotated 90deg
 
+            # Coupling geometry
+            c.V_cold == waterpipes.V_seg,
+            c.V_hot == airpipes.V_seg.T,
+            c.h_hot == waterpipes.h_seg,
+            c.h_cold == airpipes.h_seg.T,
+
             #DRAG
             waterCf,
             airCf,
@@ -101,7 +106,8 @@ class Layer(Model):
 
 if __name__ == "__main__":
     m = Layer(5, 5)
-    m.cost = 1/m.Q + m.waterpipes.D.sum()*units('1/(N*W)')+m.airpipes.D.sum()*units('1/(N*W)')
+    m.cost = 1/m.Q + 100*m.waterpipes.D.sum()*units('1/(N*W)')+ 100*m.airpipes.D.sum()*units('1/(N*W)')
+    #m = Model(m.cost,Bounded(m))
     m = relaxed_constants(m)
     sol = m.localsolve(verbosity=4)
     print sol('Q')
