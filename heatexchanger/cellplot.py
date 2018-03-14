@@ -1,4 +1,6 @@
 from matplotlib.pyplot import *
+import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
 
 def nsf(num, n=1):
     """n-Significant Figures"""
@@ -42,16 +44,52 @@ def plot_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
     a.set_ylabel("depth traveled by water [m]")
     return f, a
 
+def hist_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
+    "Plots a given array for every heat-exchange cell"
+    sol = m.solution
+    Nwaterpipes = m.original.Nwaterpipes
+    Nairpipes = m.original.Nairpipes
+    Zmin, Zmax = Z.min(), Z.max()
+    dpos = 0
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    #x = 
+
+    # Construct arrays for the anchor positions of the 16 bars.
+    # Note: np.meshgrid gives arrays in (ny, nx) so we use 'F' to flatten xpos,
+    # ypos in column-major order. For numpy >= 1.7, we could instead call meshgrid
+    # with indexing='ij'.
+    xpos, ypos = np.meshgrid(xedges[:-1] + 0.25, yedges[:-1] + 0.25)
+    xpos = xpos.flatten('F')
+    ypos = ypos.flatten('F')
+    zpos = np.zeros_like(xpos)
+
+
+    ylim([0, wpos])
+    xlim([0, dpos])
+    a.set_frame_on(False)
+    a.set_xlabel("width traveled by air [m]")
+    a.set_ylabel("depth traveled by water [m]")
+    return f, arun
+
 
 if __name__ == "__main__":
     from layer import Layer
     Nw, Na = 5, 5
     print sol(m.original.c.dQ).min(), 0.625/Nw/Na
 
+    # Liquid temperature
     f, a = plot_cells(m, sol(m.original.c.T_hot), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
     a.set_title("Liquid Temperature [K]")
     f.savefig("plots/T_liq.png")
 
+    # Air temperature
+    f, a = plot_cells(m, sol(m.original.c.T_cld), cm=cm.Blues, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
+    a.set_title("Air Temperature [K]")
+    f.savefig("plots/T_air.png")
+
+    # Heat transfer
     Q = sol(m.original.Q).magnitude
     f, a = plot_cells(m, sol(m.original.c.dQ), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
     a.set_title("Heat Transfer (%.2f Watts total)" % Q)

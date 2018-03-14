@@ -7,7 +7,6 @@ class RectangularPipe(Model):
     ---------
     mdot                  [kg/s]   mass flow rate
     w                     [m]      pipe width
-    dh                    [m]      hydraulic diameter
     T_in                  [K]      input temperature
     v_in                  [m/s]    input velocity
     v_out                 [m/s]    output velocity
@@ -31,8 +30,10 @@ class RectangularPipe(Model):
     -----------------------------
     dT                    [K]      Change in fluid temperature over segment
     dQ                    [W]      Magnitude of heat transfer over segment
+    T_avg                 [K]      Average temperature over segment
     v_avg                 [m/s]    Average fluid velocity over segment
     l                     [m]      Reference flow length
+    dh                    [m]      hydraulic diameter
     V_seg                 [m^3]    Segment volume
     A_seg                 [m^2]    Segment frontal area
     h_seg                 [m]      Segment height
@@ -45,7 +46,7 @@ class RectangularPipe(Model):
   
     Upper Unbounded
     ---------------
-    w, h, mdot, T_out (if increasingT), l, P0
+    w, mdot, T_out (if increasingT), l, P0
 
     Lower Unbounded
     ---------------
@@ -75,7 +76,8 @@ class RectangularPipe(Model):
         alpha = T[1:]/T[:-1]
 
         with SignomialsEnabled():
-            pressure = [v_in == v[0],
+            pressure = [T_avg**2 == T[1:]*T[:-1],
+                        v_in == v[0],
                         v_out == v[-1],
                         fr == Pf*(0.5*fluid.rho*v_in**2),  # force per frontal area
                         P0[0] <= P_in + 0.5*fluid.rho*v_in**2, # inlet total pressure
