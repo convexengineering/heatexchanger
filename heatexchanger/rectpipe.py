@@ -46,8 +46,6 @@ class RectangularPipe(Model):
     Re                    [-]      Reynolds number
     dP                    [Pa]     segment pressure drop
     Tr_int                [K]      wall-fluid interface temperature
-    D_seg                 [N]      segment drag
-
   
     Upper Unbounded
     ---------------
@@ -97,8 +95,6 @@ class RectangularPipe(Model):
                         eta_h <= 0.844,  # boundary to make sure fit is valid
                         # pressure drop fit
                         Pf_rat**0.155 >= 0.475*Re_rat[-1]**0.00121 + 0.0338*Re_rat[-1]**-0.336,
-
-
                         ]
 
         return [

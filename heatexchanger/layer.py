@@ -53,19 +53,19 @@ class Layer(Model):
             SP_Qsum = Q <= c.dQ.sum()
             for i in range(Nwaterpipes):
                 waterCf.extend([waterpipes.D[i] >= waterpipes.fr[i]*waterpipes.A_seg[i,0],
-                                waterpipes.fr[i] >= waterpipes.dP[i,:].sum()])
+                                waterpipes.fr[i] >= waterpipes.dP[i,:].sum(),
+                                waterpipes.dP_scale[0] == waterpipes.dP_scale[i]])
                 for j in range(Nairpipes):
                     waterCf.extend([waterpipes.l[i,j] <= sum(airpipes.w[0:j+1]),
                                     waterpipes.dP[i,j] >= waterpipes.dP_scale[i]*0.5*water.rho*waterpipes.v_avg[i,j]**2*waterpipes.Cf[i,j]*waterpipes.l_seg[i,j]/waterpipes.dh[i,j],
-                                    waterpipes.D_seg[i,j] == 0.5*water.rho*waterpipes.v_avg[i,j]**2*waterpipes.Cf[i,j]*waterpipes.w[i]*waterpipes.l_seg[i,j],
                                             ])
             for i in range(Nairpipes):
                 airCf.extend([airpipes.D[i] >= airpipes.fr[i]*airpipes.A_seg[i,0],
-                              airpipes.fr[i] >= airpipes.dP[i,:].sum()])
+                              airpipes.fr[i] >= airpipes.dP[i,:].sum(),
+                              airpipes.dP_scale[0] == airpipes.dP_scale[i]])
                 for j in range(Nwaterpipes):
                     airCf.extend([airpipes.l[i,j] <= sum(waterpipes.w[0:j+1]),
                                   airpipes.dP[i,j] >= airpipes.dP_scale[i]*0.5*air.rho*airpipes.v_avg[i,j]**2*airpipes.Cf[i,j]*airpipes.l_seg[i,j]/airpipes.dh[i,j],
-                                  airpipes.D_seg[i,j] == 0.5*air.rho*airpipes.v_avg[i,j]**2*airpipes.Cf[i,j]*airpipes.w[i]*airpipes.l_seg[i,j],
                                             ])
 
         geom = [V_tot >= sum(sum(waterpipes.V_seg)) + sum(sum(airpipes.V_seg))]
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     #     'Q'    :4*units('W')
     #     })
     penalties = (m.waterpipes.dP_scale.prod()*m.airpipes.dP_scale.prod()*m.waterpipes.dT.prod()*m.airpipes.dT.prod())**-1
-    m.cost = penalties*1*m.Q**-1*(1*m.waterpipes.D.sum()+ 1*m.airpipes.D.sum() + 1*m.waterpipes.D_seg.sum()+ 1*m.airpipes.D_seg.sum())
+    m.cost = penalties*1*m.Q**-1*(1*m.waterpipes.D.sum()+ 1*m.airpipes.D.sum())
     #m = Model(m.cost,Bounded(m))
     m = relaxed_constants(m)
     sol = m.localsolve(verbosity=4)

@@ -95,17 +95,15 @@ if __name__ == "__main__":
     a.set_title("Heat Transfer (%.2f Watts total)" % Q)
     f.savefig("plots/dQ.png")
 
-    # Water drag in each cell
-    waterD = sum(sum(sol(m.original.waterpipes.D_seg).magnitude))
-    f, a = plot_cells(m, sol(m.original.waterpipes.D_seg), cm=cm.Blues, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
-    a.set_title("Drag force due to each water cell (%.2f Watts total)" % waterD)
-    f.savefig("plots/waterD.png")
+    # Water velocity in each cell
+    f, a = plot_cells(m, sol(m.original.waterpipes.v_avg), cm=cm.Blues, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
+    a.set_title("Average velocity in water cell")
+    f.savefig("plots/waterV.png")
 
-    # Air drag in each cell
-    airD = sum(sum(sol(m.original.airpipes.D_seg).T.magnitude))
-    f, a = plot_cells(m, sol(m.original.airpipes.D_seg), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
-    a.set_title("Drag force due to each air cell (%.2f N total)" % airD)
-    f.savefig("plots/airD.png")
+    # Air velocity in each cell
+    f, a = plot_cells(m, sol(m.original.airpipes.v_avg).T, cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
+    a.set_title("Average velocity in air cell")
+    f.savefig("plots/airV.png")
 
     # Wall temperature
     f, a = plot_cells(m, sol(m.original.c.T_r), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
