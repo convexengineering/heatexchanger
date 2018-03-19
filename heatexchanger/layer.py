@@ -1,6 +1,6 @@
 from gpkit import Model, parse_variables, Vectorize, SignomialsEnabled, units
 from gpkit.constraints.bounded import Bounded
-from fluids import Air, Water
+from materials import Air, Water, StainlessSteel
 from hxarea import HXArea
 from rectpipe import RectangularPipe
 from relaxed_constants import relaxed_constants
@@ -9,10 +9,12 @@ import numpy as np
 
 class Layer(Model):
     """
+    Combines heat exchanger pipes into a 2D layer
+
     Variables
     ---------
     Q          [W]       heat transferred from air to liquid
-    V_tot    1 [cm^3]    total volume
+    V_tot      [cm^3]    total volume
 
     Lower Unbounded
     ---------------
@@ -50,17 +52,19 @@ class Layer(Model):
             #       it's already alllllmost GP, solving in 3-9 GP solves
             SP_Qsum = Q <= c.dQ.sum()
             for i in range(Nwaterpipes):
-                waterCf.extend([waterpipes.D[i] >= waterpipes.fr[i]*waterpipes.A_seg[i,0]])
+                waterCf.extend([waterpipes.D[i] >= waterpipes.fr[i]*waterpipes.A_seg[i,0],
+                                waterpipes.fr[i] >= waterpipes.dP[i,:].sum()])
                 for j in range(Nairpipes):
                     waterCf.extend([waterpipes.l[i,j] <= sum(airpipes.w[0:j+1]),
-                                    waterpipes.dP[i,j] >= 0.5*water.rho*waterpipes.v_avg[i,j]**2*waterpipes.Cf[i,j]*waterpipes.l_seg[i,j]/waterpipes.dh[i,j],
+                                    waterpipes.dP[i,j] >= waterpipes.dP_scale[i]*0.5*water.rho*waterpipes.v_avg[i,j]**2*waterpipes.Cf[i,j]*waterpipes.l_seg[i,j]/waterpipes.dh[i,j],
                                     waterpipes.D_seg[i,j] == 0.5*water.rho*waterpipes.v_avg[i,j]**2*waterpipes.Cf[i,j]*waterpipes.w[i]*waterpipes.l_seg[i,j],
                                             ])
             for i in range(Nairpipes):
-                airCf.extend([airpipes.D[i] >= airpipes.fr[i]*airpipes.A_seg[i,0]])
+                airCf.extend([airpipes.D[i] >= airpipes.fr[i]*airpipes.A_seg[i,0],
+                              airpipes.fr[i] >= airpipes.dP[i,:].sum()])
                 for j in range(Nwaterpipes):
                     airCf.extend([airpipes.l[i,j] <= sum(waterpipes.w[0:j+1]),
-                                  airpipes.dP[i,j] >= 0.5*air.rho*airpipes.v_avg[i,j]**2*airpipes.Cf[i,j]*airpipes.l_seg[i,j]/airpipes.dh[i,j],
+                                  airpipes.dP[i,j] >= airpipes.dP_scale[i]*0.5*air.rho*airpipes.v_avg[i,j]**2*airpipes.Cf[i,j]*airpipes.l_seg[i,j]/airpipes.dh[i,j],
                                   airpipes.D_seg[i,j] == 0.5*air.rho*airpipes.v_avg[i,j]**2*airpipes.Cf[i,j]*airpipes.w[i]*airpipes.l_seg[i,j],
                                             ])
 
@@ -68,21 +72,13 @@ class Layer(Model):
 
         # Arbitrary bounding for convergence.
         for i in range(Nwaterpipes):
-            continue
-            geom.extend([waterpipes.w[i] >= 0.1*units('cm'),
-                         waterpipes.h_seg[i,:] >= 0.1*units('cm'),
-                         ])
-        for j in range(Nairpipes):
-            continue
-            geom.extend([airpipes.w[j] >= 0.1*units('cm'),
-                         airpipes.h_seg[j,:] >= 0.1*units('cm'),
-                         ])
-        for i in range(Nwaterpipes):
             for j in range(Nairpipes):
                 geom.extend([c.x_cell[i,j] == waterpipes.w[i],
                              c.x_cell[i,j] == airpipes.l_seg[j,i],
                              c.y_cell[i,j] == airpipes.w[j],
                              c.y_cell[i,j] == waterpipes.l_seg[i,j],
+                             c.x_cell[i,j] >= 0.2*units('cm'),
+                             c.y_cell[i,j] >= 0.2*units('cm'),
                              ])
 
         # Linking pipes in c
@@ -97,6 +93,8 @@ class Layer(Model):
                         c.T_cld[i,j] == airpipes.T_avg[j,i],
                         c.T_hot[i,j] >= c.T_r[i,j],
                         c.T_r[i,j] >= c.T_cld[i,j],
+                        waterpipes.h_seg[i,j] >= 0.2*units('cm'),
+                        airpipes.h_seg[j,i] >= 0.2*units('cm'),
                     ])
 
         return [
@@ -112,12 +110,23 @@ class Layer(Model):
             #DRAG
             waterCf,
             airCf,
+
+            # HEAT EXCHANGE REQUIREMENT
+            Q >= 4*units('W'),
+
+            # TOTAL VOLUME REQUIREMENT
+            V_tot <= 1*units('cm^3'),
         ]
 
 
 if __name__ == "__main__":
     m = Layer(5, 5)
-    m.cost = 1/m.Q + 100*m.waterpipes.D.sum()*units('1/(N*W)')+ 1000*m.airpipes.D.sum()*units('1/(N*W)') + 1000*m.waterpipes.D_seg.sum()*units('1/(N*W)')+ 100*m.airpipes.D_seg.sum()*units('1/(N*W)')
+    # m.substitutions.update({
+    #     'V_tot':1*units('cm^3'),
+    #     'Q'    :4*units('W')
+    #     })
+    penalties = (m.waterpipes.dP_scale.prod()*m.airpipes.dP_scale.prod()*m.waterpipes.dT.prod()*m.airpipes.dT.prod())**-1
+    m.cost = penalties*1*m.Q**-1*(1*m.waterpipes.D.sum()+ 1*m.airpipes.D.sum() + 1*m.waterpipes.D_seg.sum()+ 1*m.airpipes.D_seg.sum())
     #m = Model(m.cost,Bounded(m))
     m = relaxed_constants(m)
     sol = m.localsolve(verbosity=4)

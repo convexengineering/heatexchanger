@@ -102,7 +102,7 @@ if __name__ == "__main__":
     f.savefig("plots/waterD.png")
 
     # Air drag in each cell
-    airD = sum(sum(sol(m.original.airpipes.D_seg).magnitude))
+    airD = sum(sum(sol(m.original.airpipes.D_seg).T.magnitude))
     f, a = plot_cells(m, sol(m.original.airpipes.D_seg), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
     a.set_title("Drag force due to each air cell (%.2f N total)" % airD)
     f.savefig("plots/airD.png")

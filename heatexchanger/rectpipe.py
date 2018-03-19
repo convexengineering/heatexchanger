@@ -3,6 +3,8 @@ from gpkit import Model, parse_variables, SignomialEquality, SignomialsEnabled, 
 
 class RectangularPipe(Model):
     """
+    Defines heat exchanger pipe elements, and the fluid-wall interactions
+
     Variables
     ---------
     mdot                  [kg/s]   mass flow rate
@@ -19,15 +21,17 @@ class RectangularPipe(Model):
     Pf_ref      21.66     [-]      reference pressure drop parameter
     Re_ref      90550     [-]      reference Reynolds number
     fr                    [Pa]     force per frontal area
+    dP_scale              [-]      friction scaling
     
     Variables of length Nsegments+1
-    -------------------------------sol
+    -------------------------------
     v                     [m/s]    fluid velocity
     T                     [K]      fluid temperature
     P0                    [Pa]     fluid total pressure
 
     Variables of length Nsegments
     -----------------------------
+    alpha                 [-]      Temperature ratio over segment
     dT                    [K]      Change in fluid temperature over segment
     dQ                    [W]      Magnitude of heat transfer over segment
     T_avg                 [K]      Average temperature over segment
@@ -40,9 +44,10 @@ class RectangularPipe(Model):
     l_seg                 [m]      Segment flow length
     Cf                    [-]      Coefficient of friction over segment 
     Re                    [-]      Reynolds number
-    D_seg                 [N]      segment drag
     dP                    [Pa]     segment pressure drop
     Tr_int                [K]      wall-fluid interface temperature
+    D_seg                 [N]      segment drag
+
   
     Upper Unbounded
     ---------------
@@ -53,6 +58,8 @@ class RectangularPipe(Model):
     dQ, T_out (if not increasingT), P0
 
     """
+
+
     def setup(self, Nsegments, fluid, increasingT):
         calc_p0in = lambda self, c: c[self.P_i] + 0.5*c[self.rho_i]*c[self.V_i]**2
 
@@ -84,6 +91,7 @@ class RectangularPipe(Model):
                         P0[-1] >= P_out + 0.5*fluid.rho*v_out**2, # exit total pressure 
                         P0[0] >= P0[-1] + 0.5*fluid.rho*v_out**2*Pf + 0.5*fluid.rho*v_in**2,
                         P0[:-1] >= P0[1:] + dP,
+                        dP <= fluid.rho*v[0:-1]*(v[0:-1] - v[1:]),
                         # effectiveness fit
                         eta_h/eta_h_ref == 0.799*Re_rat[-1]**-0.0296,
                         eta_h <= 0.844,  # boundary to make sure fit is valid
