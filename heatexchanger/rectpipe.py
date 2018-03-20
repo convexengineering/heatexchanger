@@ -32,22 +32,23 @@ class RectangularPipe(Model):
 
     Variables of length Nsegments
     -----------------------------
-    alpha                 [-]      Temperature ratio over segment
-    dT                    [K]      Change in fluid temperature over segment
-    dQ                    [W]      Magnitude of heat transfer over segment
-    T_avg                 [K]      Average temperature over segment
-    v_avg                 [m/s]    Average fluid velocity over segment
-    l                     [m]      Reference flow length
-    dh                    [m]      hydraulic diameter
-    V_seg                 [m^3]    Segment volume
-    A_seg                 [m^2]    Segment frontal area
-    h_seg                 [m]      Segment height
-    l_seg                 [m]      Segment flow length
-    Cf                    [-]      Coefficient of friction over segment 
-    Nu                    [-]      Nusselt number 
-    Re                    [-]      Reynolds number
-    dP                    [Pa]     segment pressure drop
-    Tr_int                [K]      wall-fluid interface temperature
+    alpha                 [-]       Temperature ratio over segment
+    dT                    [K]       Change in fluid temperature over segment
+    dQ                    [W]       Magnitude of heat transfer over segment
+    T_avg                 [K]       Average temperature over segment
+    v_avg                 [m/s]     Average fluid velocity over segment
+    l                     [m]       Reference flow length
+    dh                    [m]       hydraulic diameter
+    V_seg                 [m^3]     Segment volume
+    A_seg                 [m^2]     Segment frontal area
+    h_seg                 [m]       Segment height
+    l_seg                 [m]       Segment flow length
+    Cf                    [-]       Coefficient of friction over segment 
+    Nu                    [-]       Nusselt number 
+    Re                    [-]       Reynolds number
+    dP                    [Pa]      segment pressure drop
+    Tr_int                [K]       wall-fluid interface temperature
+    h                     [W/K/m^2] convective heat transfer coefficient
   
     Upper Unbounded
     ---------------
@@ -109,11 +110,12 @@ class RectangularPipe(Model):
                 dh*(w*h_seg)**0.5 == 2*A_seg] # hydraulic diameter with geometric mean approximation
 
         # Friction and heat transfer
-        friction = [dQ <= mdot*fluid.c*dT,
-                    Re == (fluid.rho*v_avg*l/fluid.mu),
+        friction = [dQ       <= mdot*fluid.c*dT,
+                    Re       == (fluid.rho*v_avg*l/fluid.mu),
                     Cf**5*Re == (0.059)**5,
-                    Pr == fluid.mu*fluid.c/fluid.k,
-                    Nu == 0.0296*Re**(4./5.)*Pr**(1./3.) # defining Nusselt number (fully turbulent)
+                    Pr       == fluid.mu*fluid.c/fluid.k,
+                    Nu       == 0.0296*Re**(4./5.)*Pr**(1./3.), # defining Nusselt number (fully turbulent)
+                    h*l        == Nu*fluid.k,
                     ]                
 
         return [fluid, temp, flow, geom, friction]

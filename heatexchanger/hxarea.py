@@ -5,7 +5,8 @@ class HXArea(Model):
     """
     Variables
     ---------
-    h_hx     10 [W/K/m^2]    coefficient of convection heat exchange
+    h_hot       [W/K/m^2]    convective heat transfer coefficient of liquid
+    h_cld      [W/K/m^2]    convective heat transfer coefficient of air
     T_hot       [K]          liquid temperature in cell
     T_cld       [K]          air temperature in cell
     T_r         [K]          wall temperature in cell
@@ -26,6 +27,7 @@ class HXArea(Model):
     def setup(self):
         exec parse_variables(HXArea.__doc__)
         with SignomialsEnabled():  # note that this turns into a posynomial
-            return [dQ <= (T_hot-T_cld)*h_hx*A_hx,
+            return [dQ <= (T_hot-T_r)*h_hot*A_hx,
+                    dQ <= (T_r-T_cld)*h_cld*A_hx,
                     A_hx == x_cell * y_cell]
 

@@ -87,14 +87,16 @@ class Layer(Model):
         for i in range(Nwaterpipes):
             for j in range(Nairpipes):
                 geom.extend([
-                        c.dQ[i,j] == waterpipes.dQ[i,j],
-                        c.dQ[i,j] == airpipes.dQ[j,i],
-                        c.T_r[i,j] == waterpipes.Tr_int[i,j],
-                        c.T_r[i,j] == airpipes.Tr_int[j,i],
+                        c.dQ[i,j]    == waterpipes.dQ[i,j],
+                        c.dQ[i,j]    == airpipes.dQ[j,i],
+                        c.T_r[i,j]   == waterpipes.Tr_int[i,j],
+                        c.T_r[i,j]   == airpipes.Tr_int[j,i],
                         c.T_hot[i,j] == waterpipes.T_avg[i,j],
                         c.T_cld[i,j] == airpipes.T_avg[j,i],
                         c.T_hot[i,j] >= c.T_r[i,j],
-                        c.T_r[i,j] >= c.T_cld[i,j],
+                        c.T_r[i,j]   >= c.T_cld[i,j],
+                        c.h_hot[i,j] == waterpipes.h[i,j],
+                        c.h_cld[i,j] == airpipes.h[j,i],
                         waterpipes.h_seg[i,j] >= 0.2*units('cm'),
                         airpipes.h_seg[j,i] >= 0.2*units('cm'),
                     ])
@@ -116,7 +118,7 @@ class Layer(Model):
             # HEAT EXCHANGE REQUIREMENT
 
             # TOTAL VOLUME REQUIREMENT
-            V_tot <= 1*units('cm^3'),
+            V_tot <= 2*units('cm^3'),
         ]
 
 
