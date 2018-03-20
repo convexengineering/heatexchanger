@@ -2,9 +2,10 @@ from matplotlib.pyplot import *
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 
+
 def nsf(num, n=1):
     """n-Significant Figures"""
-    numstr = ("{0:.%ie}" % (n-1)).format(num)
+    numstr = ("{0:.%ie}" % (n - 1)).format(num)
     return float(numstr)
 
 
@@ -12,27 +13,27 @@ def plot_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
     "Plots a given array for every heat-exchange cell"
     f, a = subplots(figsize=(12, 12))
     sol = m.solution
-    Nwaterpipes = m.original.Nwaterpipes
-    Nairpipes = m.original.Nairpipes
+    Nwaterpipes = m.Nwaterpipes
+    Nairpipes = m.Nairpipes
     Zmin, Zmax = Z.min(), Z.max()
     dpos = 0
     for i in range(Nwaterpipes):
         wpos = 0
         for j in range(Nairpipes):
-            wcell = sol(m.original.airpipes.w)[j].magnitude
-            dcell = sol(m.original.waterpipes.w)[i].magnitude
+            wcell = sol(m.airpipes.w)[j].magnitude
+            dcell = sol(m.waterpipes.w)[i].magnitude
             if not zscale:
-                z = ((Z[j, i] - Zmin)/(Zmax-Zmin)).magnitude
+                z = ((Z[j, i] - Zmin) / (Zmax - Zmin)).magnitude
             else:
-                z = (Z[j, i].magnitude - zoff)/zscale
+                z = (Z[j, i].magnitude - zoff) / zscale
             r = Rectangle((dpos, wpos), dcell, wcell, facecolor=cm(z))
             if verbosity:
-                labelx, labely = dpos, wpos + wcell/2
+                labelx, labely = dpos, wpos + wcell / 2
                 label = "%.3g" % Z[j, i].magnitude
                 if verbosity > 1:
                     label = "[%i,%i] : " % (i, j) + label
                 else:
-                    labelx += 0.4*dcell
+                    labelx += 0.4 * dcell
                 a.text(labelx, labely, label)
             wpos += wcell
             a.add_patch(r)
@@ -44,17 +45,18 @@ def plot_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
     a.set_ylabel("depth traveled by water [m]")
     return f, a
 
+
 def hist_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
     "Plots a given array for every heat-exchange cell"
     sol = m.solution
-    Nwaterpipes = m.original.Nwaterpipes
-    Nairpipes = m.original.Nairpipes
+    Nwaterpipes = m.Nwaterpipes
+    Nairpipes = m.Nairpipes
     Zmin, Zmax = Z.min(), Z.max()
     dpos = 0
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    #x = 
+    # x =
 
     # Construct arrays for the anchor positions of the 16 bars.
     # Note: np.meshgrid gives arrays in (ny, nx) so we use 'F' to flatten xpos,
@@ -64,7 +66,6 @@ def hist_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
     xpos = xpos.flatten('F')
     ypos = ypos.flatten('F')
     zpos = np.zeros_like(xpos)
-
 
     ylim([0, wpos])
     xlim([0, dpos])
@@ -77,39 +78,41 @@ def hist_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
 if __name__ == "__main__":
     from layer import Layer
     Nw, Na = 5, 5
-    print sol(m.original.c.dQ).min(), 0.625/Nw/Na
+    print sol(m.c.dQ).min(), 0.625 / Nw / Na
 
     # Liquid temperature
-    f, a = plot_cells(m, sol(m.original.c.T_hot), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
+    f, a = plot_cells(m, sol(m.c.T_hot), cm=cm.Reds,
+                      zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
     a.set_title("Liquid Temperature [K]")
     f.savefig("plots/T_liq.png")
 
     # Air temperature
-    f, a = plot_cells(m, sol(m.original.c.T_cld), cm=cm.Blues, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
+    f, a = plot_cells(m, sol(m.c.T_cld), cm=cm.Blues,
+                      zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
     a.set_title("Air Temperature [K]")
     f.savefig("plots/T_air.png")
 
     # Heat transfer
-    Q = sol(m.original.Q).magnitude
-    f, a = plot_cells(m, sol(m.original.c.dQ), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
+    Q = sol(m.Q).magnitude
+    f, a = plot_cells(m, sol(m.c.dQ), cm=cm.Reds,
+                      zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
     a.set_title("Heat Transfer (%.2f Watts total)" % Q)
     f.savefig("plots/dQ.png")
 
     # Water velocity in each cell
-    f, a = plot_cells(m, sol(m.original.waterpipes.v_avg), cm=cm.Blues, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
+    f, a = plot_cells(m, sol(m.waterpipes.v_avg), cm=cm.Blues,
+                      zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
     a.set_title("Average velocity in water cell")
     f.savefig("plots/waterV.png")
 
     # Air velocity in each cell
-    f, a = plot_cells(m, sol(m.original.airpipes.v_avg).T, cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
+    f, a = plot_cells(m, sol(m.airpipes.v_avg).T, cm=cm.Reds,
+                      zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
     a.set_title("Average velocity in air cell")
     f.savefig("plots/airV.png")
 
     # Wall temperature
-    f, a = plot_cells(m, sol(m.original.c.T_r), cm=cm.Reds, zscale=1/Nw/Na, zoff=0.625/Nw/Na, verbosity=2)
+    f, a = plot_cells(m, sol(m.c.T_r), cm=cm.Reds,
+                      zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
     a.set_title("Mean wall temperature (K)")
     f.savefig("plots/Tr.png")
-
-
-
-

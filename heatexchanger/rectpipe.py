@@ -63,7 +63,6 @@ class RectangularPipe(Model):
 
         exec parse_variables(RectangularPipe.__doc__)
         self.increasingT = increasingT
-        self.T_out = T[-1]
         if increasingT:
             with SignomialsEnabled():
                 temp = [T[1:] >= T[:-1] + dT,
@@ -87,7 +86,7 @@ class RectangularPipe(Model):
                         fr == Pf*(0.5*fluid.rho*v_in**2),  # force per frontal area
                         P0[0] <= P_in + 0.5*fluid.rho*v_in**2, # inlet total pressure
                         P0[-1] >= P_out + 0.5*fluid.rho*v_out**2, # exit total pressure 
-                        P0[0] >= P0[-1] + 0.5*fluid.rho*v_out**2*Pf + 0.5*fluid.rho*v_in**2,
+                        P0[0] >= P0[-1] + 0.5*fluid.rho*v_in**2*Pf,
                         P0[:-1] >= P0[1:] + dP,
                         dP <= fluid.rho*v[0:-1]*(v[0:-1] - v[1:]),
                         # effectiveness fit
@@ -100,7 +99,7 @@ class RectangularPipe(Model):
         return [
             fluid, temp, 
             pressure,
-            T[0] == T_in,
+            T[0] == T_in, 
             mdot == fluid.rho*v_avg*A_seg,
             A_seg == w*h_seg,
             V_seg == A_seg*l_seg,
