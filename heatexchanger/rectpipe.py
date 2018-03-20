@@ -20,6 +20,7 @@ class RectangularPipe(Model):
     Pf                    [-]      pressure drop parameter
     Pf_ref      21.66     [-]      reference pressure drop parameter
     Re_ref      90550     [-]      reference Reynolds number
+    Pr                    [-]      Prandtl number
     fr                    [Pa]     force per frontal area
     dP_scale              [-]      friction scaling
     
@@ -99,6 +100,7 @@ class RectangularPipe(Model):
         return [
             fluid, temp, 
             pressure,
+            Pr == fluid.mu*fluid.c/fluid.k,
             T[0] == T_in, 
             mdot == fluid.rho*v_avg*A_seg,
             A_seg == w*h_seg,
