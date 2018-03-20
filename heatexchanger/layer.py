@@ -131,5 +131,5 @@ if __name__ == "__main__":
     #m = Model(m.cost,Bounded(m))
     #m = relaxed_constants(m)
     sol = m.localsolve(verbosity=4)
-    post_process(sol)
+    #post_process(sol)
     print sol('Q')
