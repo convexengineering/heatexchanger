@@ -38,9 +38,11 @@ class Layer(Model):
                                          substitutions={"T_in": 500,
                                                         "v_in": 5})
             self.waterpipes = waterpipes
+
+        material = StainlessSteel()
         with Vectorize(Nwaterpipes):
             with Vectorize(Nairpipes):
-                c = self.c = HXArea()
+                c = self.c = HXArea(material)
 
         waterCf = []
         airCf = []
@@ -87,16 +89,14 @@ class Layer(Model):
         for i in range(Nwaterpipes):
             for j in range(Nairpipes):
                 geom.extend([
-                        c.dQ[i,j]    == waterpipes.dQ[i,j],
-                        c.dQ[i,j]    == airpipes.dQ[j,i],
-                        c.T_r[i,j]   == waterpipes.Tr_int[i,j],
-                        c.T_r[i,j]   == airpipes.Tr_int[j,i],
-                        c.T_hot[i,j] == waterpipes.T_avg[i,j],
-                        c.T_cld[i,j] == airpipes.T_avg[j,i],
-                        c.T_hot[i,j] >= c.T_r[i,j],
-                        c.T_r[i,j]   >= c.T_cld[i,j],
-                        c.h_hot[i,j] == waterpipes.h[i,j],
-                        c.h_cld[i,j] == airpipes.h[j,i],
+                        c.dQ[i,j]     == waterpipes.dQ[i,j],
+                        c.dQ[i,j]     == airpipes.dQ[j,i],
+                        c.Tr_hot[i,j] == waterpipes.Tr_int[i,j],
+                        c.Tr_cld[i,j] == airpipes.Tr_int[j,i],
+                        c.T_hot[i,j]  == waterpipes.T_avg[i,j],
+                        c.T_cld[i,j]  == airpipes.T_avg[j,i],
+                        c.h_hot[i,j]  == waterpipes.h[i,j],
+                        c.h_cld[i,j]  == airpipes.h[j,i],
                         waterpipes.h_seg[i,j] >= 0.2*units('cm'),
                         airpipes.h_seg[j,i] >= 0.2*units('cm'),
                     ])
