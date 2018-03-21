@@ -15,6 +15,8 @@ class Layer(Model):
     ---------
     Q          [W]       heat transferred from air to liquid
     V_tot      [cm^3]    total volume
+    V_mtrl     [cm^3]    volume of material
+    g  9.81    [m*s^-2]  gravitational acceleration
 
     Lower Unbounded
     ---------------
@@ -25,6 +27,7 @@ class Layer(Model):
         exec parse_variables(Layer.__doc__)
         self.Nairpipes = Nairpipes
         self.Nwaterpipes = Nwaterpipes
+        self.material = StainlessSteel()
 
         air = Air()
         with Vectorize(Nairpipes):
@@ -39,10 +42,9 @@ class Layer(Model):
                                                         "v_in": 5})
             self.waterpipes = waterpipes
 
-        material = StainlessSteel()
         with Vectorize(Nwaterpipes):
             with Vectorize(Nairpipes):
-                c = self.c = HXArea(material)
+                c = self.c = HXArea(self.material)
 
         waterCf = []
         airCf = []
@@ -72,7 +74,7 @@ class Layer(Model):
                                   airpipes.dP[i,j] >= airpipes.dP_scale[i]*0.5*air.rho*airpipes.v_avg[i,j]**2*airpipes.Cf[i,j]*airpipes.l_seg[i,j]/airpipes.dh[i,j],
                                             ])
 
-        geom = [V_tot >= sum(sum(waterpipes.V_seg)) + sum(sum(airpipes.V_seg))]
+        geom = [V_tot >= sum(sum(waterpipes.V_seg)) + sum(sum(airpipes.V_seg)) + V_mtrl]
 
         for i in range(Nwaterpipes):
             for j in range(Nairpipes):
@@ -97,6 +99,8 @@ class Layer(Model):
                         c.T_cld[i,j]  == airpipes.T_avg[j,i],
                         c.h_hot[i,j]  == waterpipes.h[i,j],
                         c.h_cld[i,j]  == airpipes.h[j,i],
+                        c.z_hot[i,j]  == waterpipes.h_seg[i,j],
+                        c.z_cld[i,j]  == airpipes.h_seg[j,i],
                         waterpipes.h_seg[i,j] >= 0.2*units('cm'),
                         airpipes.h_seg[j,i] >= 0.2*units('cm'),
                     ])
@@ -106,6 +110,7 @@ class Layer(Model):
             geom,
             waterpipes,
             airpipes,
+            self.material,
 
             # CONSERVATION OF HEAT
             SP_Qsum,
@@ -119,6 +124,10 @@ class Layer(Model):
 
             # TOTAL VOLUME REQUIREMENT
             V_tot <= 2*units('cm^3'),
+
+            # MATERIAL VOLUME
+            V_mtrl >= (c.z_hot*c.t_hot*c.x_cell).sum()+(c.z_cld*c.t_cld*c.y_cell).sum()+(c.x_cell*c.y_cell*c.t_plate).sum(),
+            V_mtrl <= 0.2*units('cm^3'),
         ]
 
 

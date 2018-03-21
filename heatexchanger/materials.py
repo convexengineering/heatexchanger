@@ -35,4 +35,4 @@ class StainlessSteel(Model):
     k       19         [W/(m*K)]   thermal conductivity of steel
     """
     def setup(self):
-        exec parse_variables(Water.__doc__)
+        exec parse_variables(StainlessSteel.__doc__)
