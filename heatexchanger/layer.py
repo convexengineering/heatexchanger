@@ -83,8 +83,8 @@ class Layer(Model):
                              c.y_cell[i,j] == airpipes.w[j],
                              c.y_cell[i,j] == waterpipes.l_seg[i,j],
                              # Arbitrary bounding for convergence.
-                             c.x_cell[i,j] >= 0.2*units('cm'),
-                             c.y_cell[i,j] >= 0.2*units('cm'),
+                             c.x_cell[i,j] >= 0.1*units('cm'),
+                             c.y_cell[i,j] >= 0.1*units('cm'),
                              ])
 
         # Linking pipes in c
@@ -101,8 +101,15 @@ class Layer(Model):
                         c.h_cld[i,j]  == airpipes.h[j,i],
                         c.z_hot[i,j]  == waterpipes.h_seg[i,j],
                         c.z_cld[i,j]  == airpipes.h_seg[j,i],
-                        waterpipes.h_seg[i,j] >= 0.2*units('cm'),
-                        airpipes.h_seg[j,i] >= 0.2*units('cm'),
+                        c.t_plate[i,j]   >= 0.01*units('cm'),
+                        c.t_hot[i,j]     >= 0.01*units('cm'),
+                        c.t_cld[i,j]     >= 0.01*units('cm'),
+                        c.t_hot[i,j]     >= 0.05/((i+1.)**3*(j+1.)**3.)**(1./3.)*units('cm'),
+                        c.t_cld[i,j]     >= 0.05/((i+1.)**3*(j+1.)**3.)**(1./3.)*units('cm'),
+                        waterpipes.h_seg[i,j] >= 0.1*units('cm'),
+                        waterpipes.h_seg[i,j] <= 0.5*units('cm'),
+                        airpipes.h_seg[j,i] >= 0.1*units('cm'),
+                        airpipes.h_seg[j,i] <= 0.5*units('cm'),
                     ])
 
         return [
@@ -127,12 +134,11 @@ class Layer(Model):
 
             # MATERIAL VOLUME
             V_mtrl >= (c.z_hot*c.t_hot*c.x_cell).sum()+(c.z_cld*c.t_cld*c.y_cell).sum()+(c.x_cell*c.y_cell*c.t_plate).sum(),
-            V_mtrl <= 0.2*units('cm^3'),
         ]
 
 
 if __name__ == "__main__":
-    m = Layer(5, 5)
+    m = Layer(5,5)
     # m.substitutions.update({
     #     'V_tot':1*units('cm^3'),
     #     'Q'    :4*units('W')
