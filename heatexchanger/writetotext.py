@@ -13,7 +13,7 @@ def genHXData(m,sol):
     x = [sum(sol(m.waterpipes.w)[0:i].magnitude) for i in range(nu+1)]
     y = [sum(sol(m.airpipes.w)[0:i].magnitude) for i in range(nw+1)]
     xy = np.array([(x[i],y[j]) for j in range(nw+1) for i in range(nu+1)])
-    xycent = np.array([[(x[i+1]+ x[i])/2,(y[i+1]+y[i])/2] for j in range (nw) for i in range(nu)])
+    xycent = np.array([[(x[i+1]+ x[i])/2,(y[j+1]+y[j])/2] for j in range (nw) for i in range(nu)])
     z = sol(m.c.z_hot) + sol(m.c.z_cld) + 2*sol(m.c.t_plate)
 
     f = open('hxOut.txt','w')
