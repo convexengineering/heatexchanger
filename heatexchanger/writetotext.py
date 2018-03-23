@@ -21,12 +21,12 @@ def genHXData(m,sol):
     f.write(str(nu) + ' ' + str(nv) + ' ' + str(nw) + ' ' + str(nParams))
     f.write('\n')
     for i in range(len(x)):
-        f.write(str(x[i]/max(x)))
+        f.write(str(x[i]/max(x)) + ' ')
     f.write('\n')
-    f.write('0 1')
+    f.write('0. 1.')
     f.write('\n')
     for i in range(len(y)):
-        f.write(str(y[i]/max(y)))
+        f.write(str(y[i]/max(y)) + ' ')
     f.write('\n\n')
 
     hxVals = [sol(m.c.t_plate).magnitude,

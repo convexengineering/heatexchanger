@@ -23,13 +23,14 @@ class HXArea(Model):
     A_hot       [m^2]        area of hot fin
     A_cld       [m^2]        area of cold fin
 
-    Upper Unbounded
-    ---------------
-    T_hot, T_r
 
-    Lower Unbounded
-    ---------------
-    dQ, T_cld, T_r
+     Upper Unbounded
+     ---------------
+     T_hot, x_cell, y_cell, t_hot, t_cld
+
+     Lower Unbounded
+     ---------------
+     dQ, T_cld
 
     """
 
@@ -48,4 +49,3 @@ class HXArea(Model):
                     T_r       >= Tr_cld + 0.5*dQ*t_plate/(material.k*A_cld), # + 0.01*(dQ*z_cld/(material.k*t_cld*x_cell)), #TODO: Refine
                     Tr_cld    >= T_cld,
                     ]
-
