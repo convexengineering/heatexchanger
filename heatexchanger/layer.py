@@ -18,10 +18,6 @@ class Layer(Model):
     V_mtrl     [cm^3]    volume of material
     g  9.81    [m*s^-2]  gravitational acceleration
 
-    Lower Unbounded
-    ---------------
-    Q
-
     """
     def setup(self, Nairpipes, Nwaterpipes):
         exec parse_variables(Layer.__doc__)

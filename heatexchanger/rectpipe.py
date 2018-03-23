@@ -23,7 +23,7 @@ class RectangularPipe(Model):
     Pr                    [-]      Prandtl number
     fr                    [Pa]     force per frontal area
     dP_scale              [-]      friction scaling
-    
+
     Variables of length Nsegments+1
     -------------------------------
     v                     [m/s]    fluid velocity
@@ -43,20 +43,12 @@ class RectangularPipe(Model):
     A_seg                 [m^2]     Segment frontal area
     h_seg                 [m]       Segment height
     l_seg                 [m]       Segment flow length
-    Cf                    [-]       Coefficient of friction over segment 
-    Nu                    [-]       Nusselt number 
+    Cf                    [-]       Coefficient of friction over segment
+    Nu                    [-]       Nusselt number
     Re                    [-]       Reynolds number
     dP                    [Pa]      segment pressure drop
     Tr_int                [K]       wall-fluid interface temperature
     h                     [W/K/m^2] convective heat transfer coefficient
-  
-    Upper Unbounded
-    ---------------
-    w, mdot, T_out (if increasingT), l, P0
-
-    Lower Unbounded
-    ---------------
-    dQ, T_out (if not increasingT), P0
 
     """
 
@@ -71,7 +63,7 @@ class RectangularPipe(Model):
                 T[0] == T_in]
 
         if increasingT:
-            temp.extend([T[1:] >= T[:-1] + dT,  
+            temp.extend([T[1:] >= T[:-1] + dT,
                 dT*eta_h**-1 + T[0:-1] <= Tr_int, # effectiveness definition
                 Tr_int >= T[1:]])
         else:
@@ -91,7 +83,7 @@ class RectangularPipe(Model):
                     v_avg**2 == v[0:-1]*v[1:],
                     fr == Pf*(0.5*fluid.rho*v_in**2),  # force per frontal area
                     P0[0] <= P_in + 0.5*fluid.rho*v_in**2, # inlet total pressure # signomial
-                    P0[-1] >= P_out + 0.5*fluid.rho*v_out**2, # exit total pressure 
+                    P0[-1] >= P_out + 0.5*fluid.rho*v_out**2, # exit total pressure
                     P0[0] >= P0[-1] + 0.5*fluid.rho*v_in**2*Pf,
                     P0[:-1] >= P0[1:] + dP,
                     dP <= fluid.rho*v[0:-1]*(v[0:-1] - v[1:]),
@@ -116,6 +108,6 @@ class RectangularPipe(Model):
                     Pr       == fluid.mu*fluid.c/fluid.k,
                     Nu       == 0.0296*Re**(4./5.)*Pr**(1./3.), # defining Nusselt number (fully turbulent)
                     h*l        == Nu*fluid.k,
-                    ]                
+                    ]
 
         return [fluid, temp, flow, geom, friction]

@@ -23,14 +23,6 @@ class HXArea(Model):
     A_hot       [m^2]        area of hot fin
     A_cld       [m^2]        area of cold fin
 
-    Upper Unbounded
-    ---------------
-    T_hot, T_r
-
-    Lower Unbounded
-    ---------------
-    dQ, T_cld, T_r
-
     """
 
 
@@ -51,4 +43,3 @@ class HXArea(Model):
                     t_hot     >= 0.01*units('cm'),
                     t_cld     >= 0.01*units('cm'),
                     ]
-
