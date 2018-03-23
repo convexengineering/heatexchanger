@@ -23,6 +23,15 @@ class HXArea(Model):
     A_hot       [m^2]        area of hot fin
     A_cld       [m^2]        area of cold fin
 
+
+     Upper Unbounded
+     ---------------
+     T_hot, x_cell, y_cell, t_hot, t_cld
+
+     Lower Unbounded
+     ---------------
+     dQ, T_cld
+
     """
 
 

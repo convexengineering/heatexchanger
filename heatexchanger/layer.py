@@ -13,10 +13,19 @@ class Layer(Model):
 
     Variables
     ---------
-    Q          [W]       heat transferred from air to liquid
-    V_tot      [cm^3]    total volume
-    V_mtrl     [cm^3]    volume of material
-    g  9.81    [m*s^-2]  gravitational acceleration
+    Q               [W]       heat transferred from air to liquid
+    V_tot           [cm^3]    total volume
+    V_mtrl          [cm^3]    volume of material
+    g          9.81 [m*s^-2]  gravitational acceleration
+
+
+    Upper Unbounded
+    ---------------
+    airpipes.D, waterpipes.D
+
+    Lower Unbounded
+    ---------------
+    Q, airpipes.dP_scale, waterpipes.dP_scale
 
     """
     def setup(self, Nairpipes, Nwaterpipes):
