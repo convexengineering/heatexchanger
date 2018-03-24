@@ -31,9 +31,9 @@ class Layer(Model):
 
     """
     def setup(self, Nairpipes, Nwaterpipes):
+        exec parse_variables(Layer.__doc__)
         self.Nairpipes = Nairpipes
         self.Nwaterpipes = Nwaterpipes
-        exec parse_variables(Layer.__doc__)
         self.material = StainlessSteel()
 
         air = Air()
@@ -65,18 +65,20 @@ class Layer(Model):
             for i in range(Nwaterpipes):
                 waterCf.extend([waterpipes.D[i] >= waterpipes.fr[i]*waterpipes.A_seg[i,0],
                                 waterpipes.fr[i] >= waterpipes.dP[i,:].sum(),
+                                #waterpipes.dP_scale[0] == waterpipes.dP_scale[i]
                                 ])
                 for j in range(Nairpipes):
                     waterCf.extend([waterpipes.l[i,j] <= sum(airpipes.w[0:j+1]),
-                                    waterpipes.dP[i,j] == 0.5*water.rho*waterpipes.v_avg[i,j]**2*waterpipes.Cf[i,j]*waterpipes.l_seg[i,j]/waterpipes.dh[i,j],
+                                    # waterpipes.dP[i,j] >= 0.5*water.rho*waterpipes.v_avg[i,j]**2*waterpipes.Cf[i,j]*waterpipes.l_seg[i,j]/waterpipes.dh[i,j],
                                             ])
             for i in range(Nairpipes):
                 airCf.extend([airpipes.D[i] >= airpipes.fr[i]*airpipes.A_seg[i,0],
                               airpipes.fr[i] >= airpipes.dP[i,:].sum(),
+                              #airpipes.dP_scale[0] == airpipes.dP_scale[i]
                               ])
                 for j in range(Nwaterpipes):
                     airCf.extend([airpipes.l[i,j] <= sum(waterpipes.w[0:j+1]),
-                                  airpipes.dP[i,j] == 0.5*air.rho*airpipes.v_avg[i,j]**2*airpipes.Cf[i,j]*airpipes.l_seg[i,j]/airpipes.dh[i,j],
+                                  # airpipes.dP[i,j] >= 0.5*air.rho*airpipes.v_avg[i,j]**2*airpipes.Cf[i,j]*airpipes.l_seg[i,j]/airpipes.dh[i,j],
                                             ])
 
         geom = [V_tot >= sum(sum(waterpipes.V_seg)) + sum(sum(airpipes.V_seg)) + V_mtrl]
@@ -150,22 +152,21 @@ if __name__ == "__main__":
     #     'V_tot':1*units('cm^3'),
     #     'Q'    :4*units('W')
     #     })
+    # penalties = (m.waterpipes.dP_scale.prod()*m.airpipes.dP_scale.prod())**-1
     m.cost = (m.D_air+m.D_wat)/m.Q
     #m = Model(m.cost,Bounded(m))
     #m = relaxed_constants(m)
     sol = m.localsolve(verbosity=0)
     #post_process(sol)
     print sol('Q')
+    print sol('eta_h')
+    print "airdP", sol(m.airpipes.dP)
+    print "waterdP", sol(m.waterpipes.dP)
     # print sol(m.c.dQ)
     # print sol(m.airpipes.dQ)
     # print sol(m.airpipes.mdot*m.airpipes.fluid.c*m.airpipes.dT)
-    print
-    print sol(m.waterpipes.dQ)
-    print
-    print sol(m.waterpipes.mdot*m.waterpipes.fluid.c*m.waterpipes.dT)
-    print
-    print sol(m.waterpipes.mdot)
-    print
-    print sol(m.waterpipes.dT)
-    print
-    print sol(m.waterpipes.fluid.c)
+    # print sol(m.waterpipes.dQ)
+    # print sol(m.waterpipes.mdot*m.waterpipes.fluid.c*m.waterpipes.dT)
+    # print sol(m.waterpipes.mdot)
+    # print sol(m.waterpipes.dT)
+    # print sol(m.waterpipes.fluid.c)

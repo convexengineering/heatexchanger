@@ -41,7 +41,6 @@ class RectangularPipe(Model):
     A_seg                 [m^2]     Segment frontal area
     h_seg                 [m]       Segment height
     l_seg                 [m]       Segment flow length
-    Cf                    [-]       Coefficient of friction over segment
     Nu                    [-]       Nusselt number
     Re                    [-]       Reynolds number
     dP                    [Pa]      segment pressure drop
@@ -55,7 +54,7 @@ class RectangularPipe(Model):
 
     Lower Unbounded
     ---------------
-    D, dh, h_seg, h, l_seg, w, v_out, V_seg, dP
+    D, dh, h_seg, h, l_seg, w, v_out, V_seg
     Nu_notlast, dQ, Tr_int (if not increasingT)
 
     """
@@ -97,6 +96,7 @@ class RectangularPipe(Model):
                     P0[0] >= P0[-1] + 0.5*fluid.rho*v_in**2*Pf,
                     P0[:-1] >= P0[1:] + dP,
                     dP <= fluid.rho*v[0:-1]*(v[0:-1] - v[1:]),
+                    dP*Nsegments == 0.5*fluid.rho*v_in**2*Pf,
 
                     # effectiveness fit
                     eta_h/eta_h_ref == 0.799*Re_rat[-1]**-0.0296,
@@ -114,7 +114,7 @@ class RectangularPipe(Model):
         # Friction and heat transfer
         friction = [dQ       <= mdot*fluid.c*dT,
                     Re       == (fluid.rho*v_avg*l/fluid.mu),
-                    Cf**5*Re == (0.059)**5,
+                    # Cf**5*Re == (0.059)**5,
                     Pr       == fluid.mu*fluid.c/fluid.k,
                     Nu       == 0.0296*Re**(4./5.)*Pr**(1./3.), # defining Nusselt number (fully turbulent)
                     h*l      == Nu*fluid.k,
