@@ -64,22 +64,14 @@ class Layer(Model):
             SP_Qsum = Q <= c.dQ.sum()
             for i in range(Nwaterpipes):
                 waterCf.extend([waterpipes.D[i] >= waterpipes.fr[i]*waterpipes.A_seg[i,0],
-                                waterpipes.fr[i] >= waterpipes.dP[i,:].sum(),
-                                #waterpipes.dP_scale[0] == waterpipes.dP_scale[i]
                                 ])
                 for j in range(Nairpipes):
-                    waterCf.extend([waterpipes.l[i,j] <= sum(airpipes.w[0:j+1]),
-                                    # waterpipes.dP[i,j] >= 0.5*water.rho*waterpipes.v_avg[i,j]**2*waterpipes.Cf[i,j]*waterpipes.l_seg[i,j]/waterpipes.dh[i,j],
-                                            ])
+                    waterCf.extend([waterpipes.l[i,j] == float(j+1)*(np.product(airpipes.w[0:j+1]))**(1/float(j+1))])
             for i in range(Nairpipes):
                 airCf.extend([airpipes.D[i] >= airpipes.fr[i]*airpipes.A_seg[i,0],
-                              airpipes.fr[i] >= airpipes.dP[i,:].sum(),
-                              #airpipes.dP_scale[0] == airpipes.dP_scale[i]
                               ])
                 for j in range(Nwaterpipes):
-                    airCf.extend([airpipes.l[i,j] <= sum(waterpipes.w[0:j+1]),
-                                  # airpipes.dP[i,j] >= 0.5*air.rho*airpipes.v_avg[i,j]**2*airpipes.Cf[i,j]*airpipes.l_seg[i,j]/airpipes.dh[i,j],
-                                            ])
+                    airCf.extend([airpipes.l[i,j] == float(j+1)*(np.product(waterpipes.w[0:j+1]))**(1/float(j+1))])
 
         geom = [V_tot >= sum(sum(waterpipes.V_seg)) + sum(sum(airpipes.V_seg)) + V_mtrl]
 
@@ -90,8 +82,8 @@ class Layer(Model):
                              c.y_cell[i,j] == airpipes.w[j],
                              c.y_cell[i,j] == waterpipes.l_seg[i,j],
                              # Arbitrary bounding for convergence.
-                             c.x_cell[i,j] >= 0.1*units('cm'),
-                             c.y_cell[i,j] >= 0.1*units('cm'),
+                             c.x_cell[i,j] >= 0.2*units('cm'),
+                             c.y_cell[i,j] >= 0.2*units('cm'),
                              ])
 
         # Linking pipes in c
@@ -108,14 +100,14 @@ class Layer(Model):
                         c.h_cld[i,j]  == airpipes.h[j,i],
                         c.z_hot[i,j]  == waterpipes.h_seg[i,j],
                         c.z_cld[i,j]  == airpipes.h_seg[j,i],
-                        c.t_plate[i,j]   >= 0.01*units('cm'),
-                        c.t_hot[i,j]     >= 0.01*units('cm'),
-                        c.t_cld[i,j]     >= 0.01*units('cm'),
+                        c.t_plate[i,j]   >= 0.03*units('cm'),
+                        c.t_hot[i,j]     >= 0.03*units('cm'),
+                        c.t_cld[i,j]     >= 0.03*units('cm'),
                         c.t_hot[i,j]     >= 0.05/((i+1.)**3*(j+1.)**3.)**(1./3.)*units('cm'),
                         c.t_cld[i,j]     >= 0.05/((i+1.)**3*(j+1.)**3.)**(1./3.)*units('cm'),
-                        waterpipes.h_seg[i,j] >= 0.1*units('cm'),
+                        waterpipes.h_seg[i,j] >= 0.2*units('cm'),
                         waterpipes.h_seg[i,j] <= 0.5*units('cm'),
-                        airpipes.h_seg[j,i] >= 0.1*units('cm'),
+                        airpipes.h_seg[j,i] >= 0.2*units('cm'),
                         airpipes.h_seg[j,i] <= 0.5*units('cm'),
                     ])
 
