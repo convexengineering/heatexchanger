@@ -76,21 +76,7 @@ def hist_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
 
 
 if __name__ == "__main__":
-    from layer import Layer
     Nw, Na = 5, 5
-    m = Layer(Nw, Na)
-    # m.substitutions.update({
-    #     'V_tot':1*units('cm^3'),
-    #     'Q'    :4*units('W')
-    #     })
-    penalties = (m.waterpipes.dP_scale.prod()*m.airpipes.dP_scale.prod()*m.waterpipes.dT.prod()*m.airpipes.dT.prod())**-1
-    m.cost = penalties*1*m.Q**-1*(1*m.waterpipes.D.sum()+ 1*m.airpipes.D.sum())
-    #m = Model(m.cost,Bounded(m))
-    #m = relaxed_constants(m)
-    sol = m.localsolve(verbosity=4)
-    #post_process(sol)
-    print sol('Q')
-
     # Liquid temperature
     f, a = plot_cells(m, sol(m.c.T_hot), cm=cm.Reds,
                       zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)

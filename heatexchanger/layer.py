@@ -19,7 +19,10 @@ class Layer(Model):
     V_tot           [cm^3]    total volume
     V_mtrl          [cm^3]    volume of material
     g          9.81 [m*s^-2]  gravitational acceleration
-
+    x_dim      5    [cm]      max hot length
+    y_dim      10    [cm]      max cold length
+    z_dim      1    [cm]      max height
+    maxAR      8    [-]       max aspect ratio of tiles
 
     Upper Unbounded
     ---------------
@@ -31,90 +34,67 @@ class Layer(Model):
 
     """
     def setup(self, Nairpipes, Nwaterpipes):
-        self.Nairpipes = Nairpipes
         self.Nwaterpipes = Nwaterpipes
+        self.Nairpipes = Nairpipes
         exec parse_variables(Layer.__doc__)
+
         self.material = StainlessSteel()
 
-        air = Air()
+        air = self.air = Air()
         with Vectorize(Nairpipes):
             airpipes = RectangularPipe(Nwaterpipes, air, increasingT=True,
                                        substitutions={"T_in": 303,
                                                       "v_in": 20})
             self.airpipes = airpipes
-        water = Water()
+        water = self.water = Water()
         with Vectorize(Nwaterpipes):
             waterpipes = RectangularPipe(Nairpipes, water, increasingT=False,
                                          substitutions={"T_in": 500,
-                                                        "v_in": 5})
+                                                        "v_in": 1})
             self.waterpipes = waterpipes
 
         with Vectorize(Nwaterpipes):
             with Vectorize(Nairpipes):
                 c = self.c = HXArea(self.material)
 
-        waterCf = []
-        airCf = []
+        waterCf = [waterpipes.D[i] >= waterpipes.fr[i]*waterpipes.A_seg[i, 0]
+                   for i in range(Nwaterpipes)]
+        airCf = [airpipes.D[i] >= airpipes.fr[i]*airpipes.A_seg[i, 0]
+                 for i in range(Nairpipes)]
 
         with SignomialsEnabled():
-            # NOTE: unfortunately this appears unavoidable.
-            #       perhaps an entropy-based approach could get around it?
-            #       as the mass flows in each pipe become quite similar,
-            #       it's already alllllmost GP, solving in 3-9 GP solves
-            SP_Qsum = Q <= c.dQ.sum()
-            for i in range(Nwaterpipes):
-                waterCf.extend([waterpipes.D[i] >= waterpipes.fr[i]*waterpipes.A_seg[i,0],
-                                waterpipes.fr[i] >= waterpipes.dP[i,:].sum(),
-                                ])
-                for j in range(Nairpipes):
-                    waterCf.extend([waterpipes.l[i,j] <= sum(airpipes.w[0:j+1]),
-                                    waterpipes.dP[i,j] == 0.5*water.rho*waterpipes.v_avg[i,j]**2*waterpipes.Cf[i,j]*waterpipes.l_seg[i,j]/waterpipes.dh[i,j],
-                                            ])
-            for i in range(Nairpipes):
-                airCf.extend([airpipes.D[i] >= airpipes.fr[i]*airpipes.A_seg[i,0],
-                              airpipes.fr[i] >= airpipes.dP[i,:].sum(),
-                              ])
-                for j in range(Nwaterpipes):
-                    airCf.extend([airpipes.l[i,j] <= sum(waterpipes.w[0:j+1]),
-                                  airpipes.dP[i,j] == 0.5*air.rho*airpipes.v_avg[i,j]**2*airpipes.Cf[i,j]*airpipes.l_seg[i,j]/airpipes.dh[i,j],
-                                            ])
+            SP_Qsum = [Q <= c.dQ.sum()]
 
-        geom = [V_tot >= sum(sum(waterpipes.V_seg)) + sum(sum(airpipes.V_seg)) + V_mtrl]
+        geom = [
+            V_tot >= waterpipes.V_seg.sum() + airpipes.V_seg.sum() + V_mtrl,
+            maxAR >= c.x_cell/c.y_cell,
+            maxAR >= c.y_cell/c.x_cell,
+            c.dQ     == waterpipes.dQ,
+            c.dQ     == airpipes.dQ.T,
+            c.Tr_hot == waterpipes.Tr_int,
+            c.Tr_cld == airpipes.Tr_int.T,
+            c.T_hot  == waterpipes.T_avg,
+            c.T_cld  == airpipes.T_avg.T,
+            c.h_hot  == waterpipes.h,
+            c.h_cld  == airpipes.h.T,
+            c.z_hot  == waterpipes.h_seg,
+            c.z_cld  == airpipes.h_seg.T,
+            x_dim >= waterpipes.w.sum(),
+            y_dim >= airpipes.w.sum()
+        ]
 
         for i in range(Nwaterpipes):
             for j in range(Nairpipes):
-                geom.extend([c.x_cell[i,j] == waterpipes.w[i],
-                             c.x_cell[i,j] == airpipes.l_seg[j,i],
-                             c.y_cell[i,j] == airpipes.w[j],
-                             c.y_cell[i,j] == waterpipes.l_seg[i,j],
-                             # Arbitrary bounding for convergence.
-                             c.x_cell[i,j] >= 0.1*units('cm'),
-                             c.y_cell[i,j] >= 0.1*units('cm'),
-                             ])
+                waterCf.extend([waterpipes.l[i,j] == (j+1)*airpipes.w[0:j+1].prod()**(1./(j+1))])
+                airCf.extend([airpipes.l[j,i] == (i+1)*waterpipes.w[0:i+1].prod()**(1./(i+1))])
 
-        # Linking pipes in c
-        for i in range(Nwaterpipes):
-            for j in range(Nairpipes):
                 geom.extend([
-                        c.dQ[i,j]     == waterpipes.dQ[i,j],
-                        c.dQ[i,j]     == airpipes.dQ[j,i],
-                        c.Tr_hot[i,j] == waterpipes.Tr_int[i,j],
-                        c.Tr_cld[i,j] == airpipes.Tr_int[j,i],
-                        c.T_hot[i,j]  == waterpipes.T_avg[i,j],
-                        c.T_cld[i,j]  == airpipes.T_avg[j,i],
-                        c.h_hot[i,j]  == waterpipes.h[i,j],
-                        c.h_cld[i,j]  == airpipes.h[j,i],
-                        c.z_hot[i,j]  == waterpipes.h_seg[i,j],
-                        c.z_cld[i,j]  == airpipes.h_seg[j,i],
-                        c.t_plate[i,j]   >= 0.01*units('cm'),
-                        c.t_hot[i,j]     >= 0.01*units('cm'),
-                        c.t_cld[i,j]     >= 0.01*units('cm'),
-                        c.t_hot[i,j]     >= 0.05/((i+1.)**3*(j+1.)**3.)**(1./3.)*units('cm'),
-                        c.t_cld[i,j]     >= 0.05/((i+1.)**3*(j+1.)**3.)**(1./3.)*units('cm'),
-                        waterpipes.h_seg[i,j] >= 0.1*units('cm'),
-                        waterpipes.h_seg[i,j] <= 0.5*units('cm'),
-                        airpipes.h_seg[j,i] >= 0.1*units('cm'),
-                        airpipes.h_seg[j,i] <= 0.5*units('cm'),
+                        c.x_cell[i,j] == waterpipes.w[i],
+                        c.x_cell[i,j] == airpipes.l_seg[j,i],
+                        c.y_cell[i,j] == airpipes.w[j],
+                        c.y_cell[i,j] == waterpipes.l_seg[i,j],
+                        c.t_hot[i,j]  >= 0.05/((i+1.)**3*(j+1.)**3.)**(1./3.)*units('cm'),
+                        c.t_cld[i,j]  >= 0.05/((i+1.)**3*(j+1.)**3.)**(1./3.)*units('cm'),
                     ])
 
         return [
@@ -135,9 +115,10 @@ class Layer(Model):
             airCf,
 
             # HEAT EXCHANGE REQUIREMENT
+            #waterpipes.T[:,-1] <= 400*units('K'),
 
             # TOTAL VOLUME REQUIREMENT
-            V_tot <= 2*units('cm^3'),
+            V_tot <= 100*units('cm^3'),
 
             # MATERIAL VOLUME
             V_mtrl >= (c.z_hot*c.t_hot*c.x_cell).sum()+(c.z_cld*c.t_cld*c.y_cell).sum()+(c.x_cell*c.y_cell*c.t_plate).sum(),
@@ -145,27 +126,9 @@ class Layer(Model):
 
 
 if __name__ == "__main__":
-    m = Layer(5,5)
-    # m.substitutions.update({
-    #     'V_tot':1*units('cm^3'),
-    #     'Q'    :4*units('W')
-    #     })
+    m = Layer(5, 5)
     m.cost = (m.D_air+m.D_wat)/m.Q
-    #m = Model(m.cost,Bounded(m))
-    #m = relaxed_constants(m)
-    sol = m.localsolve(verbosity=0)
-    #post_process(sol)
-    print sol('Q')
-    # print sol(m.c.dQ)
-    # print sol(m.airpipes.dQ)
-    # print sol(m.airpipes.mdot*m.airpipes.fluid.c*m.airpipes.dT)
-    print
-    print sol(m.waterpipes.dQ)
-    print
-    print sol(m.waterpipes.mdot*m.waterpipes.fluid.c*m.waterpipes.dT)
-    print
-    print sol(m.waterpipes.mdot)
-    print
-    print sol(m.waterpipes.dT)
-    print
-    print sol(m.waterpipes.fluid.c)
+    sol = m.localsolve(verbosity=1)
+    with open("sol.txt", "w") as f:
+        f.write(sol.table())
+    print sol("Q")
