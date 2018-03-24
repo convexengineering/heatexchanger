@@ -1,0 +1,174 @@
+
+Cost
+----
+ 8.685e-05 [N/W] 
+
+Free Variables
+--------------
+        | Layer
+  D_air : 0.003868                                        [N]        total air drag
+  D_wat : 0.006854                                        [N]        total water drag
+      Q : 123.4                                           [W]        heat transferred from air to liquid
+ V_mtrl : 50.31                                           [cm**3]    volume of material
+  V_tot : 100                                             [cm**3]    total volume
+
+        | Layer/HXArea
+  A_cld : [ 2.07e-05  5.68e-05  5.95e-05  6.31e-05 ... ]  [m**2]     area of cold fin
+  A_hot : [ 2.22e-05  0.000222  0.000226  0.000227 ... ]  [m**2]     area of hot fin
+  T_cld : [ 305       313       323       333      ... ]  [K]        air temperature in cell
+  T_hot : [ 500       500       500       500      ... ]  [K]        liquid temperature in cell
+    T_r : [ 495       498       498       498      ... ]  [K]        wall internal temperature in cell
+ Tr_cld : [ 495       498       498       498      ... ]  [K]        cold fluid-wall interface temperature
+ Tr_hot : [ 496       498       498       498      ... ]  [K]        hot fluid-wall interface temperature
+     dQ : [ 0.667     1.68      1.53      1.4      ... ]  [W]        heat transferred from liquid to air by cell
+  h_cld : [ 170       159       148       134      ... ]  [W/K/m**2] convective heat transfer coefficient of air
+  h_hot : [ 6.93e+03  5.04e+03  4.37e+03  4e+03    ... ]  [W/K/m**2] convective heat transfer coefficient of liquid
+  t_cld : [ 0.00809   0.00803   0.0078    0.00753  ... ]  [m]        fin thickness in gas
+  t_hot : [ 0.00809   0.00803   0.0078    0.00753  ... ]  [m]        fin thickness in liquid
+t_plate : [ 0.0003    0.0003    0.0003    0.0003   ... ]  [m]        thickness of separating plate
+ x_cell : [ 0.00285   0.00285   0.00285   0.00285  ... ]  [m]        x-width of cell
+ y_cell : [ 0.00328   0.0228    0.0228    0.0228   ... ]  [m]        y-width of cell
+  z_cld : [ 0.002     0.00217   0.00239   0.00268  ... ]  [m]        z_height of cold cell
+  z_hot : [ 0.002     0.00414   0.00428   0.00434  ... ]  [m]        z-height of hot cell
+
+        | Layer/RectangularPipe
+  A_seg : [ 6.56e-06  9.4e-05   9.69e-05  9.81e-05 ... ]  [m**2]     Segment frontal area
+      D : [ 0.00113   0.000663  0.000636  0.000669 ... ]  [N]        total drag
+     Nu : [ 18.5      66.1      105       138      ... ]             Nusselt number
+     P0 : [ 1.01e+05  1.01e+05  1.01e+05  1.01e+05 ... ]  [Pa]       fluid total pressure
+     Pf : [ 0.717     0.388     0.339     0.317    ... ]             pressure drop parameter
+     Pr : [ 0.691     0.691     0.691     0.691    ... ]             Prandtl number
+     Re : [ 3.64e+03  1.79e+04  3.21e+04  4.49e+04 ... ]             Reynolds number
+      T : [ 303       303       303       303      ... ]  [K]        fluid temperature
+  T_avg : [ 305       304       304       303      ... ]  [K]        Average temperature over segment
+ Tr_int : [ 495       488       490       491      ... ]  [K]        wall-fluid interface temperature
+  V_seg : [ 1.87e-08  1.56e-06  1.13e-06  9.72e-07 ... ]  [m**3]     Segment volume
+     dP : [ 34.4      18.6      16.3      15.2     ... ]  [Pa]       segment pressure drop
+     dQ : [ 0.667     4         2.59      2.07     ... ]  [W]        Magnitude of heat transfer over segment
+     dT : [ 4.39      1.81      1.13      0.895    ... ]  [K]        Change in fluid temperature over segment
+     dh : [ 0.00512   0.0194    0.0197    0.0198   ... ]  [m]        hydraulic diameter
+  eta_h : [ 0.817     0.773     0.759     0.751    ... ]             effectiveness
+     fr : [ 172       93.2      81.3      76       ... ]  [Pa]       force per frontal area
+      h : [ 170       126       112       105      ... ]  [W/K/m**2] convective heat transfer coefficient
+  h_seg : [ 0.002     0.00412   0.00425   0.0043   ... ]  [m]        Segment height
+      l : [ 0.00285   0.0138    0.0246    0.0344   ... ]  [m]        Reference flow length
+  l_seg : [ 0.00285   0.0166    0.0117    0.0099   ... ]  [m]        Segment flow length
+   mdot : [ 0.000152  0.00221   0.00229   0.00232  ... ]  [kg/s]     mass flow rate
+      v : [ 20        20        20        20       ... ]  [m/s]      fluid velocity
+  v_avg : [ 19.3      19.6      19.7      19.7     ... ]  [m/s]      Average fluid velocity over segment
+  v_out : [ 10.6      15.6      16.3      16.5     ... ]  [m/s]      output velocity
+      w : [ 0.00328   0.0228    0.0228    0.0228   ... ]  [m]        pipe width
+
+        | Layer/RectangularPipe.1
+  A_seg : [ 5.71e-06  6.88e-05  5e-05     4.3e-05  ... ]  [m**2]     Segment frontal area
+      D : [ 0.00208   0.00118   0.00111   0.00115  ... ]  [N]        total drag
+     Nu : [ 37.5      144       259       371      ... ]             Nusselt number
+     P0 : [ 1.02e+05  1.02e+05  1.02e+05  1.02e+05 ... ]  [Pa]       fluid total pressure
+     Pf : [ 0.73      0.382     0.324     0.299    ... ]             pressure drop parameter
+     Pr : [ 6.14      6.14      6.14      6.14     ... ]             Prandtl number
+     Re : [ 3.55e+03  1.91e+04  3.96e+04  6.22e+04 ... ]             Reynolds number
+      T : [ 500       500       500       500      ... ]  [K]        fluid temperature
+  T_avg : [ 500       500       500       500      ... ]  [K]        Average temperature over segment
+ Tr_int : [ 496       498       498       498      ... ]  [K]        wall-fluid interface temperature
+  V_seg : [ 1.87e-08  1.57e-06  1.14e-06  9.81e-07 ... ]  [m**3]     Segment volume
+     dP : [ 73        38.2      32.4      29.9     ... ]  [Pa]       segment pressure drop
+     dQ : [ 0.667     1.68      1.53      1.4      ... ]  [W]        Magnitude of heat transfer over segment
+     dT : [ 0.029     0.00594   0.00745   0.0079   ... ]  [K]        Change in fluid temperature over segment
+     dh : [ 0.00478   0.0166    0.0141    0.0131   ... ]  [m]        hydraulic diameter
+  eta_h : [ 0.818     0.772     0.754     0.744    ... ]             effectiveness
+     fr : [ 365       191       162       150      ... ]  [Pa]       force per frontal area
+      h : [ 6.93e+03  5.04e+03  4.37e+03  4e+03    ... ]  [W/K/m**2] convective heat transfer coefficient
+  h_seg : [ 0.002     0.00414   0.00428   0.00434  ... ]  [m]        Segment height
+      l : [ 0.00328   0.0173    0.0359    0.0562   ... ]  [m]        Reference flow length
+  l_seg : [ 0.00328   0.0228    0.0228    0.0228   ... ]  [m]        Segment flow length
+   mdot : [ 0.00549   0.0675    0.0492    0.0424   ... ]  [kg/s]     mass flow rate
+      v : [ 1         1         1         1        ... ]  [m/s]      fluid velocity
+  v_avg : [ 0.963     0.981     0.984     0.985    ... ]  [m/s]      Average fluid velocity over segment
+  v_out : [ 0.52      0.786     0.822     0.837    ... ]  [m/s]      output velocity
+      w : [ 0.00285   0.0166    0.0117    0.0099   ... ]  [m]        pipe width
+
+Constants
+---------
+          | Layer
+        g : 9.81                                            [m/s**2]  gravitational acceleration
+    maxAR : 8                                                         max aspect ratio of tiles
+    x_dim : 5                                               [cm]      max hot length
+    y_dim : 10                                              [cm]      max cold length
+    z_dim : 1                                               [cm]      max height
+
+          | Layer/Air
+        c : 1000                                            [J/K/kg]  heat capacity of air
+        k : 0.0262                                          [W/K/m]   thermal conductivity of air
+       mu : 1.81e-05                                        [Pa*s]    dynamic viscosity of air
+      rho : 1.2                                             [kg/m**3] density of air
+
+          | Layer/RectangularPipe
+     P_in : [ 1.01e+05  1.01e+05  1.01e+05  1.01e+05 ... ]  [Pa]      input static pressure
+    P_out : [ 1.01e+05  1.01e+05  1.01e+05  1.01e+05 ... ]  [Pa]      output static pressure
+   Pf_ref : [ 21.7      21.7      21.7      21.7     ... ]            reference pressure drop parameter
+   Re_ref : [ 9.06e+04  9.06e+04  9.06e+04  9.06e+04 ... ]            reference Reynolds number
+     T_in : [ 303       303       303       303      ... ]  [K]       input temperature
+eta_h_ref : [ 0.917     0.917     0.917     0.917    ... ]            reference effectiveness
+     v_in : [ 20        20        20        20       ... ]  [m/s]     input velocity
+
+          | Layer/RectangularPipe.1
+     P_in : [ 1.01e+05  1.01e+05  1.01e+05  1.01e+05 ... ]  [Pa]      input static pressure
+    P_out : [ 1.01e+05  1.01e+05  1.01e+05  1.01e+05 ... ]  [Pa]      output static pressure
+   Pf_ref : [ 21.7      21.7      21.7      21.7     ... ]            reference pressure drop parameter
+   Re_ref : [ 9.06e+04  9.06e+04  9.06e+04  9.06e+04 ... ]            reference Reynolds number
+     T_in : [ 500       500       500       500      ... ]  [K]       input temperature
+eta_h_ref : [ 0.917     0.917     0.917     0.917    ... ]            reference effectiveness
+     v_in : [ 1         1         1         1        ... ]  [m/s]     input velocity
+
+          | Layer/StainlessSteel
+        c : 500                                             [J/K/kg]  heat capacity of steel
+        k : 19                                              [W/K/m]   thermal conductivity of steel
+      rho : 7700                                            [kg/m**3] density of steel
+    t_min : 0.3                                             [mm]      minimum thickness of steel
+
+          | Layer/Water
+        c : 4184                                            [J/K/kg]  heat capacity of water
+        k : 0.606                                           [W/K/m]   thermal conductivity of water
+       mu : 0.00089                                         [Pa*s]    dynamic viscosity of water
+      rho : 1000                                            [kg/m**3] density of water
+
+Sensitivities
+-------------
+          | Layer
+    x_dim : -0.89                                          max hot length
+    maxAR : -0.53                                          max aspect ratio of tiles
+    y_dim : -7e-11                                         max cold length
+
+          | Layer/Air
+       mu : +0.67                                          dynamic viscosity of air
+      rho : -0.67                                          density of air
+        k : -0.62                                          thermal conductivity of air
+        c : -0.35                                          heat capacity of air
+
+          | Layer/RectangularPipe
+    P_out : [ +84       +40       +24       +19      ... ] output static pressure
+     P_in : [ -84       -40       -24       -19      ... ] input static pressure
+     T_in : [ +0.081    +0.54     +0.36     +0.29    ... ] input temperature
+   Pf_ref : [ +0.36     +0.13     +0.097    +0.091   ... ] reference pressure drop parameter
+     v_in : [ +0.017    -0.19     -0.087    -0.043   ... ] input velocity
+   Re_ref : [ +0.15     +0.032    +0.02     +0.016   ... ] reference Reynolds number
+eta_h_ref : [ +8.8e-11  +6.1e-12  +6.2e-11  -1.7e-12 ... ] reference effectiveness
+
+          | Layer/RectangularPipe.1
+    P_out : [ +76       +2.5      +1.7      +1.5     ... ] output static pressure
+     P_in : [ -76       -2.5      -1.7      -1.5     ... ] input static pressure
+     T_in : [ -0.21     -0.58     -0.58     -0.58    ... ] input temperature
+   Pf_ref : [ +0.66     +0.12     +0.11     +0.11    ... ] reference pressure drop parameter
+     v_in : [ +0.1      +0.19     +0.18     +0.19    ... ] input velocity
+   Re_ref : [ +0.28     +0.028    +0.02     +0.018   ... ] reference Reynolds number
+eta_h_ref : [ -4.3e-11  +2.1e-10  +2.1e-10  +2.8e-10 ... ] reference effectiveness
+
+          | Layer/StainlessSteel
+        k : -0.0016                                        thermal conductivity of steel
+    t_min : +0.0015                                        minimum thickness of steel
+
+          | Layer/Water
+       mu : +0.38                                          dynamic viscosity of water
+      rho : +0.25                                          density of water
+        k : -0.013                                         thermal conductivity of water
+        c : -0.0071                                        heat capacity of water
