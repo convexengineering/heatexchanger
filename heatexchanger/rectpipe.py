@@ -22,7 +22,6 @@ class RectangularPipe(Model):
     Re_ref      90550     [-]      reference Reynolds number
     Pr                    [-]      Prandtl number
     fr                    [Pa]     force per frontal area
-    dP_scale              [-]      friction scaling
 
     Variables of length Nsegments+1
     -------------------------------
@@ -51,18 +50,19 @@ class RectangularPipe(Model):
 
     Upper Unbounded
     ---------------
-    mdot, w, dh, h_seg, l_seg, l, A_seg, V_seg, dP_scale, D
+    mdot, w, dh, h_seg, l_seg, l, A_seg, V_seg, D
     Nu_notlast, Tr_int (if increasingT)
 
     Lower Unbounded
     ---------------
-    D, dh, h_seg, h, l_seg, w, v_out, V_seg, dP_scale, dP
+    D, dh, h_seg, h, l_seg, w, v_out, V_seg, dP
     Nu_notlast, dQ, Tr_int (if not increasingT)
 
     """
 
 
     def setup(self, Nsegments, fluid, increasingT):
+        self.fluid = fluid
         calc_p0in = lambda self, c: c[self.P_i] + 0.5*c[self.rho_i]*c[self.V_i]**2
 
         exec parse_variables(RectangularPipe.__doc__)
