@@ -49,6 +49,16 @@ class RectangularPipe(Model):
     Tr_int                [K]       wall-fluid interface temperature
     h                     [W/K/m^2] convective heat transfer coefficient
 
+    Upper Unbounded
+    ---------------
+    mdot, w, dh, h_seg, l_seg, l, A_seg, V_seg, dP_scale, D
+    Nu_notlast, Tr_int (if increasingT)
+
+    Lower Unbounded
+    ---------------
+    D, dh, h_seg, h, l_seg, w, v_out, V_seg, dP_scale, dP
+    Nu_notlast, dQ, Tr_int (if not increasingT)
+
     """
 
 
@@ -57,6 +67,7 @@ class RectangularPipe(Model):
 
         exec parse_variables(RectangularPipe.__doc__)
         self.increasingT = increasingT
+        self.Nu_notlast = Nu[:-1]
 
         temp = [T_avg**2 == T[1:]*T[:-1],
                 T[0] == T_in]
