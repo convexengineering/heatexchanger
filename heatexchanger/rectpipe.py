@@ -49,12 +49,12 @@ class RectangularPipe(Model):
 
     Upper Unbounded
     ---------------
-    mdot, w, dh, h_seg, l_seg, l, A_seg, V_seg, D
+    mdot, w, dh, l_seg, l, A_seg, V_seg, D
     Nu_notlast, Tr_int (if increasingT)
 
     Lower Unbounded
     ---------------
-    D, dh, h_seg, h, l_seg, w, v_out, V_seg
+    D, dh, h, l_seg, v_out, V_seg
     Nu_notlast, dQ, Tr_int (if not increasingT)
 
     """
@@ -109,7 +109,10 @@ class RectangularPipe(Model):
         # Geometry definitions
         geom = [A_seg == w*h_seg,
                 V_seg == A_seg*l_seg,
-                dh*(w*h_seg)**0.5 == 2*A_seg] # hydraulic diameter with geometric mean approximation
+                dh*(w*h_seg)**0.5 == 2*A_seg,   # hydraulic diameter with geometric mean approximation
+                h_seg >= 0.2*units('cm'),
+                h_seg <= 0.5*units('cm')
+               ]
 
         # Friction and heat transfer
         friction = [dQ       <= mdot*fluid.c*dT,

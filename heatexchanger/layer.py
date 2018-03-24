@@ -57,58 +57,37 @@ class Layer(Model):
         airCf = []
 
         with SignomialsEnabled():
-            # NOTE: unfortunately this appears unavoidable.
-            #       perhaps an entropy-based approach could get around it?
-            #       as the mass flows in each pipe become quite similar,
-            #       it's already alllllmost GP, solving in 3-9 GP solves
             SP_Qsum = Q <= c.dQ.sum()
             for i in range(Nwaterpipes):
-                waterCf.extend([waterpipes.D[i] >= waterpipes.fr[i]*waterpipes.A_seg[i,0],
-                                ])
+                waterCf.extend([waterpipes.D[i] >= waterpipes.fr[i]*waterpipes.A_seg[i,0]])
                 for j in range(Nairpipes):
-                    waterCf.extend([waterpipes.l[i,j] == float(j+1)*(np.product(airpipes.w[0:j+1]))**(1/float(j+1))])
+                    waterCf.extend([waterpipes.l[i,j] == (j+1)*(np.product(airpipes.w[0:j+1]))**(1/float(j+1))])
+                    airCf.extend([airpipes.l[j,i] == (i+1)*(np.product(waterpipes.w[0:i+1]))**(1/float(i+1))])
             for i in range(Nairpipes):
-                airCf.extend([airpipes.D[i] >= airpipes.fr[i]*airpipes.A_seg[i,0],
-                              ])
-                for j in range(Nwaterpipes):
-                    airCf.extend([airpipes.l[i,j] == float(j+1)*(np.product(waterpipes.w[0:j+1]))**(1/float(j+1))])
+                airCf.extend([airpipes.D[i] >= airpipes.fr[i]*airpipes.A_seg[i,0]])
 
         geom = [V_tot >= sum(sum(waterpipes.V_seg)) + sum(sum(airpipes.V_seg)) + V_mtrl]
-
-        for i in range(Nwaterpipes):
-            for j in range(Nairpipes):
-                geom.extend([c.x_cell[i,j] == waterpipes.w[i],
-                             c.x_cell[i,j] == airpipes.l_seg[j,i],
-                             c.y_cell[i,j] == airpipes.w[j],
-                             c.y_cell[i,j] == waterpipes.l_seg[i,j],
-                             # Arbitrary bounding for convergence.
-                             c.x_cell[i,j] >= 0.2*units('cm'),
-                             c.y_cell[i,j] >= 0.2*units('cm'),
-                             ])
 
         # Linking pipes in c
         for i in range(Nwaterpipes):
             for j in range(Nairpipes):
                 geom.extend([
-                        c.dQ[i,j]     == waterpipes.dQ[i,j],
-                        c.dQ[i,j]     == airpipes.dQ[j,i],
-                        c.Tr_hot[i,j] == waterpipes.Tr_int[i,j],
-                        c.Tr_cld[i,j] == airpipes.Tr_int[j,i],
-                        c.T_hot[i,j]  == waterpipes.T_avg[i,j],
-                        c.T_cld[i,j]  == airpipes.T_avg[j,i],
-                        c.h_hot[i,j]  == waterpipes.h[i,j],
-                        c.h_cld[i,j]  == airpipes.h[j,i],
-                        c.z_hot[i,j]  == waterpipes.h_seg[i,j],
-                        c.z_cld[i,j]  == airpipes.h_seg[j,i],
-                        c.t_plate[i,j]   >= 0.03*units('cm'),
-                        c.t_hot[i,j]     >= 0.03*units('cm'),
-                        c.t_cld[i,j]     >= 0.03*units('cm'),
-                        c.t_hot[i,j]     >= 0.05/((i+1.)**3*(j+1.)**3.)**(1./3.)*units('cm'),
-                        c.t_cld[i,j]     >= 0.05/((i+1.)**3*(j+1.)**3.)**(1./3.)*units('cm'),
-                        waterpipes.h_seg[i,j] >= 0.2*units('cm'),
-                        waterpipes.h_seg[i,j] <= 0.5*units('cm'),
-                        airpipes.h_seg[j,i] >= 0.2*units('cm'),
-                        airpipes.h_seg[j,i] <= 0.5*units('cm'),
+                    c.x_cell[i,j] == waterpipes.w[i],
+                    c.x_cell[i,j] == airpipes.l_seg[j,i],
+                    c.y_cell[i,j] == airpipes.w[j],
+                    c.y_cell[i,j] == waterpipes.l_seg[i,j],
+                    c.dQ[i,j]     <= waterpipes.dQ[i,j],
+                    c.dQ[i,j]     <= airpipes.dQ[j,i],
+                    c.Tr_hot[i,j] == waterpipes.Tr_int[i,j],
+                    c.Tr_cld[i,j] == airpipes.Tr_int[j,i],
+                    c.T_hot[i,j]  == waterpipes.T_avg[i,j],
+                    c.T_cld[i,j]  == airpipes.T_avg[j,i],
+                    c.h_hot[i,j]  == waterpipes.h[i,j],
+                    c.h_cld[i,j]  == airpipes.h[j,i],
+                    c.z_hot[i,j]  == waterpipes.h_seg[i,j],
+                    c.z_cld[i,j]  == airpipes.h_seg[j,i],
+                    c.t_hot[i,j]  >= 0.05/((i+1.)**3*(j+1.)**3.)**(1./3.)*units('cm'),
+                    c.t_cld[i,j]  >= 0.05/((i+1.)**3*(j+1.)**3.)**(1./3.)*units('cm'),
                     ])
 
         return [
@@ -144,7 +123,6 @@ if __name__ == "__main__":
     #     'V_tot':1*units('cm^3'),
     #     'Q'    :4*units('W')
     #     })
-    # penalties = (m.waterpipes.dP_scale.prod()*m.airpipes.dP_scale.prod())**-1
     m.cost = (m.D_air+m.D_wat)/m.Q
     #m = Model(m.cost,Bounded(m))
     #m = relaxed_constants(m)
