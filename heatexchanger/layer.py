@@ -14,6 +14,8 @@ class Layer(Model):
     Variables
     ---------
     Q               [W]       heat transferred from air to liquid
+    D_air           [N]       total air drag
+    D_wat           [N]       total water drag
     V_tot           [cm^3]    total volume
     V_mtrl          [cm^3]    volume of material
     g          9.81 [m*s^-2]  gravitational acceleration
@@ -21,7 +23,7 @@ class Layer(Model):
 
     Upper Unbounded
     ---------------
-    airpipes.D, waterpipes.D
+    D_air, D_wat
 
     Lower Unbounded
     ---------------
@@ -129,6 +131,8 @@ class Layer(Model):
             c,
 
             #DRAG
+            D_wat >= self.waterpipes.D.sum(),
+            D_air >= self.airpipes.D.sum(),
             waterCf,
             airCf,
 
@@ -149,9 +153,10 @@ if __name__ == "__main__":
     #     'Q'    :4*units('W')
     #     })
     penalties = (m.waterpipes.dP_scale.prod()*m.airpipes.dP_scale.prod()*m.waterpipes.dT.prod()*m.airpipes.dT.prod())**-1
-    m.cost = penalties*1*m.Q**-1*(1*m.waterpipes.D.sum()+ 1*m.airpipes.D.sum())
+    m.cost = penalties*(m.D_air+m.D_wat)/m.Q
     #m = Model(m.cost,Bounded(m))
     #m = relaxed_constants(m)
     sol = m.localsolve(verbosity=4)
     #post_process(sol)
     print sol('Q')
+    # print sol("eta_h")
