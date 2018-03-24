@@ -20,9 +20,9 @@ class Layer(Model):
     V_mtrl          [cm^3]    volume of material
     g          9.81 [m*s^-2]  gravitational acceleration
     x_dim      5    [cm]      max hot length
-    y_dim      5    [cm]      max cold length
+    y_dim      10    [cm]      max cold length
     z_dim      1    [cm]      max height
-    maxAR      4    [-]       max aspect ratio of tiles
+    maxAR      8    [-]       max aspect ratio of tiles
 
     Upper Unbounded
     ---------------
@@ -43,7 +43,7 @@ class Layer(Model):
         with Vectorize(Nairpipes):
             airpipes = RectangularPipe(Nwaterpipes, air, increasingT=True,
                                        substitutions={"T_in": 303,
-                                                      "v_in": 10})
+                                                      "v_in": 20})
             self.airpipes = airpipes
         water = Water()
         with Vectorize(Nwaterpipes):
@@ -101,8 +101,8 @@ class Layer(Model):
                         c.z_cld[i,j]  == airpipes.h_seg[j,i],
                         c.t_hot[i,j]     >= 0.05/((i+1.)**3*(j+1.)**3.)**(1./3.)*units('cm'),
                         c.t_cld[i,j]     >= 0.05/((i+1.)**3*(j+1.)**3.)**(1./3.)*units('cm'),
-                        waterpipes.h_seg[i,j] >= 0.1*units('cm'),
-                        waterpipes.h_seg[i,j] <= 0.2*units('cm'),
+                        waterpipes.h_seg[i,j] >= 0.2*units('cm'),
+                        waterpipes.h_seg[i,j] <= 1.0*units('cm'),
                         airpipes.h_seg[j,i] >= 0.2*units('cm'),
                         airpipes.h_seg[j,i] <= 1.0*units('cm'),
                         x_dim >= waterpipes.w.sum(),
@@ -130,7 +130,7 @@ class Layer(Model):
             #waterpipes.T[:,-1] <= 400*units('K'),
 
             # TOTAL VOLUME REQUIREMENT
-            V_tot <= 50*units('cm^3'),
+            V_tot <= 100*units('cm^3'),
 
             # MATERIAL VOLUME
             V_mtrl >= (c.z_hot*c.t_hot*c.x_cell).sum()+(c.z_cld*c.t_cld*c.y_cell).sum()+(c.x_cell*c.y_cell*c.t_plate).sum(),
