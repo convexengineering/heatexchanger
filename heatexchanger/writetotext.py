@@ -16,9 +16,16 @@ def genHXData(m,sol):
     xycent = np.array([[(x[i+1]+ x[i])/2,(y[j+1]+y[j])/2] for j in range (nw) for i in range(nu)])
     z = sol(m.c.z_hot) + sol(m.c.z_cld) + 2*sol(m.c.t_plate)
 
+    hxVals = [sol(m.c.t_plate).magnitude,
+               sol(m.c.t_hot).magnitude,
+               sol(m.c.t_cld).magnitude,
+               sol(m.c.z_hot).magnitude/sol(m.c.z_cld).magnitude]
+    intlist = [interp2d(xycent[:,0],xycent[:,1],hxVals[i],kind='linear') for i in range(len(hxVals))]
+
     f = open('hxOut.txt','w')
 
-    f.write(str(nu) + ' ' + str(nv) + ' ' + str(nw) + ' ' + str(nParams))
+    f.write(str(nu+1) + ' ' + str(nv+1) + ' ' + str(nw+1) + ' ' + str(len(hxVals)))
+
     f.write('\n')
     for i in range(len(x)):
         f.write(str(x[i]/max(x)) + ' ')
@@ -29,17 +36,23 @@ def genHXData(m,sol):
         f.write(str(y[i]/max(y)) + ' ')
     f.write('\n\n')
 
-    hxVals = [sol(m.c.t_plate).magnitude,
-               sol(m.c.t_hot).magnitude,
-               sol(m.c.t_cld).magnitude,
-               sol(m.c.z_hot).magnitude/sol(m.c.z_cld).magnitude]
-    intlist = [interp2d(xycent[:,0],xycent[:,1],hxVals[i],kind='linear') for i in range(len(hxVals))]
+    f.write('t_plate' + '\n')
+    f.write('v' + '\n')
+    f.write('t_hot' + '\n')
+    f.write('w' + '\n')
+    f.write('t_cld' + '\n')
+    f.write('u' + '\n')
+    f.write('z_hoc' + '\n')
+    f.write('.' + '\n\n')
+
 
     for w in range(nw+1):
         for v in range(nv+1):
             for u in range(nu+1):
                 for k in range(len(intlist)):
                     f.write(str(intlist[k](xy[u+w*u,0],xy[u+w*u,1])[0]))
-                    f.write('\n')
+                    f.write(' ')
                 f.write('\n')
+            f.write('\n\n')
+
     f.close()
