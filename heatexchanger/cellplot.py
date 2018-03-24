@@ -76,7 +76,11 @@ def hist_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
 
 
 if __name__ == "__main__":
-    Nw, Na = 5, 5
+    from layer import Layer
+    Na, Nw = 5, 5
+    m = Layer(Na, Nw)
+    m.cost = (m.D_air+m.D_wat)/m.Q
+    sol = m.localsolve(verbosity=1)
     # Liquid temperature
     f, a = plot_cells(m, sol(m.c.T_hot), cm=cm.Reds,
                       zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
