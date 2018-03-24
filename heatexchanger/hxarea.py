@@ -48,7 +48,7 @@ class HXArea(Model):
                     Tr_hot    >= T_r + 0.5*dQ*t_plate/(material.k*A_hot) + 0.001*(dQ*z_hot/(material.k*t_hot*y_cell)), #TODO: Refine
                     T_r       >= Tr_cld + 0.5*dQ*t_plate/(material.k*A_cld) + 0.001*(dQ*z_cld/(material.k*t_cld*x_cell)), #TODO: Refine
                     Tr_cld    >= T_cld,
-                    t_plate   >= 0.01*units('cm'),
-                    t_hot     >= 0.01*units('cm'),
-                    t_cld     >= 0.01*units('cm'),
+                    t_plate   >= material.t_min,
+                    t_hot     >= material.t_min,
+                    t_cld     >= material.t_min,
                     ]
