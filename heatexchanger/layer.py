@@ -129,6 +129,10 @@ if __name__ == "__main__":
     m = Layer(5, 5)
     m.cost = (m.D_air+m.D_wat)/m.Q
     sol = m.localsolve(verbosity=1)
+    print sol("Q")
+
     with open("sol.txt", "w") as f:
         f.write(sol.table())
-    print sol("Q")
+
+    from writetotext import genHXData
+    genHXData(m, sol)

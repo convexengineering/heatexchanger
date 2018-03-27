@@ -27,6 +27,8 @@ class HXGPServer(WebSocket):
                 else:
                     print "Key not found conversion_dictionary:", key
 
+            m.localsolve()
+
             self.send({"status": "optimal",
                        "msg": "Successfully optimized!"})
         except Exception, e:
