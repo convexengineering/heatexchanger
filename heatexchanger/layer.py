@@ -36,18 +36,19 @@ class Layer(Model):
 
     """
     def setup(self, Nairpipes, Nwaterpipes):
-        self.Nairpipes = Nairpipes
         self.Nwaterpipes = Nwaterpipes
+        self.Nairpipes = Nairpipes
         exec parse_variables(Layer.__doc__)
+
         self.material = StainlessSteel()
 
-        air = Air()
+        air = self.air = Air()
         with Vectorize(Nairpipes):
             airpipes = RectangularPipe(Nwaterpipes, air, increasingT=True,
                                        substitutions={"T_in": 303,
                                                       "v_in": 20})
             self.airpipes = airpipes
-        water = Water()
+        water = self.water = Water()
         with Vectorize(Nwaterpipes):
             waterpipes = RectangularPipe(Nairpipes, water, increasingT=False,
                                          substitutions={"T_in": 500,
@@ -57,9 +58,6 @@ class Layer(Model):
         with Vectorize(Nwaterpipes):
             with Vectorize(Nairpipes):
                 c = self.c = HXArea(self.material)
-
-        self.Cf_wat = self.waterpipes.Cf
-        self.Cf_air = self.airpipes.Cf
 
         waterCf = []
         airCf = []
@@ -126,7 +124,7 @@ class Layer(Model):
                         c.T_cld[:,-1] >= T_max_cld,
                         T_max_cld <= T_max_hot,
                         T_max_cld >= 1*units('K'),
-                    ])
+                        ])
 
         return [
             # SIZING
@@ -146,9 +144,10 @@ class Layer(Model):
             airCf,
 
             # HEAT EXCHANGE REQUIREMENT
+            #waterpipes.T[:,-1] <= 400*units('K'),
 
             # TOTAL VOLUME REQUIREMENT
-            V_tot <= 2*units('cm^3'),
+            V_tot <= 100*units('cm^3'),
 
             # MATERIAL VOLUME
             V_mtrl >= (c.z_hot*c.t_hot*c.x_cell).sum()+(c.z_cld*c.t_cld*c.y_cell).sum()+(c.x_cell*c.y_cell*c.t_plate).sum(),
@@ -156,27 +155,13 @@ class Layer(Model):
 
 
 if __name__ == "__main__":
-    m = Layer(5,5)
-    # m.substitutions.update({
-    #     'V_tot':1*units('cm^3'),
-    #     'Q'    :4*units('W')
-    #     })
+    m = Layer(5, 5)
     m.cost = (m.D_air+m.D_wat)/m.Q
-    #m = Model(m.cost,Bounded(m))
-    #m = relaxed_constants(m)
-    sol = m.localsolve(verbosity=0)
-    #post_process(sol)
-    print sol('Q')
-    # print sol(m.c.dQ)
-    # print sol(m.airpipes.dQ)
-    # print sol(m.airpipes.mdot*m.airpipes.fluid.c*m.airpipes.dT)
-    print
-    print sol(m.waterpipes.dQ)
-    print
-    print sol(m.waterpipes.mdot*m.waterpipes.fluid.c*m.waterpipes.dT)
-    print
-    print sol(m.waterpipes.mdot)
-    print
-    print sol(m.waterpipes.dT)
-    print
-    print sol(m.waterpipes.fluid.c)
+    sol = m.localsolve(verbosity=1)
+    print sol("Q")
+
+    with open("sol.txt", "w") as f:
+        f.write(sol.table())
+
+    from writetotext import genHXData
+    genHXData(m, sol)
