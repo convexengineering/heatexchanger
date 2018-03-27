@@ -19,7 +19,12 @@ class Layer(Model):
     V_tot           [cm^3]    total volume
     V_mtrl          [cm^3]    volume of material
     g          9.81 [m*s^-2]  gravitational acceleration
-
+    x_dim      5    [cm]      max hot length
+    y_dim      10   [cm]      max cold length
+    z_dim      1    [cm]      max height
+    maxAR      5    [-]       max tile width variation
+    T_max_hot  450  [K]       max temp. out
+    T_max_cld       [K]       min temp. out
 
     Upper Unbounded
     ---------------
@@ -46,12 +51,15 @@ class Layer(Model):
         with Vectorize(Nwaterpipes):
             waterpipes = RectangularPipe(Nairpipes, water, increasingT=False,
                                          substitutions={"T_in": 500,
-                                                        "v_in": 5})
+                                                        "v_in": 1})
             self.waterpipes = waterpipes
 
         with Vectorize(Nwaterpipes):
             with Vectorize(Nairpipes):
                 c = self.c = HXArea(self.material)
+
+        self.Cf_wat = self.waterpipes.Cf
+        self.Cf_air = self.airpipes.Cf
 
         waterCf = []
         airCf = []
@@ -64,7 +72,6 @@ class Layer(Model):
             SP_Qsum = Q <= c.dQ.sum()
             for i in range(Nwaterpipes):
                 waterCf.extend([waterpipes.D[i] >= waterpipes.fr[i]*waterpipes.A_seg[i,0],
-                                waterpipes.fr[i] >= waterpipes.dP[i,:].sum(),
                                 ])
                 for j in range(Nairpipes):
                     waterCf.extend([waterpipes.l[i,j] <= sum(airpipes.w[0:j+1]),
@@ -72,7 +79,6 @@ class Layer(Model):
                                             ])
             for i in range(Nairpipes):
                 airCf.extend([airpipes.D[i] >= airpipes.fr[i]*airpipes.A_seg[i,0],
-                              airpipes.fr[i] >= airpipes.dP[i,:].sum(),
                               ])
                 for j in range(Nwaterpipes):
                     airCf.extend([airpipes.l[i,j] <= sum(waterpipes.w[0:j+1]),
@@ -87,6 +93,8 @@ class Layer(Model):
                              c.x_cell[i,j] == airpipes.l_seg[j,i],
                              c.y_cell[i,j] == airpipes.w[j],
                              c.y_cell[i,j] == waterpipes.l_seg[i,j],
+                             maxAR >= c.y_cell[i,j]/c.x_cell[i,j],
+                             maxAR >= c.x_cell[i,j]/c.y_cell[i,j],
                              # Arbitrary bounding for convergence.
                              c.x_cell[i,j] >= 0.1*units('cm'),
                              c.y_cell[i,j] >= 0.1*units('cm'),
@@ -106,15 +114,18 @@ class Layer(Model):
                         c.h_cld[i,j]  == airpipes.h[j,i],
                         c.z_hot[i,j]  == waterpipes.h_seg[i,j],
                         c.z_cld[i,j]  == airpipes.h_seg[j,i],
-                        c.t_plate[i,j]   >= 0.01*units('cm'),
-                        c.t_hot[i,j]     >= 0.01*units('cm'),
-                        c.t_cld[i,j]     >= 0.01*units('cm'),
                         c.t_hot[i,j]     >= 0.05/((i+1.)**3*(j+1.)**3.)**(1./3.)*units('cm'),
                         c.t_cld[i,j]     >= 0.05/((i+1.)**3*(j+1.)**3.)**(1./3.)*units('cm'),
-                        waterpipes.h_seg[i,j] >= 0.1*units('cm'),
-                        waterpipes.h_seg[i,j] <= 0.5*units('cm'),
-                        airpipes.h_seg[j,i] >= 0.1*units('cm'),
-                        airpipes.h_seg[j,i] <= 0.5*units('cm'),
+                        waterpipes.h_seg[i,j] >= 0.05*units('cm'),
+                        waterpipes.h_seg[i,j] <= 1.0*units('cm'),
+                        airpipes.h_seg[j,i] >= 0.05*units('cm'),
+                        airpipes.h_seg[j,i] <= 1.0*units('cm'),
+                        x_dim >= waterpipes.w.sum(),
+                        y_dim >= airpipes.w.sum(),
+                        c.T_hot[-1,:] <= T_max_hot,
+                        c.T_cld[:,-1] >= T_max_cld,
+                        T_max_cld <= T_max_hot,
+                        T_max_cld >= 1*units('K'),
                     ])
 
         return [

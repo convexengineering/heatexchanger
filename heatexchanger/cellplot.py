@@ -1,7 +1,8 @@
 from matplotlib.pyplot import *
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
-
+import imp
+import layer
 
 def nsf(num, n=1):
     """n-Significant Figures"""
@@ -76,18 +77,18 @@ def hist_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
 
 
 if __name__ == "__main__":
-    from layer import Layer
+    imp.reload(layer)
+
     Nw, Na = 5, 5
-    m = Layer(Nw, Na)
+    m = layer.Layer(Nw, Na)
     # m.substitutions.update({
     #     'V_tot':1*units('cm^3'),
     #     'Q'    :4*units('W')
     #     })
-    penalties = (m.waterpipes.dP_scale.prod()*m.airpipes.dP_scale.prod()*m.waterpipes.dT.prod()*m.airpipes.dT.prod())**-1
-    m.cost = penalties*1*m.Q**-1*(1*m.waterpipes.D.sum()+ 1*m.airpipes.D.sum())
+    m.cost = (m.D_air+m.D_wat)/m.Q
     #m = Model(m.cost,Bounded(m))
     #m = relaxed_constants(m)
-    sol = m.localsolve(verbosity=4)
+    sol = m.localsolve(verbosity=2)
     #post_process(sol)
     print sol('Q')
 

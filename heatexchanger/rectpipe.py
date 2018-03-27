@@ -55,8 +55,8 @@ class RectangularPipe(Model):
 
     Lower Unbounded
     ---------------
-    D, dh, h_seg, h, l_seg, w, v_out, V_seg, dP
-    Nu_notlast, dQ, Tr_int (if not increasingT)
+    D, dh, h_seg, h, l_seg, w, v_out, V_seg
+    Nu_notlast, dQ, Tr_int (if not increasingT), dP
 
     """
 
@@ -96,6 +96,7 @@ class RectangularPipe(Model):
                     P0[-1] >= P_out + 0.5*fluid.rho*v_out**2, # exit total pressure
                     P0[0] >= P0[-1] + 0.5*fluid.rho*v_in**2*Pf,
                     P0[:-1] >= P0[1:] + dP,
+                    #dP*Nsegments == fr,
                     dP <= fluid.rho*v[0:-1]*(v[0:-1] - v[1:]),
 
                     # effectiveness fit
