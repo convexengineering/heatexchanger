@@ -49,14 +49,14 @@ class RectangularPipe(Model):
     Cf                    [-]       coefficient of friction
 
     Upper Unbounded
-    ---------------
+    --------------
     mdot, w, dh, l_seg, l, A_seg, V_seg, D
-    Nu_notlast, Tr_int (if increasingT)
+    Nu_notlast, Tr_int (if increasingT), h_seg
 
     Lower Unbounded
     ---------------
 
-    D, dh, h, l_seg, v_out, V_seg
+    D, dh, h, l_seg, v_out, V_seg, w
     Nu_notlast, dQ, Tr_int (if not increasingT), dP
 
     """
@@ -112,8 +112,6 @@ class RectangularPipe(Model):
         geom = [A_seg == w*h_seg,
                 V_seg == A_seg*l_seg,
                 dh*(w*h_seg)**0.5 == 2*A_seg,   # hydraulic diameter with geometric mean approximation
-                h_seg >= 0.2*units('cm'),
-                h_seg <= 0.5*units('cm')
                ]
 
         # Friction and heat transfer

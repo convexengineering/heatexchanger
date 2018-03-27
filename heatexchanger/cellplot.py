@@ -128,3 +128,15 @@ if __name__ == "__main__":
                       zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
     a.set_title("Mean wall temperature (K)")
     f.savefig("plots/Tr.png")
+
+    # Hot cell height
+    f, a = plot_cells(m, sol(m.c.z_hot), cm=cm.Reds,
+                      zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
+    a.set_title("Hot cell height (m)")
+    f.savefig("plots/z_hot.png")
+
+    # Cold cell height
+    f, a = plot_cells(m, sol(m.c.z_cld), cm=cm.Blues,
+                      zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
+    a.set_title("Cold cell height (m)")
+    f.savefig("plots/z_cld.png")
