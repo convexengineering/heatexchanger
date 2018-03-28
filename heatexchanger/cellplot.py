@@ -140,3 +140,9 @@ if __name__ == "__main__":
                       zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
     a.set_title("Cold cell height (m)")
     f.savefig("plots/z_cld.png")
+
+    # Total cell height
+    f, a = plot_cells(m, sol(m.c.z_cld)+sol(m.c.z_hot)+sol(m.c.t_plate), cm=cm.Blues,
+                      zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
+    a.set_title("Total cell height (m)")
+    f.savefig("plots/z.png")
