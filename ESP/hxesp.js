@@ -1,4 +1,4 @@
-var url = prompt("Enter hostname:port for the gp server", "localhost:8000")
+var url = "localhost:8000" //prompt("Enter hostname:port for the gp server", "localhost:8000")
 
 window.gp = {
   optcount: 0,
@@ -15,8 +15,7 @@ window.gp = {
   esp: {build_outdated: false,
         update: function() {
             gp.dom.buildButton.disabled = false
-            // browserToServer("setPmtr|faux_flag|1|1|"+gp.optcount+"|")
-            browserToServer("getPmtrs|")
+            browserToServer("getCsmFile|")
             window.oldactivateBuildButton()
           },
         },
