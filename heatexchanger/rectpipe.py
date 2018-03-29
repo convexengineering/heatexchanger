@@ -50,13 +50,13 @@ class RectangularPipe(Model):
 
     Upper Unbounded
     --------------
-    mdot, w, dh, l_seg, l, A_seg, V_seg, D
+    w, dh, l_seg, l, V_seg, D
     Nu_notlast, Tr_int (if increasingT), h_seg
 
     Lower Unbounded
     ---------------
 
-    D, dh, h, l_seg, v_out, V_seg, w
+    dh, h, l_seg, v_out, V_seg, w
     Nu_notlast, dQ, Tr_int (if not increasingT), dP
 
     """
@@ -104,9 +104,9 @@ class RectangularPipe(Model):
 
                     # pressure drop fit
                     Pf_rat**0.155 >= 0.475*Re_rat[-1]**0.00121 + 0.0338*Re_rat[-1]**-0.336,
-                    ]
-            flow.extend([P0[0] <= P_in + 0.5*fluid.rho*v_in**2,  # inlet total pressure
-                         dP <= fluid.rho*v[0:-1]*(v[0:-1] - v[1:])])  # turns into a posynomial
+
+                    D >= fr*A_seg[0]
+                    ]  # turns into a posynomial
 
         # Geometry definitions
         geom = [A_seg == w*h_seg,

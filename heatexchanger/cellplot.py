@@ -146,3 +146,15 @@ if __name__ == "__main__":
                       zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
     a.set_title("Total cell height (m)")
     f.savefig("plots/z.png")
+
+    # Hot fin thickness
+    f, a = plot_cells(m, sol(m.c.t_hot), cm=cm.Reds,
+                      zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
+    a.set_title("Hot fin thickness (m)")
+    f.savefig("plots/t_hot.png")
+
+    # Cold fin thickness
+    f, a = plot_cells(m, sol(m.c.t_cld), cm=cm.Blues,
+                      zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
+    a.set_title("Cold fin thickness (m)")
+    f.savefig("plots/t_cld.png")
