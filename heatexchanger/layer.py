@@ -68,16 +68,6 @@ class Layer(Model):
             #       as the mass flows in each pipe become quite similar,
             #       it's already alllllmost GP, solving in 3-9 GP solves
             SP_Qsum = Q <= c.dQ.sum()
-            for i in range(Nwaterpipes):
-                for j in range(Nairpipes):
-                    waterCf.extend([waterpipes.l[i,j] <= sum(airpipes.w[0:j+1]),
-                                    waterpipes.dP[i,j] == 0.5*water.rho*waterpipes.v_avg[i,j]**2*waterpipes.Cf[i,j]*waterpipes.l_seg[i,j]/waterpipes.dh[i,j],
-                                            ])
-            for i in range(Nairpipes):
-                for j in range(Nwaterpipes):
-                    airCf.extend([airpipes.l[i,j] <= sum(waterpipes.w[0:j+1]),
-                                  airpipes.dP[i,j] == 0.5*air.rho*airpipes.v_avg[i,j]**2*airpipes.Cf[i,j]*airpipes.l_seg[i,j]/airpipes.dh[i,j],
-                                            ])
 
         geom = [V_tot >= sum(sum(waterpipes.V_seg)) + sum(sum(airpipes.V_seg)) + V_mtrl]
 
@@ -152,9 +142,9 @@ class Layer(Model):
 
 
 if __name__ == "__main__":
-    m = Layer(5, 6)
+    m = Layer(5, 5)
     m.cost = (m.D_air+m.D_wat)/m.Q
-    sol = m.localsolve(verbosity=1)
+    sol = m.localsolve(verbosity=2)
     print sol("Q")
 
     with open("sol.txt", "w") as f:

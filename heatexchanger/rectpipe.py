@@ -50,14 +50,11 @@ class RectangularPipe(Model):
 
     Upper Unbounded
     --------------
-    w, dh, l_seg, l, V_seg, D
-    Nu_notlast, Tr_int (if increasingT), h_seg
+    w, dh, l_seg, V_seg, D, Tr_int (if increasingT), h_seg
 
     Lower Unbounded
     ---------------
-
-    dh, h, l_seg, v_out, V_seg, w
-    Nu_notlast, dQ, Tr_int (if not increasingT), dP
+    w, Nu_notlast, dQ, Tr_int (if not increasingT), dP
 
     """
 
@@ -97,6 +94,7 @@ class RectangularPipe(Model):
                     P0[:-1] >= P0[1:] + dP,
                     #dP*Nsegments == fr,
                     dP <= fluid.rho*v[0:-1]*(v[0:-1] - v[1:]),
+                    dP == 0.5*fluid.rho*v_avg**2*Cf*l_seg/dh,
 
                     # effectiveness fit
                     eta_h/eta_h_ref == 0.799*Re_rat[-1]**-0.0296,
@@ -113,6 +111,9 @@ class RectangularPipe(Model):
                 V_seg == A_seg*l_seg,
                 dh*(w*h_seg)**0.5 == 2*A_seg,   # hydraulic diameter with geometric mean approximation
                ]
+        with SignomialsEnabled():
+            for i in range(Nsegments):
+                geom.extend([l[i] <= l_seg[0:i+1].sum()])
 
         # Friction and heat transfer
         friction = [dQ  <= mdot*fluid.c*dT,
