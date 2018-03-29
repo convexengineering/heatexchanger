@@ -73,6 +73,7 @@ class Layer(Model):
 
         for i in range(Nwaterpipes):
             for j in range(Nairpipes):
+                print c.x_cell[i,j]
                 geom.extend([c.x_cell[i,j] == waterpipes.w[i],
                              c.x_cell[i,j] == airpipes.l_seg[j,i],
                              c.y_cell[i,j] == airpipes.w[j],
@@ -142,7 +143,7 @@ class Layer(Model):
 
 
 if __name__ == "__main__":
-    m = Layer(5, 5)
+    m = Layer(5, 6)
     m.cost = (m.D_air+m.D_wat)/m.Q
     sol = m.localsolve(verbosity=2)
     print sol("Q")
