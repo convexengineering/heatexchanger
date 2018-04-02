@@ -93,7 +93,6 @@ class RectangularPipe(Model):
                     P0[-1] >= P_out + 0.5*fluid.rho*v_out**2, # exit total pressure
                     P0[0] >= P0[-1] + 0.5*fluid.rho*v_in**2*Pf,
                     P0[:-1] >= P0[1:] + dP,
-                    #dP*Nsegments == fr,
                     dP <= fluid.rho*v[0:-1]*(v[0:-1] - v[1:]),
                     dP == 0.5*fluid.rho*v_avg**2*Cf*l_seg/dh,
 
@@ -104,12 +103,12 @@ class RectangularPipe(Model):
                     # pressure drop fit
                     Pf_rat**0.155 >= 0.475*Re_rat[-1]**0.00121 + 0.0338*Re_rat[-1]**-0.336,
 
-                    D >= fr*A_seg[0]
+                    D >= fr*Nfins*A_seg[0]
                     ]  # turns into a posynomial
 
         # Geometry definitions
-        geom = [A_seg == w_fluid*h_seg,
-                V_seg == A_seg*l_seg,
+        geom = [A_seg == w_fluid*h_seg,  # cross sectional area of single channel
+                V_seg == Nfins*A_seg*l_seg, # total volume of all channels
                 dh*(w_fluid*h_seg)**0.5 == 2*A_seg,   # hydraulic diameter with geometric mean approximation
                ]
         with SignomialsEnabled():

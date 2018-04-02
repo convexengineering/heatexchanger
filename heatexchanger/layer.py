@@ -133,19 +133,16 @@ class Layer(Model):
             waterCf,
             airCf,
 
-            # HEAT EXCHANGE REQUIREMENT
-            #waterpipes.T[:,-1] <= 400*units('K'),
-
             # TOTAL VOLUME REQUIREMENT
             V_tot <= 100*units('cm^3'),
 
             # MATERIAL VOLUME
-            V_mtrl >= (c.z_hot*c.t_hot*c.x_cell).sum()+(c.z_cld*c.t_cld*c.y_cell).sum()+(c.x_cell*c.y_cell*c.t_plate).sum(),
+            V_mtrl >= (Nfins*c.z_hot*c.t_hot*c.x_cell).sum()+(Nfins*c.z_cld*c.t_cld*c.y_cell).sum()+(c.x_cell*c.y_cell*c.t_plate).sum(),
         ]
 
 
 if __name__ == "__main__":
-    m = Layer(5, 6, 10)
+    m = Layer(5, 6, 5)
     m.cost = (m.D_air+m.D_wat)/m.Q
     sol = m.localsolve(verbosity=2)
     print sol("Q")
