@@ -79,8 +79,8 @@ def hist_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
 if __name__ == "__main__":
     imp.reload(layer)
 
-    Nw, Na = 5, 5
-    m = layer.Layer(Nw, Na)
+    Nw, Na, Nf = 5, 5, 10.
+    m = layer.Layer(Nw, Na, Nf)
     # m.substitutions.update({
     #     'V_tot':1*units('cm^3'),
     #     'Q'    :4*units('W')

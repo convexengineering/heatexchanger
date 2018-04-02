@@ -41,6 +41,7 @@ class RectangularPipe(Model):
     A_seg                 [m^2]     Segment frontal area
     h_seg                 [m]       Segment height
     l_seg                 [m]       Segment flow length
+    w_fluid               [m]      fluid width
     Nu                    [-]       Nusselt number
     Re                    [-]       Reynolds number
     dP                    [Pa]      segment pressure drop
@@ -50,15 +51,15 @@ class RectangularPipe(Model):
 
     Upper Unbounded
     --------------
-    w, dh, l_seg, V_seg, D, Tr_int (if increasingT), h_seg
+    w, w_fluid, dh, l_seg, V_seg, D, Tr_int (if increasingT), h_seg
 
     Lower Unbounded
     ---------------
-    w, Nu_notlast, dQ, Tr_int (if not increasingT), dP
+    w, h_seg, Nu_notlast, dQ, Tr_int (if not increasingT), dP
 
     """
 
-    def setup(self, Nsegments, fluid, increasingT):
+    def setup(self, Nsegments, Nfins, fluid, increasingT):
         self.fluid = fluid
         self.increasingT = increasingT
 
@@ -83,7 +84,7 @@ class RectangularPipe(Model):
         alpha = T[1:]/T[:-1]
 
         with SignomialsEnabled():
-            flow = [mdot == fluid.rho*v_avg*A_seg, # mass conservation
+            flow = [mdot == Nfins*fluid.rho*v_avg*A_seg, # mass conservation
                     v_in == v[0],
                     v_out == v[-1],
                     v_avg**2 == v[0:-1]*v[1:],
@@ -107,9 +108,9 @@ class RectangularPipe(Model):
                     ]  # turns into a posynomial
 
         # Geometry definitions
-        geom = [A_seg == w*h_seg,
+        geom = [A_seg == w_fluid*h_seg,
                 V_seg == A_seg*l_seg,
-                dh*(w*h_seg)**0.5 == 2*A_seg,   # hydraulic diameter with geometric mean approximation
+                dh*(w_fluid*h_seg)**0.5 == 2*A_seg,   # hydraulic diameter with geometric mean approximation
                ]
         with SignomialsEnabled():
             for i in range(Nsegments):

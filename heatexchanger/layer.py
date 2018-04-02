@@ -35,29 +35,30 @@ class Layer(Model):
     Q
 
     """
-    def setup(self, Nairpipes, Nwaterpipes):
+    def setup(self, Nairpipes, Nwaterpipes, Nfins):
         self.Nwaterpipes = Nwaterpipes
         self.Nairpipes = Nairpipes
+        self.Nfins = Nfins
         exec parse_variables(Layer.__doc__)
 
         self.material = StainlessSteel()
 
         air = self.air = Air()
         with Vectorize(Nairpipes):
-            airpipes = RectangularPipe(Nwaterpipes, air, increasingT=True,
+            airpipes = RectangularPipe(Nwaterpipes, Nfins, air, increasingT=True,
                                        substitutions={"T_in": 303,
                                                       "v_in": 20})
             self.airpipes = airpipes
         water = self.water = Water()
         with Vectorize(Nwaterpipes):
-            waterpipes = RectangularPipe(Nairpipes, water, increasingT=False,
+            waterpipes = RectangularPipe(Nairpipes, Nfins, water, increasingT=False,
                                          substitutions={"T_in": 500,
                                                         "v_in": 1})
             self.waterpipes = waterpipes
 
         with Vectorize(Nwaterpipes):
             with Vectorize(Nairpipes):
-                c = self.c = HXArea(self.material)
+                c = self.c = HXArea(self.Nfins, self.material)
 
         waterCf = []
         airCf = []
@@ -83,6 +84,9 @@ class Layer(Model):
                              # Arbitrary bounding for convergence.
                              c.x_cell[i,j] >= 0.1*units('cm'),
                              c.y_cell[i,j] >= 0.1*units('cm'),
+                             # Differentiating between flow width and cell width
+                             c.x_cell[i,j] >= Nfins*(c.t_hot[i,j] + waterpipes.w_fluid[i,j]),
+                             c.y_cell[i,j] >= Nfins*(c.t_cld[i,j] + airpipes.w_fluid[i,j])
                              ])
 
         # Linking pipes in c
@@ -99,8 +103,6 @@ class Layer(Model):
                         c.h_cld[i,j]  == airpipes.h[j,i],
                         c.z_hot[i,j]  == waterpipes.h_seg[i,j],
                         c.z_cld[i,j]  == airpipes.h_seg[j,i],
-                        c.t_hot[i,j]     >= 0.05/((i+1.)**3*(j+1.)**3.)**(1./3.)*units('cm'),
-                        c.t_cld[i,j]     >= 0.05/((i+1.)**3*(j+1.)**3.)**(1./3.)*units('cm'),
                         waterpipes.h_seg[i,j] >= 0.1*units('cm'),
                         waterpipes.h_seg[i,j] <= 1.0*units('cm'),
                         airpipes.h_seg[j,i] >= 0.1*units('cm'),
@@ -143,7 +145,7 @@ class Layer(Model):
 
 
 if __name__ == "__main__":
-    m = Layer(5, 6)
+    m = Layer(5, 6, 10)
     m.cost = (m.D_air+m.D_wat)/m.Q
     sol = m.localsolve(verbosity=2)
     print sol("Q")
