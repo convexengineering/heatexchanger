@@ -75,21 +75,7 @@ def hist_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
     a.set_ylabel("depth traveled by water [m]")
     return f, arun
 
-
-if __name__ == "__main__":
-    imp.reload(layer)
-
-    Nw, Na = 5, 5
-    m = layer.Layer(Na, Nw)
-    m.substitutions.update({m.n_fins: 5})
-    m.cost = (m.D_air+m.D_wat)/m.Q
-    #m = Model(m.cost,Bounded(m))
-    #m = relaxed_constants(m)
-    sol = m.localsolve(verbosity=2)
-    #post_process(sol)
-    print sol('Q')
-
-    # Liquid temperature
+def gen_plots(m,sol):
     f, a = plot_cells(m, sol(m.c.T_hot), cm=cm.Reds,
                       zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
     a.set_title("Liquid Temperature [K]")
@@ -155,3 +141,20 @@ if __name__ == "__main__":
                       zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
     a.set_title("Cold fin thickness (m)")
     f.savefig("plots/t_cld.png")
+
+
+if __name__ == "__main__":
+    imp.reload(layer)
+
+    Nw, Na = 5, 5
+    m = layer.Layer(Na, Nw)
+    m.substitutions.update({m.n_fins: 5})
+    m.cost = (m.D_air+m.D_wat)/m.Q
+    #m = Model(m.cost,Bounded(m))
+    #m = relaxed_constants(m)
+    sol = m.localsolve(verbosity=2)
+    #post_process(sol)
+    print sol('Q')
+    gen_plots(m,sol)
+
+
