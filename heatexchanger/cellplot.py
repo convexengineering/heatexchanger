@@ -79,12 +79,9 @@ def hist_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
 if __name__ == "__main__":
     imp.reload(layer)
 
-    Nw, Na, Nf = 5, 5, 5
-    m = layer.Layer(Na, Nw, Nf)
-    # m.substitutions.update({
-    #     'V_tot':1*units('cm^3'),
-    #     'Q'    :4*units('W')
-    #     })
+    Nw, Na = 5, 5
+    m = layer.Layer(Na, Nw)
+    m.substitutions.update({m.n_fins: 5})
     m.cost = (m.D_air+m.D_wat)/m.Q
     #m = Model(m.cost,Bounded(m))
     #m = relaxed_constants(m)

@@ -22,6 +22,7 @@ class Layer(Model):
     x_dim      5    [cm]      max hot length
     y_dim      10   [cm]      max cold length
     z_dim      1    [cm]      max height
+    n_fins          [-]       fins per tile
     maxAR      5    [-]       max tile width variation
     T_max_hot  450  [K]       max temp. out
     T_max_cld       [K]       min temp. out
@@ -35,30 +36,29 @@ class Layer(Model):
     Q
 
     """
-    def setup(self, Nairpipes, Nwaterpipes, Nfins):
+    def setup(self, Nairpipes, Nwaterpipes):
         self.Nwaterpipes = Nwaterpipes
         self.Nairpipes = Nairpipes
-        self.Nfins = Nfins
         exec parse_variables(Layer.__doc__)
 
         self.material = StainlessSteel()
 
         air = self.air = Air()
         with Vectorize(Nairpipes):
-            airpipes = RectangularPipe(Nwaterpipes, Nfins, air, increasingT=True,
+            airpipes = RectangularPipe(Nwaterpipes, n_fins, air, increasingT=True,
                                        substitutions={"T_in": 303,
                                                       "v_in": 20})
             self.airpipes = airpipes
         water = self.water = Water()
         with Vectorize(Nwaterpipes):
-            waterpipes = RectangularPipe(Nairpipes, Nfins, water, increasingT=False,
+            waterpipes = RectangularPipe(Nairpipes, n_fins, water, increasingT=False,
                                          substitutions={"T_in": 500,
                                                         "v_in": 1})
             self.waterpipes = waterpipes
 
         with Vectorize(Nwaterpipes):
             with Vectorize(Nairpipes):
-                c = self.c = HXArea(self.Nfins, self.material)
+                c = self.c = HXArea(n_fins, self.material)
 
         waterCf = []
         airCf = []
@@ -85,8 +85,10 @@ class Layer(Model):
                              c.x_cell[i,j] >= 0.1*units('cm'),
                              c.y_cell[i,j] >= 0.1*units('cm'),
                              # Differentiating between flow width and cell width
-                             c.x_cell[i,j] >= Nfins*(c.t_hot[i,j] + waterpipes.w_fluid[i,j]),
-                             c.y_cell[i,j] >= Nfins*(c.t_cld[i,j] + airpipes.w_fluid[i,j])
+                             c.x_cell[i,j] >= n_fins*(c.t_hot[i,j] + waterpipes.w_fluid[i,j]),
+                             c.y_cell[i,j] >= n_fins*(c.t_cld[i,j] + airpipes.w_fluid[i,j]),
+                             # Making sure there is at least 1 (non-integer) number of fins
+                             n_fins >= 1.,
                              ])
 
         # Linking pipes in c
@@ -137,13 +139,14 @@ class Layer(Model):
             V_tot <= 100*units('cm^3'),
 
             # MATERIAL VOLUME
-            V_mtrl >= (Nfins*c.z_hot*c.t_hot*c.x_cell).sum()+(Nfins*c.z_cld*c.t_cld*c.y_cell).sum()+(c.x_cell*c.y_cell*c.t_plate).sum(),
+            V_mtrl >= (n_fins*c.z_hot*c.t_hot*c.x_cell).sum()+(n_fins*c.z_cld*c.t_cld*c.y_cell).sum()+(c.x_cell*c.y_cell*c.t_plate).sum(),
         ]
 
 
 if __name__ == "__main__":
-    m = Layer(5, 6, 5)
+    m = Layer(5, 6)
     m.cost = (m.D_air+m.D_wat)/m.Q
+    m.substitutions.update({m.n_fins: 5})
     sol = m.localsolve(verbosity=2)
     print sol("Q")
 
