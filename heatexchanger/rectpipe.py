@@ -50,12 +50,12 @@ class RectangularPipe(Model):
     Upper Unbounded
     ---------------
     mdot, w, dh, l_seg, l, A_seg, V_seg, D
-    Nu_notlast, Tr_int (if increasingT)
+    Nu_notlast, Tr_int (if increasingT), T_in (if not increasingT)
 
     Lower Unbounded
     ---------------
     D, dh, h, l_seg, v_out, V_seg
-    Nu_notlast, dQ, Tr_int (if not increasingT)
+    Nu_notlast, dQ, Tr_int (if not increasingT), T_in (if increasingT)
 
     """
 

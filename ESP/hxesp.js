@@ -1,22 +1,16 @@
-var url = prompt("Enter hostname:port for the gp server", "localhost:8000")
+var url = "localhost:8000" //prompt("Enter hostname:port for the gp server", "localhost:8000")
 
 window.gp = {
   optcount: 0,
 
   dom: {},
 
-  sol: {Lbar: 0,
-        Rbar: 0.15,
-        T: 0.5,
-        D: 2,
-        Rout: 1.2,
-        Rfil: 0.1},
+  sol: {},
 
   esp: {build_outdated: false,
         update: function() {
             gp.dom.buildButton.disabled = false
-            // browserToServer("setPmtr|faux_flag|1|1|"+gp.optcount+"|")
-            browserToServer("getPmtrs|")
+            browserToServer("getCsmFile|")
             window.oldactivateBuildButton()
           },
         },
@@ -30,10 +24,7 @@ window.gp = {
 
     for (var i=0; i < pmtr.length; i++) {
       console.log(i, pmtr[i].name, pmtr[i].value[0], gp.sol[pmtr[i].name])
-      if (gp.sol[pmtr[i].name] !== undefined) {
-        // gp var with same name as a design parameter
-        gp.sol[pmtr[i].name] = pmtr[i].value[0]
-      }
+      gp.sol[pmtr[i].name] = pmtr[i].value[0]
     }
 
     console.log(gp.sol)

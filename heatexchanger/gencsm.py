@@ -2,7 +2,7 @@ import numpy as np
 from scipy.interpolate import interp2d
 
 
-def genHXcsm(m, sol):
+def gencsm(m, sol):
     nu = m.Nwaterpipes
     nwater = nu
     nv = 1
@@ -56,28 +56,20 @@ despmtr   wknots   0.00;0.14;0.34;0.62;1.00
 
 # flow quantities
 """)
-    despmtrs = ""
-    for vk in sorted(m.varkeys, key=str):
-        if vk in m.substitutions and "ref" not in vk.name:
-            despmtrs += "despmtr   %s   %.3f\n" % (vk, m.substitutions[vk])
-
-    despmtrs = despmtrs.replace("_(", "")
-    despmtrs = despmtrs.replace(",)", "")
-    despmtrs = despmtrs.replace("_Layer", "")
-    despmtrs = despmtrs.replace("/", "_")
-    despmtrs = despmtrs.replace("RectangularPipe.1", "LIQ")
-    despmtrs = despmtrs.replace("RectangularPipe", "AIR")
-    f.write(despmtrs)
+    for name, val in m.design_parameters.items():
+        if val in m.substitutions:
+            val = m.substitutions[val]
+        f.write("despmtr   %s   %s\n" % (name, val))
     f.write("""
 # duct definition (regular hexahedron)
 dimension corners  8 3 0
-set       corners  "0.0;   0.0;   0.0;   \
-                    0.0;   0.0;   z_dim; \
-                    0.0;   y_dim; 0.0;   \
-                    0.0;   y_dim; z_dim; \
-                    x_dim; 0.0;   0.0;   \
-                    x_dim; 0.0;   z_dim; \
-                    x_dim; y_dim; 0.0;   \
+set       corners  "0.0;   0.0;   0.0;   \\
+                    0.0;   0.0;   z_dim; \\
+                    0.0;   y_dim; 0.0;   \\
+                    0.0;   y_dim; z_dim; \\
+                    x_dim; 0.0;   0.0;   \\
+                    x_dim; 0.0;   z_dim; \\
+                    x_dim; y_dim; 0.0;   \\
                     x_dim; y_dim; z_dim;"
 
 udparg    hex       corners   corners
