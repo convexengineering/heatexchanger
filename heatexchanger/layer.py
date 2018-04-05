@@ -141,17 +141,3 @@ class Layer(Model):
             # MATERIAL VOLUME
             V_mtrl >= (n_fins*c.z_hot*c.t_hot*c.x_cell).sum()+(n_fins*c.z_cld*c.t_cld*c.y_cell).sum()+(c.x_cell*c.y_cell*c.t_plate).sum(),
         ]
-
-
-if __name__ == "__main__":
-    m = Layer(5, 6)
-    m.cost = (m.D_air+m.D_wat)/m.Q
-    m.substitutions.update({m.n_fins: 5})
-    sol = m.localsolve(verbosity=2)
-    print sol("Q")
-
-    with open("sol.txt", "w") as f:
-        f.write(sol.table())
-
-    from writetotext import genHXData
-    genHXData(m, sol)
