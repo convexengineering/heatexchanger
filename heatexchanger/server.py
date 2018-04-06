@@ -3,9 +3,19 @@ import json
 from layer import Layer
 from gencsm import gencsm
 
+EXIT = [False]
+ID = 0
 
-def gensoltxt(m, sol):
-    with open("sol.txt", "w") as f:
+
+def genfiles(m, sol):
+    global ID
+    gensoltxt(m, sol, ID)
+    gencsm(m, sol, ID)
+    ID += 1
+
+
+def gensoltxt(m, sol, ID):
+    with open("sol_%03i.txt" % ID, "w") as f:
         for var in sorted(m.varkeys, key=str):
             f.write("%s [%s]\t\t%f\n" % (var, var.unitstr(dimless="-"),
                                          sol["variables"][var]))
@@ -33,8 +43,7 @@ class HXGPServer(WebSocket):
                     print repr(e)
 
             sol = m.localsolve()
-            gensoltxt(m, sol)
-            gencsm(m, sol)
+            genfiles(m, sol)
 
             self.send({"status": "optimal",
                        "msg": ("Successfully optimized."
@@ -54,6 +63,7 @@ class HXGPServer(WebSocket):
 
     def handleClose(self):
         print self.address, "closed"
+        EXIT[0] = True
 
 
 if __name__ == "__main__":
@@ -61,6 +71,8 @@ if __name__ == "__main__":
     m = Layer(3, 3)
     m.cost = 1/m.Q
     sol = m.localsolve()
-    gensoltxt(m, sol)
-    gencsm(m, sol)
-    SimpleWebSocketServer('', 8000, HXGPServer).serveforever()
+    genfiles(m, sol)
+    server = SimpleWebSocketServer('', 8000, HXGPServer)
+    while not EXIT[0]:
+        server.serveonce()
+    print "Python server has exited."

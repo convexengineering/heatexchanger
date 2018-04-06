@@ -2,7 +2,7 @@ import numpy as np
 from scipy.interpolate import interp2d
 
 
-def gencsm(m, sol):
+def gencsm(m, sol, ID):
     nu = m.Nwaterpipes
     nwater = nu
     nv = 2
@@ -119,9 +119,10 @@ udparg tile nwtile    1
 udprim tile
 
 assert @@numbodys 1
+dump HX_%03i.egads
 
 restore duct
 attribute _name $duct
-""")
+""" % ID)
 
     f.close()

@@ -1,174 +1,611 @@
-
-Cost
-----
- 8.685e-05 [N/W] 
-
-Free Variables
---------------
-        | Layer
-  D_air : 0.003868                                        [N]        total air drag
-  D_wat : 0.006854                                        [N]        total water drag
-      Q : 123.4                                           [W]        heat transferred from air to liquid
- V_mtrl : 50.31                                           [cm**3]    volume of material
-  V_tot : 100                                             [cm**3]    total volume
-
-        | Layer/HXArea
-  A_cld : [ 2.07e-05  5.68e-05  5.95e-05  6.31e-05 ... ]  [m**2]     area of cold fin
-  A_hot : [ 2.22e-05  0.000222  0.000226  0.000227 ... ]  [m**2]     area of hot fin
-  T_cld : [ 305       313       323       333      ... ]  [K]        air temperature in cell
-  T_hot : [ 500       500       500       500      ... ]  [K]        liquid temperature in cell
-    T_r : [ 495       498       498       498      ... ]  [K]        wall internal temperature in cell
- Tr_cld : [ 495       498       498       498      ... ]  [K]        cold fluid-wall interface temperature
- Tr_hot : [ 496       498       498       498      ... ]  [K]        hot fluid-wall interface temperature
-     dQ : [ 0.667     1.68      1.53      1.4      ... ]  [W]        heat transferred from liquid to air by cell
-  h_cld : [ 170       159       148       134      ... ]  [W/K/m**2] convective heat transfer coefficient of air
-  h_hot : [ 6.93e+03  5.04e+03  4.37e+03  4e+03    ... ]  [W/K/m**2] convective heat transfer coefficient of liquid
-  t_cld : [ 0.00809   0.00803   0.0078    0.00753  ... ]  [m]        fin thickness in gas
-  t_hot : [ 0.00809   0.00803   0.0078    0.00753  ... ]  [m]        fin thickness in liquid
-t_plate : [ 0.0003    0.0003    0.0003    0.0003   ... ]  [m]        thickness of separating plate
- x_cell : [ 0.00285   0.00285   0.00285   0.00285  ... ]  [m]        x-width of cell
- y_cell : [ 0.00328   0.0228    0.0228    0.0228   ... ]  [m]        y-width of cell
-  z_cld : [ 0.002     0.00217   0.00239   0.00268  ... ]  [m]        z_height of cold cell
-  z_hot : [ 0.002     0.00414   0.00428   0.00434  ... ]  [m]        z-height of hot cell
-
-        | Layer/RectangularPipe
-  A_seg : [ 6.56e-06  9.4e-05   9.69e-05  9.81e-05 ... ]  [m**2]     Segment frontal area
-      D : [ 0.00113   0.000663  0.000636  0.000669 ... ]  [N]        total drag
-     Nu : [ 18.5      66.1      105       138      ... ]             Nusselt number
-     P0 : [ 1.01e+05  1.01e+05  1.01e+05  1.01e+05 ... ]  [Pa]       fluid total pressure
-     Pf : [ 0.717     0.388     0.339     0.317    ... ]             pressure drop parameter
-     Pr : [ 0.691     0.691     0.691     0.691    ... ]             Prandtl number
-     Re : [ 3.64e+03  1.79e+04  3.21e+04  4.49e+04 ... ]             Reynolds number
-      T : [ 303       303       303       303      ... ]  [K]        fluid temperature
-  T_avg : [ 305       304       304       303      ... ]  [K]        Average temperature over segment
- Tr_int : [ 495       488       490       491      ... ]  [K]        wall-fluid interface temperature
-  V_seg : [ 1.87e-08  1.56e-06  1.13e-06  9.72e-07 ... ]  [m**3]     Segment volume
-     dP : [ 34.4      18.6      16.3      15.2     ... ]  [Pa]       segment pressure drop
-     dQ : [ 0.667     4         2.59      2.07     ... ]  [W]        Magnitude of heat transfer over segment
-     dT : [ 4.39      1.81      1.13      0.895    ... ]  [K]        Change in fluid temperature over segment
-     dh : [ 0.00512   0.0194    0.0197    0.0198   ... ]  [m]        hydraulic diameter
-  eta_h : [ 0.817     0.773     0.759     0.751    ... ]             effectiveness
-     fr : [ 172       93.2      81.3      76       ... ]  [Pa]       force per frontal area
-      h : [ 170       126       112       105      ... ]  [W/K/m**2] convective heat transfer coefficient
-  h_seg : [ 0.002     0.00412   0.00425   0.0043   ... ]  [m]        Segment height
-      l : [ 0.00285   0.0138    0.0246    0.0344   ... ]  [m]        Reference flow length
-  l_seg : [ 0.00285   0.0166    0.0117    0.0099   ... ]  [m]        Segment flow length
-   mdot : [ 0.000152  0.00221   0.00229   0.00232  ... ]  [kg/s]     mass flow rate
-      v : [ 20        20        20        20       ... ]  [m/s]      fluid velocity
-  v_avg : [ 19.3      19.6      19.7      19.7     ... ]  [m/s]      Average fluid velocity over segment
-  v_out : [ 10.6      15.6      16.3      16.5     ... ]  [m/s]      output velocity
-      w : [ 0.00328   0.0228    0.0228    0.0228   ... ]  [m]        pipe width
-
-        | Layer/RectangularPipe.1
-  A_seg : [ 5.71e-06  6.88e-05  5e-05     4.3e-05  ... ]  [m**2]     Segment frontal area
-      D : [ 0.00208   0.00118   0.00111   0.00115  ... ]  [N]        total drag
-     Nu : [ 37.5      144       259       371      ... ]             Nusselt number
-     P0 : [ 1.02e+05  1.02e+05  1.02e+05  1.02e+05 ... ]  [Pa]       fluid total pressure
-     Pf : [ 0.73      0.382     0.324     0.299    ... ]             pressure drop parameter
-     Pr : [ 6.14      6.14      6.14      6.14     ... ]             Prandtl number
-     Re : [ 3.55e+03  1.91e+04  3.96e+04  6.22e+04 ... ]             Reynolds number
-      T : [ 500       500       500       500      ... ]  [K]        fluid temperature
-  T_avg : [ 500       500       500       500      ... ]  [K]        Average temperature over segment
- Tr_int : [ 496       498       498       498      ... ]  [K]        wall-fluid interface temperature
-  V_seg : [ 1.87e-08  1.57e-06  1.14e-06  9.81e-07 ... ]  [m**3]     Segment volume
-     dP : [ 73        38.2      32.4      29.9     ... ]  [Pa]       segment pressure drop
-     dQ : [ 0.667     1.68      1.53      1.4      ... ]  [W]        Magnitude of heat transfer over segment
-     dT : [ 0.029     0.00594   0.00745   0.0079   ... ]  [K]        Change in fluid temperature over segment
-     dh : [ 0.00478   0.0166    0.0141    0.0131   ... ]  [m]        hydraulic diameter
-  eta_h : [ 0.818     0.772     0.754     0.744    ... ]             effectiveness
-     fr : [ 365       191       162       150      ... ]  [Pa]       force per frontal area
-      h : [ 6.93e+03  5.04e+03  4.37e+03  4e+03    ... ]  [W/K/m**2] convective heat transfer coefficient
-  h_seg : [ 0.002     0.00414   0.00428   0.00434  ... ]  [m]        Segment height
-      l : [ 0.00328   0.0173    0.0359    0.0562   ... ]  [m]        Reference flow length
-  l_seg : [ 0.00328   0.0228    0.0228    0.0228   ... ]  [m]        Segment flow length
-   mdot : [ 0.00549   0.0675    0.0492    0.0424   ... ]  [kg/s]     mass flow rate
-      v : [ 1         1         1         1        ... ]  [m/s]      fluid velocity
-  v_avg : [ 0.963     0.981     0.984     0.985    ... ]  [m/s]      Average fluid velocity over segment
-  v_out : [ 0.52      0.786     0.822     0.837    ... ]  [m/s]      output velocity
-      w : [ 0.00285   0.0166    0.0117    0.0099   ... ]  [m]        pipe width
-
-Constants
----------
-          | Layer
-        g : 9.81                                            [m/s**2]  gravitational acceleration
-    maxAR : 8                                                         max aspect ratio of tiles
-    x_dim : 5                                               [cm]      max hot length
-    y_dim : 10                                              [cm]      max cold length
-    z_dim : 1                                               [cm]      max height
-
-          | Layer/Air
-        c : 1000                                            [J/K/kg]  heat capacity of air
-        k : 0.0262                                          [W/K/m]   thermal conductivity of air
-       mu : 1.81e-05                                        [Pa*s]    dynamic viscosity of air
-      rho : 1.2                                             [kg/m**3] density of air
-
-          | Layer/RectangularPipe
-     P_in : [ 1.01e+05  1.01e+05  1.01e+05  1.01e+05 ... ]  [Pa]      input static pressure
-    P_out : [ 1.01e+05  1.01e+05  1.01e+05  1.01e+05 ... ]  [Pa]      output static pressure
-   Pf_ref : [ 21.7      21.7      21.7      21.7     ... ]            reference pressure drop parameter
-   Re_ref : [ 9.06e+04  9.06e+04  9.06e+04  9.06e+04 ... ]            reference Reynolds number
-     T_in : [ 303       303       303       303      ... ]  [K]       input temperature
-eta_h_ref : [ 0.917     0.917     0.917     0.917    ... ]            reference effectiveness
-     v_in : [ 20        20        20        20       ... ]  [m/s]     input velocity
-
-          | Layer/RectangularPipe.1
-     P_in : [ 1.01e+05  1.01e+05  1.01e+05  1.01e+05 ... ]  [Pa]      input static pressure
-    P_out : [ 1.01e+05  1.01e+05  1.01e+05  1.01e+05 ... ]  [Pa]      output static pressure
-   Pf_ref : [ 21.7      21.7      21.7      21.7     ... ]            reference pressure drop parameter
-   Re_ref : [ 9.06e+04  9.06e+04  9.06e+04  9.06e+04 ... ]            reference Reynolds number
-     T_in : [ 500       500       500       500      ... ]  [K]       input temperature
-eta_h_ref : [ 0.917     0.917     0.917     0.917    ... ]            reference effectiveness
-     v_in : [ 1         1         1         1        ... ]  [m/s]     input velocity
-
-          | Layer/StainlessSteel
-        c : 500                                             [J/K/kg]  heat capacity of steel
-        k : 19                                              [W/K/m]   thermal conductivity of steel
-      rho : 7700                                            [kg/m**3] density of steel
-    t_min : 0.3                                             [mm]      minimum thickness of steel
-
-          | Layer/Water
-        c : 4184                                            [J/K/kg]  heat capacity of water
-        k : 0.606                                           [W/K/m]   thermal conductivity of water
-       mu : 0.00089                                         [Pa*s]    dynamic viscosity of water
-      rho : 1000                                            [kg/m**3] density of water
-
-Sensitivities
--------------
-          | Layer
-    x_dim : -0.89                                          max hot length
-    maxAR : -0.53                                          max aspect ratio of tiles
-    y_dim : -7e-11                                         max cold length
-
-          | Layer/Air
-       mu : +0.67                                          dynamic viscosity of air
-      rho : -0.67                                          density of air
-        k : -0.62                                          thermal conductivity of air
-        c : -0.35                                          heat capacity of air
-
-          | Layer/RectangularPipe
-    P_out : [ +84       +40       +24       +19      ... ] output static pressure
-     P_in : [ -84       -40       -24       -19      ... ] input static pressure
-     T_in : [ +0.081    +0.54     +0.36     +0.29    ... ] input temperature
-   Pf_ref : [ +0.36     +0.13     +0.097    +0.091   ... ] reference pressure drop parameter
-     v_in : [ +0.017    -0.19     -0.087    -0.043   ... ] input velocity
-   Re_ref : [ +0.15     +0.032    +0.02     +0.016   ... ] reference Reynolds number
-eta_h_ref : [ +8.8e-11  +6.1e-12  +6.2e-11  -1.7e-12 ... ] reference effectiveness
-
-          | Layer/RectangularPipe.1
-    P_out : [ +76       +2.5      +1.7      +1.5     ... ] output static pressure
-     P_in : [ -76       -2.5      -1.7      -1.5     ... ] input static pressure
-     T_in : [ -0.21     -0.58     -0.58     -0.58    ... ] input temperature
-   Pf_ref : [ +0.66     +0.12     +0.11     +0.11    ... ] reference pressure drop parameter
-     v_in : [ +0.1      +0.19     +0.18     +0.19    ... ] input velocity
-   Re_ref : [ +0.28     +0.028    +0.02     +0.018   ... ] reference Reynolds number
-eta_h_ref : [ -4.3e-11  +2.1e-10  +2.1e-10  +2.8e-10 ... ] reference effectiveness
-
-          | Layer/StainlessSteel
-        k : -0.0016                                        thermal conductivity of steel
-    t_min : +0.0015                                        minimum thickness of steel
-
-          | Layer/Water
-       mu : +0.38                                          dynamic viscosity of water
-      rho : +0.25                                          density of water
-        k : -0.013                                         thermal conductivity of water
-        c : -0.0071                                        heat capacity of water
+A_cld_Layer/HXArea_(0, 0) [m**2]		0.000227
+A_cld_Layer/HXArea_(0, 1) [m**2]		0.000312
+A_cld_Layer/HXArea_(0, 2) [m**2]		0.000315
+A_cld_Layer/HXArea_(1, 0) [m**2]		0.000310
+A_cld_Layer/HXArea_(1, 1) [m**2]		0.000424
+A_cld_Layer/HXArea_(1, 2) [m**2]		0.000424
+A_cld_Layer/HXArea_(2, 0) [m**2]		0.000351
+A_cld_Layer/HXArea_(2, 1) [m**2]		0.000478
+A_cld_Layer/HXArea_(2, 2) [m**2]		0.000475
+A_hot_Layer/HXArea_(0, 0) [m**2]		0.000130
+A_hot_Layer/HXArea_(0, 1) [m**2]		0.000229
+A_hot_Layer/HXArea_(0, 2) [m**2]		0.000212
+A_hot_Layer/HXArea_(1, 0) [m**2]		0.000157
+A_hot_Layer/HXArea_(1, 1) [m**2]		0.000274
+A_hot_Layer/HXArea_(1, 2) [m**2]		0.000253
+A_hot_Layer/HXArea_(2, 0) [m**2]		0.000176
+A_hot_Layer/HXArea_(2, 1) [m**2]		0.000302
+A_hot_Layer/HXArea_(2, 2) [m**2]		0.000278
+A_seg_Layer/RectangularPipe.1_(0, 0) [m**2]		0.000026
+A_seg_Layer/RectangularPipe.1_(0, 1) [m**2]		0.000035
+A_seg_Layer/RectangularPipe.1_(0, 2) [m**2]		0.000039
+A_seg_Layer/RectangularPipe.1_(1, 0) [m**2]		0.000028
+A_seg_Layer/RectangularPipe.1_(1, 1) [m**2]		0.000037
+A_seg_Layer/RectangularPipe.1_(1, 2) [m**2]		0.000042
+A_seg_Layer/RectangularPipe.1_(2, 0) [m**2]		0.000032
+A_seg_Layer/RectangularPipe.1_(2, 1) [m**2]		0.000040
+A_seg_Layer/RectangularPipe.1_(2, 2) [m**2]		0.000044
+A_seg_Layer/RectangularPipe_(0, 0) [m**2]		0.000038
+A_seg_Layer/RectangularPipe_(0, 1) [m**2]		0.000070
+A_seg_Layer/RectangularPipe_(0, 2) [m**2]		0.000066
+A_seg_Layer/RectangularPipe_(1, 0) [m**2]		0.000041
+A_seg_Layer/RectangularPipe_(1, 1) [m**2]		0.000074
+A_seg_Layer/RectangularPipe_(1, 2) [m**2]		0.000069
+A_seg_Layer/RectangularPipe_(2, 0) [m**2]		0.000045
+A_seg_Layer/RectangularPipe_(2, 1) [m**2]		0.000079
+A_seg_Layer/RectangularPipe_(2, 2) [m**2]		0.000074
+D_Layer/RectangularPipe.1_(0,) [N]		0.005945
+D_Layer/RectangularPipe.1_(1,) [N]		0.004980
+D_Layer/RectangularPipe.1_(2,) [N]		0.005058
+D_Layer/RectangularPipe_(0,) [N]		0.003599
+D_Layer/RectangularPipe_(1,) [N]		0.003197
+D_Layer/RectangularPipe_(2,) [N]		0.003205
+D_air_Layer [N]		0.010000
+D_wat_Layer [N]		0.100000
+Nu_Layer/RectangularPipe.1_(0, 0) [-]		83.972123
+Nu_Layer/RectangularPipe.1_(0, 1) [-]		184.830018
+Nu_Layer/RectangularPipe.1_(0, 2) [-]		270.977215
+Nu_Layer/RectangularPipe.1_(1, 0) [-]		78.347700
+Nu_Layer/RectangularPipe.1_(1, 1) [-]		175.533441
+Nu_Layer/RectangularPipe.1_(1, 2) [-]		258.704280
+Nu_Layer/RectangularPipe.1_(2, 0) [-]		71.542488
+Nu_Layer/RectangularPipe.1_(2, 1) [-]		164.877883
+Nu_Layer/RectangularPipe.1_(2, 2) [-]		244.848875
+Nu_Layer/RectangularPipe_(0, 0) [-]		62.279626
+Nu_Layer/RectangularPipe_(0, 1) [-]		122.688865
+Nu_Layer/RectangularPipe_(0, 2) [-]		182.418315
+Nu_Layer/RectangularPipe_(1, 0) [-]		58.758720
+Nu_Layer/RectangularPipe_(1, 1) [-]		117.040973
+Nu_Layer/RectangularPipe_(1, 2) [-]		174.773039
+Nu_Layer/RectangularPipe_(2, 0) [-]		54.643506
+Nu_Layer/RectangularPipe_(2, 1) [-]		110.650667
+Nu_Layer/RectangularPipe_(2, 2) [-]		166.227778
+P0_Layer/RectangularPipe.1_(0, 0) [Pa]		101500.000000
+P0_Layer/RectangularPipe.1_(0, 1) [Pa]		101500.000000
+P0_Layer/RectangularPipe.1_(0, 2) [Pa]		101500.000000
+P0_Layer/RectangularPipe.1_(1, 0) [Pa]		101423.594352
+P0_Layer/RectangularPipe.1_(1, 1) [Pa]		101441.308986
+P0_Layer/RectangularPipe.1_(1, 2) [Pa]		101446.789503
+P0_Layer/RectangularPipe.1_(2, 0) [Pa]		101347.188704
+P0_Layer/RectangularPipe.1_(2, 1) [Pa]		101382.617972
+P0_Layer/RectangularPipe.1_(2, 2) [Pa]		101393.579005
+P0_Layer/RectangularPipe.1_(3, 0) [Pa]		101270.783056
+P0_Layer/RectangularPipe.1_(3, 1) [Pa]		101323.926957
+P0_Layer/RectangularPipe.1_(3, 2) [Pa]		101340.368508
+P0_Layer/RectangularPipe_(0, 0) [Pa]		101240.000000
+P0_Layer/RectangularPipe_(0, 1) [Pa]		101240.000000
+P0_Layer/RectangularPipe_(0, 2) [Pa]		101240.000000
+P0_Layer/RectangularPipe_(1, 0) [Pa]		101208.602993
+P0_Layer/RectangularPipe_(1, 1) [Pa]		101214.066293
+P0_Layer/RectangularPipe_(1, 2) [Pa]		101216.256282
+P0_Layer/RectangularPipe_(2, 0) [Pa]		101177.205986
+P0_Layer/RectangularPipe_(2, 1) [Pa]		101188.132586
+P0_Layer/RectangularPipe_(2, 2) [Pa]		101192.512565
+P0_Layer/RectangularPipe_(3, 0) [Pa]		101145.808980
+P0_Layer/RectangularPipe_(3, 1) [Pa]		101162.198879
+P0_Layer/RectangularPipe_(3, 2) [Pa]		101168.768847
+P_in_Layer/RectangularPipe.1_(0,) [Pa]		101000.000000
+P_in_Layer/RectangularPipe.1_(1,) [Pa]		101000.000000
+P_in_Layer/RectangularPipe.1_(2,) [Pa]		101000.000000
+P_in_Layer/RectangularPipe_(0,) [Pa]		101000.000000
+P_in_Layer/RectangularPipe_(1,) [Pa]		101000.000000
+P_in_Layer/RectangularPipe_(2,) [Pa]		101000.000000
+P_out_Layer/RectangularPipe.1_(0,) [Pa]		101000.000000
+P_out_Layer/RectangularPipe.1_(1,) [Pa]		101000.000000
+P_out_Layer/RectangularPipe.1_(2,) [Pa]		101000.000000
+P_out_Layer/RectangularPipe_(0,) [Pa]		101000.000000
+P_out_Layer/RectangularPipe_(1,) [Pa]		101000.000000
+P_out_Layer/RectangularPipe_(2,) [Pa]		101000.000000
+Pf_Layer/RectangularPipe.1_(0,) [-]		0.458434
+Pf_Layer/RectangularPipe.1_(1,) [-]		0.352146
+Pf_Layer/RectangularPipe.1_(2,) [-]		0.319263
+Pf_Layer/RectangularPipe_(0,) [-]		0.392463
+Pf_Layer/RectangularPipe_(1,) [-]		0.324171
+Pf_Layer/RectangularPipe_(2,) [-]		0.296796
+Pf_ref_Layer/RectangularPipe.1_(0,) [-]		21.660000
+Pf_ref_Layer/RectangularPipe.1_(1,) [-]		21.660000
+Pf_ref_Layer/RectangularPipe.1_(2,) [-]		21.660000
+Pf_ref_Layer/RectangularPipe_(0,) [-]		21.660000
+Pf_ref_Layer/RectangularPipe_(1,) [-]		21.660000
+Pf_ref_Layer/RectangularPipe_(2,) [-]		21.660000
+Pr_Layer/RectangularPipe.1_(0,) [-]		6.144818
+Pr_Layer/RectangularPipe.1_(1,) [-]		6.144818
+Pr_Layer/RectangularPipe.1_(2,) [-]		6.144818
+Pr_Layer/RectangularPipe_(0,) [-]		0.690840
+Pr_Layer/RectangularPipe_(1,) [-]		0.690840
+Pr_Layer/RectangularPipe_(2,) [-]		0.690840
+Q_Layer [W]		51.310952
+Re_Layer/RectangularPipe.1_(0, 0) [-]		9716.477176
+Re_Layer/RectangularPipe.1_(0, 1) [-]		26049.869529
+Re_Layer/RectangularPipe.1_(0, 2) [-]		42024.822664
+Re_Layer/RectangularPipe.1_(1, 0) [-]		8909.897992
+Re_Layer/RectangularPipe.1_(1, 1) [-]		24422.479470
+Re_Layer/RectangularPipe.1_(1, 2) [-]		39659.244509
+Re_Layer/RectangularPipe.1_(2, 0) [-]		7953.256107
+Re_Layer/RectangularPipe.1_(2, 1) [-]		22583.586972
+Re_Layer/RectangularPipe.1_(2, 2) [-]		37022.228854
+Re_Layer/RectangularPipe_(0, 0) [-]		16624.323891
+Re_Layer/RectangularPipe_(0, 1) [-]		38798.767546
+Re_Layer/RectangularPipe_(0, 2) [-]		63701.116484
+Re_Layer/RectangularPipe_(1, 0) [-]		15457.950074
+Re_Layer/RectangularPipe_(1, 1) [-]		36579.174347
+Re_Layer/RectangularPipe_(1, 2) [-]		60381.589513
+Re_Layer/RectangularPipe_(2, 0) [-]		14116.748994
+Re_Layer/RectangularPipe_(2, 1) [-]		34099.973134
+Re_Layer/RectangularPipe_(2, 2) [-]		56714.093102
+Re_ref_Layer/RectangularPipe.1_(0,) [-]		90550.000000
+Re_ref_Layer/RectangularPipe.1_(1,) [-]		90550.000000
+Re_ref_Layer/RectangularPipe.1_(2,) [-]		90550.000000
+Re_ref_Layer/RectangularPipe_(0,) [-]		90550.000000
+Re_ref_Layer/RectangularPipe_(1,) [-]		90550.000000
+Re_ref_Layer/RectangularPipe_(2,) [-]		90550.000000
+T_Layer/RectangularPipe.1_(0, 0) [K]		500.000000
+T_Layer/RectangularPipe.1_(0, 1) [K]		500.000000
+T_Layer/RectangularPipe.1_(0, 2) [K]		500.000000
+T_Layer/RectangularPipe.1_(1, 0) [K]		499.959431
+T_Layer/RectangularPipe.1_(1, 1) [K]		499.960625
+T_Layer/RectangularPipe.1_(1, 2) [K]		499.968199
+T_Layer/RectangularPipe.1_(2, 0) [K]		499.911319
+T_Layer/RectangularPipe.1_(2, 1) [K]		499.913419
+T_Layer/RectangularPipe.1_(2, 2) [K]		499.929503
+T_Layer/RectangularPipe.1_(3, 0) [K]		499.861179
+T_Layer/RectangularPipe.1_(3, 1) [K]		499.864451
+T_Layer/RectangularPipe.1_(3, 2) [K]		499.889404
+T_Layer/RectangularPipe_(0, 0) [K]		303.000000
+T_Layer/RectangularPipe_(0, 1) [K]		303.000000
+T_Layer/RectangularPipe_(0, 2) [K]		303.000000
+T_Layer/RectangularPipe_(1, 0) [K]		307.773290
+T_Layer/RectangularPipe_(1, 1) [K]		306.083333
+T_Layer/RectangularPipe_(1, 2) [K]		306.407181
+T_Layer/RectangularPipe_(2, 0) [K]		314.065384
+T_Layer/RectangularPipe_(2, 1) [K]		310.192203
+T_Layer/RectangularPipe_(2, 2) [K]		310.926561
+T_Layer/RectangularPipe_(3, 0) [K]		319.786093
+T_Layer/RectangularPipe_(3, 1) [K]		313.983711
+T_Layer/RectangularPipe_(3, 2) [K]		315.092540
+T_avg_Layer/RectangularPipe.1_(0, 0) [K]		499.979715
+T_avg_Layer/RectangularPipe.1_(0, 1) [K]		499.980312
+T_avg_Layer/RectangularPipe.1_(0, 2) [K]		499.984099
+T_avg_Layer/RectangularPipe.1_(1, 0) [K]		499.935374
+T_avg_Layer/RectangularPipe.1_(1, 1) [K]		499.937022
+T_avg_Layer/RectangularPipe.1_(1, 2) [K]		499.948850
+T_avg_Layer/RectangularPipe.1_(2, 0) [K]		499.886248
+T_avg_Layer/RectangularPipe.1_(2, 1) [K]		499.888934
+T_avg_Layer/RectangularPipe.1_(2, 2) [K]		499.909453
+T_avg_Layer/RectangularPipe_(0, 0) [K]		305.377319
+T_avg_Layer/RectangularPipe_(0, 1) [K]		304.537764
+T_avg_Layer/RectangularPipe_(0, 2) [K]		304.698828
+T_avg_Layer/RectangularPipe_(1, 0) [K]		310.903420
+T_avg_Layer/RectangularPipe_(1, 1) [K]		308.130919
+T_avg_Layer/RectangularPipe_(1, 2) [K]		308.658599
+T_avg_Layer/RectangularPipe_(2, 0) [K]		316.912830
+T_avg_Layer/RectangularPipe_(2, 1) [K]		312.082199
+T_avg_Layer/RectangularPipe_(2, 2) [K]		313.002619
+T_cld_Layer/HXArea_(0, 0) [K]		305.377319
+T_cld_Layer/HXArea_(0, 1) [K]		310.903420
+T_cld_Layer/HXArea_(0, 2) [K]		316.912830
+T_cld_Layer/HXArea_(1, 0) [K]		304.537764
+T_cld_Layer/HXArea_(1, 1) [K]		308.130919
+T_cld_Layer/HXArea_(1, 2) [K]		312.082199
+T_cld_Layer/HXArea_(2, 0) [K]		304.698828
+T_cld_Layer/HXArea_(2, 1) [K]		308.658599
+T_cld_Layer/HXArea_(2, 2) [K]		313.002619
+T_hot_Layer/HXArea_(0, 0) [K]		499.979715
+T_hot_Layer/HXArea_(0, 1) [K]		499.980312
+T_hot_Layer/HXArea_(0, 2) [K]		499.984099
+T_hot_Layer/HXArea_(1, 0) [K]		499.935374
+T_hot_Layer/HXArea_(1, 1) [K]		499.937022
+T_hot_Layer/HXArea_(1, 2) [K]		499.948850
+T_hot_Layer/HXArea_(2, 0) [K]		499.886248
+T_hot_Layer/HXArea_(2, 1) [K]		499.888934
+T_hot_Layer/HXArea_(2, 2) [K]		499.909453
+T_in_Layer/RectangularPipe.1_(0,) [K]		500.000000
+T_in_Layer/RectangularPipe.1_(1,) [K]		500.000000
+T_in_Layer/RectangularPipe.1_(2,) [K]		500.000000
+T_in_Layer/RectangularPipe_(0,) [K]		303.000000
+T_in_Layer/RectangularPipe_(1,) [K]		303.000000
+T_in_Layer/RectangularPipe_(2,) [K]		303.000000
+T_in_air_Layer [K]		303.000000
+T_in_water_Layer [K]		500.000000
+T_r_Layer/HXArea_(0, 0) [K]		468.435108
+T_r_Layer/HXArea_(0, 1) [K]		475.504935
+T_r_Layer/HXArea_(0, 2) [K]		475.529128
+T_r_Layer/HXArea_(1, 0) [K]		468.643918
+T_r_Layer/HXArea_(1, 1) [K]		475.164994
+T_r_Layer/HXArea_(1, 2) [K]		474.755768
+T_r_Layer/HXArea_(2, 0) [K]		470.269119
+T_r_Layer/HXArea_(2, 1) [K]		476.231233
+T_r_Layer/HXArea_(2, 2) [K]		475.782096
+Tr_cld_Layer/HXArea_(0, 0) [K]		453.699692
+Tr_cld_Layer/HXArea_(0, 1) [K]		461.397861
+Tr_cld_Layer/HXArea_(0, 2) [K]		462.810449
+Tr_cld_Layer/HXArea_(1, 0) [K]		455.875950
+Tr_cld_Layer/HXArea_(1, 1) [K]		462.722011
+Tr_cld_Layer/HXArea_(1, 2) [K]		463.252276
+Tr_cld_Layer/HXArea_(2, 0) [K]		458.490697
+Tr_cld_Layer/HXArea_(2, 1) [K]		464.774996
+Tr_cld_Layer/HXArea_(2, 2) [K]		465.162014
+Tr_hot_Layer/HXArea_(0, 0) [K]		494.207530
+Tr_hot_Layer/HXArea_(0, 1) [K]		494.773535
+Tr_hot_Layer/HXArea_(0, 2) [K]		494.391689
+Tr_hot_Layer/HXArea_(1, 0) [K]		493.878134
+Tr_hot_Layer/HXArea_(1, 1) [K]		494.449932
+Tr_hot_Layer/HXArea_(1, 2) [K]		493.979177
+Tr_hot_Layer/HXArea_(2, 0) [K]		493.721395
+Tr_hot_Layer/HXArea_(2, 1) [K]		494.388812
+Tr_hot_Layer/HXArea_(2, 2) [K]		493.948782
+Tr_int_Layer/RectangularPipe.1_(0, 0) [K]		494.207530
+Tr_int_Layer/RectangularPipe.1_(0, 1) [K]		494.773535
+Tr_int_Layer/RectangularPipe.1_(0, 2) [K]		494.391689
+Tr_int_Layer/RectangularPipe.1_(1, 0) [K]		493.878134
+Tr_int_Layer/RectangularPipe.1_(1, 1) [K]		494.449932
+Tr_int_Layer/RectangularPipe.1_(1, 2) [K]		493.979177
+Tr_int_Layer/RectangularPipe.1_(2, 0) [K]		493.721395
+Tr_int_Layer/RectangularPipe.1_(2, 1) [K]		494.388812
+Tr_int_Layer/RectangularPipe.1_(2, 2) [K]		493.948782
+Tr_int_Layer/RectangularPipe_(0, 0) [K]		453.699692
+Tr_int_Layer/RectangularPipe_(0, 1) [K]		455.875950
+Tr_int_Layer/RectangularPipe_(0, 2) [K]		458.490697
+Tr_int_Layer/RectangularPipe_(1, 0) [K]		461.397861
+Tr_int_Layer/RectangularPipe_(1, 1) [K]		462.722011
+Tr_int_Layer/RectangularPipe_(1, 2) [K]		464.774996
+Tr_int_Layer/RectangularPipe_(2, 0) [K]		462.810449
+Tr_int_Layer/RectangularPipe_(2, 1) [K]		463.252276
+Tr_int_Layer/RectangularPipe_(2, 2) [K]		465.162014
+V_mtrl_Layer [cm**3]		86.015469
+V_seg_Layer/RectangularPipe.1_(0, 0) [m**3]		0.000000
+V_seg_Layer/RectangularPipe.1_(0, 1) [m**3]		0.000001
+V_seg_Layer/RectangularPipe.1_(0, 2) [m**3]		0.000001
+V_seg_Layer/RectangularPipe.1_(1, 0) [m**3]		0.000000
+V_seg_Layer/RectangularPipe.1_(1, 1) [m**3]		0.000001
+V_seg_Layer/RectangularPipe.1_(1, 2) [m**3]		0.000001
+V_seg_Layer/RectangularPipe.1_(2, 0) [m**3]		0.000000
+V_seg_Layer/RectangularPipe.1_(2, 1) [m**3]		0.000001
+V_seg_Layer/RectangularPipe.1_(2, 2) [m**3]		0.000001
+V_seg_Layer/RectangularPipe_(0, 0) [m**3]		0.000000
+V_seg_Layer/RectangularPipe_(0, 1) [m**3]		0.000001
+V_seg_Layer/RectangularPipe_(0, 2) [m**3]		0.000001
+V_seg_Layer/RectangularPipe_(1, 0) [m**3]		0.000001
+V_seg_Layer/RectangularPipe_(1, 1) [m**3]		0.000001
+V_seg_Layer/RectangularPipe_(1, 2) [m**3]		0.000001
+V_seg_Layer/RectangularPipe_(2, 0) [m**3]		0.000001
+V_seg_Layer/RectangularPipe_(2, 1) [m**3]		0.000001
+V_seg_Layer/RectangularPipe_(2, 2) [m**3]		0.000001
+V_tot_Layer [cm**3]		100.000000
+c_Layer/Air [J/K/kg]		1000.000000
+c_Layer/StainlessSteel [J/K/kg]		500.000000
+c_Layer/Water [J/K/kg]		4184.000000
+dP_Layer/RectangularPipe.1_(0, 0) [Pa]		76.405647
+dP_Layer/RectangularPipe.1_(0, 1) [Pa]		58.691013
+dP_Layer/RectangularPipe.1_(0, 2) [Pa]		53.210496
+dP_Layer/RectangularPipe.1_(1, 0) [Pa]		76.405647
+dP_Layer/RectangularPipe.1_(1, 1) [Pa]		58.691013
+dP_Layer/RectangularPipe.1_(1, 2) [Pa]		53.210496
+dP_Layer/RectangularPipe.1_(2, 0) [Pa]		76.405647
+dP_Layer/RectangularPipe.1_(2, 1) [Pa]		58.691013
+dP_Layer/RectangularPipe.1_(2, 2) [Pa]		53.210496
+dP_Layer/RectangularPipe_(0, 0) [Pa]		31.397007
+dP_Layer/RectangularPipe_(0, 1) [Pa]		25.933707
+dP_Layer/RectangularPipe_(0, 2) [Pa]		23.743718
+dP_Layer/RectangularPipe_(1, 0) [Pa]		31.397007
+dP_Layer/RectangularPipe_(1, 1) [Pa]		25.933707
+dP_Layer/RectangularPipe_(1, 2) [Pa]		23.743718
+dP_Layer/RectangularPipe_(2, 0) [Pa]		31.397007
+dP_Layer/RectangularPipe_(2, 1) [Pa]		25.933707
+dP_Layer/RectangularPipe_(2, 2) [Pa]		23.743718
+dQ_Layer/HXArea_(0, 0) [W]		4.231150
+dQ_Layer/HXArea_(0, 1) [W]		5.577452
+dQ_Layer/HXArea_(0, 2) [W]		5.070963
+dQ_Layer/HXArea_(1, 0) [W]		5.017848
+dQ_Layer/HXArea_(1, 1) [W]		6.686818
+dQ_Layer/HXArea_(1, 2) [W]		6.170338
+dQ_Layer/HXArea_(2, 0) [W]		5.229366
+dQ_Layer/HXArea_(2, 1) [W]		6.936377
+dQ_Layer/HXArea_(2, 2) [W]		6.393975
+dQ_Layer/RectangularPipe.1_(0, 0) [W]		4.231150
+dQ_Layer/RectangularPipe.1_(0, 1) [W]		5.577452
+dQ_Layer/RectangularPipe.1_(0, 2) [W]		5.070963
+dQ_Layer/RectangularPipe.1_(1, 0) [W]		5.017848
+dQ_Layer/RectangularPipe.1_(1, 1) [W]		6.686818
+dQ_Layer/RectangularPipe.1_(1, 2) [W]		6.170338
+dQ_Layer/RectangularPipe.1_(2, 0) [W]		5.229366
+dQ_Layer/RectangularPipe.1_(2, 1) [W]		6.936377
+dQ_Layer/RectangularPipe.1_(2, 2) [W]		6.393975
+dQ_Layer/RectangularPipe_(0, 0) [W]		4.231150
+dQ_Layer/RectangularPipe_(0, 1) [W]		5.017848
+dQ_Layer/RectangularPipe_(0, 2) [W]		5.229366
+dQ_Layer/RectangularPipe_(1, 0) [W]		5.577452
+dQ_Layer/RectangularPipe_(1, 1) [W]		6.686818
+dQ_Layer/RectangularPipe_(1, 2) [W]		6.936377
+dQ_Layer/RectangularPipe_(2, 0) [W]		5.070963
+dQ_Layer/RectangularPipe_(2, 1) [W]		6.170338
+dQ_Layer/RectangularPipe_(2, 2) [W]		6.393975
+dT_Layer/RectangularPipe.1_(0, 0) [K]		0.040569
+dT_Layer/RectangularPipe.1_(0, 1) [K]		0.039375
+dT_Layer/RectangularPipe.1_(0, 2) [K]		0.031801
+dT_Layer/RectangularPipe.1_(1, 0) [K]		0.048112
+dT_Layer/RectangularPipe.1_(1, 1) [K]		0.047206
+dT_Layer/RectangularPipe.1_(1, 2) [K]		0.038696
+dT_Layer/RectangularPipe.1_(2, 0) [K]		0.050140
+dT_Layer/RectangularPipe.1_(2, 1) [K]		0.048968
+dT_Layer/RectangularPipe.1_(2, 2) [K]		0.040098
+dT_Layer/RectangularPipe_(0, 0) [K]		4.773290
+dT_Layer/RectangularPipe_(0, 1) [K]		3.083333
+dT_Layer/RectangularPipe_(0, 2) [K]		3.407181
+dT_Layer/RectangularPipe_(1, 0) [K]		6.292094
+dT_Layer/RectangularPipe_(1, 1) [K]		4.108870
+dT_Layer/RectangularPipe_(1, 2) [K]		4.519380
+dT_Layer/RectangularPipe_(2, 0) [K]		5.720709
+dT_Layer/RectangularPipe_(2, 1) [K]		3.791507
+dT_Layer/RectangularPipe_(2, 2) [K]		4.165979
+dh_Layer/RectangularPipe.1_(0, 0) [m]		0.010186
+dh_Layer/RectangularPipe.1_(0, 1) [m]		0.011814
+dh_Layer/RectangularPipe.1_(0, 2) [m]		0.012517
+dh_Layer/RectangularPipe.1_(1, 0) [m]		0.010637
+dh_Layer/RectangularPipe.1_(1, 1) [m]		0.012202
+dh_Layer/RectangularPipe.1_(1, 2) [m]		0.012885
+dh_Layer/RectangularPipe.1_(2, 0) [m]		0.011258
+dh_Layer/RectangularPipe.1_(2, 1) [m]		0.012689
+dh_Layer/RectangularPipe.1_(2, 2) [m]		0.013336
+dh_Layer/RectangularPipe_(0, 0) [m]		0.012362
+dh_Layer/RectangularPipe_(0, 1) [m]		0.016699
+dh_Layer/RectangularPipe_(0, 2) [m]		0.016198
+dh_Layer/RectangularPipe_(1, 0) [m]		0.012820
+dh_Layer/RectangularPipe_(1, 1) [m]		0.017199
+dh_Layer/RectangularPipe_(1, 2) [m]		0.016637
+dh_Layer/RectangularPipe_(2, 0) [m]		0.013415
+dh_Layer/RectangularPipe_(2, 1) [m]		0.017813
+dh_Layer/RectangularPipe_(2, 2) [m]		0.017167
+eta_h_Layer/RectangularPipe.1_(0,) [-]		0.787379
+eta_h_Layer/RectangularPipe.1_(1,) [-]		0.763427
+eta_h_Layer/RectangularPipe.1_(2,) [-]		0.752339
+eta_h_Layer/RectangularPipe_(0,) [-]		0.774119
+eta_h_Layer/RectangularPipe_(1,) [-]		0.754172
+eta_h_Layer/RectangularPipe_(2,) [-]		0.742901
+eta_h_ref_Layer/RectangularPipe.1_(0,) [-]		0.917000
+eta_h_ref_Layer/RectangularPipe.1_(1,) [-]		0.917000
+eta_h_ref_Layer/RectangularPipe.1_(2,) [-]		0.917000
+eta_h_ref_Layer/RectangularPipe_(0,) [-]		0.917000
+eta_h_ref_Layer/RectangularPipe_(1,) [-]		0.917000
+eta_h_ref_Layer/RectangularPipe_(2,) [-]		0.917000
+fr_Layer/RectangularPipe.1_(0,) [Pa]		229.216941
+fr_Layer/RectangularPipe.1_(1,) [Pa]		176.073040
+fr_Layer/RectangularPipe.1_(2,) [Pa]		159.631489
+fr_Layer/RectangularPipe_(0,) [Pa]		94.191020
+fr_Layer/RectangularPipe_(1,) [Pa]		77.801121
+fr_Layer/RectangularPipe_(2,) [Pa]		71.231153
+g_Layer [m/s**2]		9.810000
+h_Layer/RectangularPipe.1_(0, 0) [W/K/m**2]		5655.220575
+h_Layer/RectangularPipe.1_(0, 1) [W/K/m**2]		4687.223617
+h_Layer/RectangularPipe.1_(0, 2) [W/K/m**2]		4272.048954
+h_Layer/RectangularPipe.1_(1, 0) [W/K/m**2]		5276.435897
+h_Layer/RectangularPipe.1_(1, 1) [W/K/m**2]		4451.465725
+h_Layer/RectangularPipe.1_(1, 2) [W/K/m**2]		4078.561905
+h_Layer/RectangularPipe.1_(2, 0) [W/K/m**2]		4818.129348
+h_Layer/RectangularPipe.1_(2, 1) [W/K/m**2]		4181.244552
+h_Layer/RectangularPipe.1_(2, 2) [W/K/m**2]		3860.126685
+h_Layer/RectangularPipe_(0, 0) [W/K/m**2]		125.819058
+h_Layer/RectangularPipe_(0, 1) [W/K/m**2]		106.846473
+h_Layer/RectangularPipe_(0, 2) [W/K/m**2]		96.992726
+h_Layer/RectangularPipe_(1, 0) [W/K/m**2]		118.706024
+h_Layer/RectangularPipe_(1, 1) [W/K/m**2]		101.927874
+h_Layer/RectangularPipe_(1, 2) [W/K/m**2]		92.927695
+h_Layer/RectangularPipe_(2, 0) [W/K/m**2]		110.392353
+h_Layer/RectangularPipe_(2, 1) [W/K/m**2]		96.362726
+h_Layer/RectangularPipe_(2, 2) [W/K/m**2]		88.384136
+h_cld_Layer/HXArea_(0, 0) [W/K/m**2]		125.819058
+h_cld_Layer/HXArea_(0, 1) [W/K/m**2]		118.706024
+h_cld_Layer/HXArea_(0, 2) [W/K/m**2]		110.392353
+h_cld_Layer/HXArea_(1, 0) [W/K/m**2]		106.846473
+h_cld_Layer/HXArea_(1, 1) [W/K/m**2]		101.927874
+h_cld_Layer/HXArea_(1, 2) [W/K/m**2]		96.362726
+h_cld_Layer/HXArea_(2, 0) [W/K/m**2]		96.992726
+h_cld_Layer/HXArea_(2, 1) [W/K/m**2]		92.927695
+h_cld_Layer/HXArea_(2, 2) [W/K/m**2]		88.384136
+h_hot_Layer/HXArea_(0, 0) [W/K/m**2]		5655.220575
+h_hot_Layer/HXArea_(0, 1) [W/K/m**2]		4687.223617
+h_hot_Layer/HXArea_(0, 2) [W/K/m**2]		4272.048954
+h_hot_Layer/HXArea_(1, 0) [W/K/m**2]		5276.435897
+h_hot_Layer/HXArea_(1, 1) [W/K/m**2]		4451.465725
+h_hot_Layer/HXArea_(1, 2) [W/K/m**2]		4078.561905
+h_hot_Layer/HXArea_(2, 0) [W/K/m**2]		4818.129348
+h_hot_Layer/HXArea_(2, 1) [W/K/m**2]		4181.244552
+h_hot_Layer/HXArea_(2, 2) [W/K/m**2]		3860.126685
+h_seg_Layer/RectangularPipe.1_(0, 0) [m]		0.002000
+h_seg_Layer/RectangularPipe.1_(0, 1) [m]		0.002000
+h_seg_Layer/RectangularPipe.1_(0, 2) [m]		0.002000
+h_seg_Layer/RectangularPipe.1_(1, 0) [m]		0.002181
+h_seg_Layer/RectangularPipe.1_(1, 1) [m]		0.002133
+h_seg_Layer/RectangularPipe.1_(1, 2) [m]		0.002119
+h_seg_Layer/RectangularPipe.1_(2, 0) [m]		0.002443
+h_seg_Layer/RectangularPipe.1_(2, 1) [m]		0.002307
+h_seg_Layer/RectangularPipe.1_(2, 2) [m]		0.002270
+h_seg_Layer/RectangularPipe_(0, 0) [m]		0.004246
+h_seg_Layer/RectangularPipe_(0, 1) [m]		0.004394
+h_seg_Layer/RectangularPipe_(0, 2) [m]		0.004452
+h_seg_Layer/RectangularPipe_(1, 0) [m]		0.004566
+h_seg_Layer/RectangularPipe_(1, 1) [m]		0.004661
+h_seg_Layer/RectangularPipe_(1, 2) [m]		0.004696
+h_seg_Layer/RectangularPipe_(2, 0) [m]		0.005000
+h_seg_Layer/RectangularPipe_(2, 1) [m]		0.005000
+h_seg_Layer/RectangularPipe_(2, 2) [m]		0.005000
+k_Layer/Air [W/K/m]		0.026200
+k_Layer/StainlessSteel [W/K/m]		19.000000
+k_Layer/Water [W/K/m]		0.606000
+l_Layer/RectangularPipe.1_(0, 0) [m]		0.008998
+l_Layer/RectangularPipe.1_(0, 1) [m]		0.023896
+l_Layer/RectangularPipe.1_(0, 2) [m]		0.038439
+l_Layer/RectangularPipe.1_(1, 0) [m]		0.008998
+l_Layer/RectangularPipe.1_(1, 1) [m]		0.023896
+l_Layer/RectangularPipe.1_(1, 2) [m]		0.038439
+l_Layer/RectangularPipe.1_(2, 0) [m]		0.008998
+l_Layer/RectangularPipe.1_(2, 1) [m]		0.023896
+l_Layer/RectangularPipe.1_(2, 2) [m]		0.038439
+l_Layer/RectangularPipe_(0, 0) [m]		0.012969
+l_Layer/RectangularPipe_(0, 1) [m]		0.030085
+l_Layer/RectangularPipe_(0, 2) [m]		0.049275
+l_Layer/RectangularPipe_(1, 0) [m]		0.012969
+l_Layer/RectangularPipe_(1, 1) [m]		0.030085
+l_Layer/RectangularPipe_(1, 2) [m]		0.049275
+l_Layer/RectangularPipe_(2, 0) [m]		0.012969
+l_Layer/RectangularPipe_(2, 1) [m]		0.030085
+l_Layer/RectangularPipe_(2, 2) [m]		0.049275
+l_seg_Layer/RectangularPipe.1_(0, 0) [m]		0.008998
+l_seg_Layer/RectangularPipe.1_(0, 1) [m]		0.015865
+l_seg_Layer/RectangularPipe.1_(0, 2) [m]		0.014735
+l_seg_Layer/RectangularPipe.1_(1, 0) [m]		0.008998
+l_seg_Layer/RectangularPipe.1_(1, 1) [m]		0.015865
+l_seg_Layer/RectangularPipe.1_(1, 2) [m]		0.014735
+l_seg_Layer/RectangularPipe.1_(2, 0) [m]		0.008998
+l_seg_Layer/RectangularPipe.1_(2, 1) [m]		0.015865
+l_seg_Layer/RectangularPipe.1_(2, 2) [m]		0.014735
+l_seg_Layer/RectangularPipe_(0, 0) [m]		0.012969
+l_seg_Layer/RectangularPipe_(0, 1) [m]		0.017447
+l_seg_Layer/RectangularPipe_(0, 2) [m]		0.019584
+l_seg_Layer/RectangularPipe_(1, 0) [m]		0.012969
+l_seg_Layer/RectangularPipe_(1, 1) [m]		0.017447
+l_seg_Layer/RectangularPipe_(1, 2) [m]		0.019584
+l_seg_Layer/RectangularPipe_(2, 0) [m]		0.012969
+l_seg_Layer/RectangularPipe_(2, 1) [m]		0.017447
+l_seg_Layer/RectangularPipe_(2, 2) [m]		0.019584
+maxAR_Layer [-]		8.000000
+mdot_Layer/RectangularPipe.1_(0,) [kg/s]		0.024927
+mdot_Layer/RectangularPipe.1_(1,) [kg/s]		0.033855
+mdot_Layer/RectangularPipe.1_(2,) [kg/s]		0.038111
+mdot_Layer/RectangularPipe_(0,) [kg/s]		0.000886
+mdot_Layer/RectangularPipe_(1,) [kg/s]		0.001627
+mdot_Layer/RectangularPipe_(2,) [kg/s]		0.001535
+mu_Layer/Air [Pa*s]		0.000018
+mu_Layer/Water [Pa*s]		0.000890
+rho_Layer/Air [kg/m**3]		1.200000
+rho_Layer/StainlessSteel [kg/m**3]		7700.000000
+rho_Layer/Water [kg/m**3]		1000.000000
+t_cld_Layer/HXArea_(0, 0) [m]		0.030000
+t_cld_Layer/HXArea_(0, 1) [m]		0.030000
+t_cld_Layer/HXArea_(0, 2) [m]		0.030000
+t_cld_Layer/HXArea_(1, 0) [m]		0.030000
+t_cld_Layer/HXArea_(1, 1) [m]		0.030000
+t_cld_Layer/HXArea_(1, 2) [m]		0.030000
+t_cld_Layer/HXArea_(2, 0) [m]		0.030000
+t_cld_Layer/HXArea_(2, 1) [m]		0.030000
+t_cld_Layer/HXArea_(2, 2) [m]		0.030000
+t_hot_Layer/HXArea_(0, 0) [m]		0.030000
+t_hot_Layer/HXArea_(0, 1) [m]		0.030000
+t_hot_Layer/HXArea_(0, 2) [m]		0.030000
+t_hot_Layer/HXArea_(1, 0) [m]		0.030000
+t_hot_Layer/HXArea_(1, 1) [m]		0.030000
+t_hot_Layer/HXArea_(1, 2) [m]		0.030000
+t_hot_Layer/HXArea_(2, 0) [m]		0.030000
+t_hot_Layer/HXArea_(2, 1) [m]		0.030000
+t_hot_Layer/HXArea_(2, 2) [m]		0.030000
+t_min_Layer/StainlessSteel [cm]		3.000000
+t_plate_Layer/HXArea_(0, 0) [m]		0.030000
+t_plate_Layer/HXArea_(0, 1) [m]		0.030000
+t_plate_Layer/HXArea_(0, 2) [m]		0.030000
+t_plate_Layer/HXArea_(1, 0) [m]		0.030000
+t_plate_Layer/HXArea_(1, 1) [m]		0.030000
+t_plate_Layer/HXArea_(1, 2) [m]		0.030000
+t_plate_Layer/HXArea_(2, 0) [m]		0.030000
+t_plate_Layer/HXArea_(2, 1) [m]		0.030000
+t_plate_Layer/HXArea_(2, 2) [m]		0.030000
+v_Layer/RectangularPipe.1_(0, 0) [m/s]		1.000000
+v_Layer/RectangularPipe.1_(0, 1) [m/s]		1.000000
+v_Layer/RectangularPipe.1_(0, 2) [m/s]		1.000000
+v_Layer/RectangularPipe.1_(1, 0) [m/s]		0.923594
+v_Layer/RectangularPipe.1_(1, 1) [m/s]		0.941309
+v_Layer/RectangularPipe.1_(1, 2) [m/s]		0.946790
+v_Layer/RectangularPipe.1_(2, 0) [m/s]		0.840868
+v_Layer/RectangularPipe.1_(2, 1) [m/s]		0.878959
+v_Layer/RectangularPipe.1_(2, 2) [m/s]		0.890589
+v_Layer/RectangularPipe.1_(3, 0) [m/s]		0.735912
+v_Layer/RectangularPipe.1_(3, 1) [m/s]		0.804894
+v_Layer/RectangularPipe.1_(3, 2) [m/s]		0.825068
+v_Layer/RectangularPipe_(0, 0) [m/s]		20.000000
+v_Layer/RectangularPipe_(0, 1) [m/s]		20.000000
+v_Layer/RectangularPipe_(0, 2) [m/s]		20.000000
+v_Layer/RectangularPipe_(1, 0) [m/s]		18.691791
+v_Layer/RectangularPipe_(1, 1) [m/s]		18.919429
+v_Layer/RectangularPipe_(1, 2) [m/s]		19.010678
+v_Layer/RectangularPipe_(2, 0) [m/s]		17.292023
+v_Layer/RectangularPipe_(2, 1) [m/s]		17.777142
+v_Layer/RectangularPipe_(2, 2) [m/s]		17.969872
+v_Layer/RectangularPipe_(3, 0) [m/s]		15.588937
+v_Layer/RectangularPipe_(3, 1) [m/s]		16.441760
+v_Layer/RectangularPipe_(3, 2) [m/s]		16.771446
+v_avg_Layer/RectangularPipe.1_(0, 0) [m/s]		0.961038
+v_avg_Layer/RectangularPipe.1_(0, 1) [m/s]		0.970211
+v_avg_Layer/RectangularPipe.1_(0, 2) [m/s]		0.973031
+v_avg_Layer/RectangularPipe.1_(1, 0) [m/s]		0.881261
+v_avg_Layer/RectangularPipe.1_(1, 1) [m/s]		0.909600
+v_avg_Layer/RectangularPipe.1_(1, 2) [m/s]		0.918259
+v_avg_Layer/RectangularPipe.1_(2, 0) [m/s]		0.786641
+v_avg_Layer/RectangularPipe.1_(2, 1) [m/s]		0.841111
+v_avg_Layer/RectangularPipe.1_(2, 2) [m/s]		0.857202
+v_avg_Layer/RectangularPipe_(0, 0) [m/s]		19.334835
+v_avg_Layer/RectangularPipe_(0, 1) [m/s]		19.452213
+v_avg_Layer/RectangularPipe_(0, 2) [m/s]		19.499066
+v_avg_Layer/RectangularPipe_(1, 0) [m/s]		17.978289
+v_avg_Layer/RectangularPipe_(1, 1) [m/s]		18.339394
+v_avg_Layer/RectangularPipe_(1, 2) [m/s]		18.482951
+v_avg_Layer/RectangularPipe_(2, 0) [m/s]		16.418412
+v_avg_Layer/RectangularPipe_(2, 1) [m/s]		17.096418
+v_avg_Layer/RectangularPipe_(2, 2) [m/s]		17.360321
+v_in_Layer/RectangularPipe.1_(0,) [m/s]		1.000000
+v_in_Layer/RectangularPipe.1_(1,) [m/s]		1.000000
+v_in_Layer/RectangularPipe.1_(2,) [m/s]		1.000000
+v_in_Layer/RectangularPipe_(0,) [m/s]		20.000000
+v_in_Layer/RectangularPipe_(1,) [m/s]		20.000000
+v_in_Layer/RectangularPipe_(2,) [m/s]		20.000000
+v_in_air_Layer [m/s]		20.000000
+v_in_water_Layer [m/s]		1.000000
+v_out_Layer/RectangularPipe.1_(0,) [m/s]		0.735912
+v_out_Layer/RectangularPipe.1_(1,) [m/s]		0.804894
+v_out_Layer/RectangularPipe.1_(2,) [m/s]		0.825068
+v_out_Layer/RectangularPipe_(0,) [m/s]		15.588937
+v_out_Layer/RectangularPipe_(1,) [m/s]		16.441760
+v_out_Layer/RectangularPipe_(2,) [m/s]		16.771446
+w_Layer/RectangularPipe.1_(0,) [m]		0.012969
+w_Layer/RectangularPipe.1_(1,) [m]		0.017447
+w_Layer/RectangularPipe.1_(2,) [m]		0.019584
+w_Layer/RectangularPipe_(0,) [m]		0.008998
+w_Layer/RectangularPipe_(1,) [m]		0.015865
+w_Layer/RectangularPipe_(2,) [m]		0.014735
+x_cell_Layer/HXArea_(0, 0) [m]		0.012969
+x_cell_Layer/HXArea_(0, 1) [m]		0.012969
+x_cell_Layer/HXArea_(0, 2) [m]		0.012969
+x_cell_Layer/HXArea_(1, 0) [m]		0.017447
+x_cell_Layer/HXArea_(1, 1) [m]		0.017447
+x_cell_Layer/HXArea_(1, 2) [m]		0.017447
+x_cell_Layer/HXArea_(2, 0) [m]		0.019584
+x_cell_Layer/HXArea_(2, 1) [m]		0.019584
+x_cell_Layer/HXArea_(2, 2) [m]		0.019584
+x_dim_Layer [cm]		5.000000
+y_cell_Layer/HXArea_(0, 0) [m]		0.008998
+y_cell_Layer/HXArea_(0, 1) [m]		0.015865
+y_cell_Layer/HXArea_(0, 2) [m]		0.014735
+y_cell_Layer/HXArea_(1, 0) [m]		0.008998
+y_cell_Layer/HXArea_(1, 1) [m]		0.015865
+y_cell_Layer/HXArea_(1, 2) [m]		0.014735
+y_cell_Layer/HXArea_(2, 0) [m]		0.008998
+y_cell_Layer/HXArea_(2, 1) [m]		0.015865
+y_cell_Layer/HXArea_(2, 2) [m]		0.014735
+y_dim_Layer [cm]		10.000000
+z_cld_Layer/HXArea_(0, 0) [m]		0.004246
+z_cld_Layer/HXArea_(0, 1) [m]		0.004566
+z_cld_Layer/HXArea_(0, 2) [m]		0.005000
+z_cld_Layer/HXArea_(1, 0) [m]		0.004394
+z_cld_Layer/HXArea_(1, 1) [m]		0.004661
+z_cld_Layer/HXArea_(1, 2) [m]		0.005000
+z_cld_Layer/HXArea_(2, 0) [m]		0.004452
+z_cld_Layer/HXArea_(2, 1) [m]		0.004696
+z_cld_Layer/HXArea_(2, 2) [m]		0.005000
+z_dim_Layer [cm]		1.000000
+z_hot_Layer/HXArea_(0, 0) [m]		0.002000
+z_hot_Layer/HXArea_(0, 1) [m]		0.002000
+z_hot_Layer/HXArea_(0, 2) [m]		0.002000
+z_hot_Layer/HXArea_(1, 0) [m]		0.002181
+z_hot_Layer/HXArea_(1, 1) [m]		0.002133
+z_hot_Layer/HXArea_(1, 2) [m]		0.002119
+z_hot_Layer/HXArea_(2, 0) [m]		0.002443
+z_hot_Layer/HXArea_(2, 1) [m]		0.002307
+z_hot_Layer/HXArea_(2, 2) [m]		0.002270
