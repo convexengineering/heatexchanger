@@ -13,15 +13,15 @@ class HXArea(Model):
     T_r         [K]          wall internal temperature in cell
     Tr_hot      [K]          hot fluid-wall interface temperature
     Tr_cld      [K]          cold fluid-wall interface temperature
-    x_cell      [m]          x-width of cell
-    y_cell      [m]          y-width of cell
-    z_hot       [m]          z-height of hot cell
-    z_cld       [m]          z_height of cold cell
-    t_plate     [m]          thickness of separating plate
-    t_hot       [m]          fin thickness in liquid
-    t_cld       [m]          fin thickness in gas
-    A_hot       [m^2]        area of hot fin
-    A_cld       [m^2]        area of cold fin
+    x_cell      [cm]          x-width of cell
+    y_cell      [cm]          y-width of cell
+    z_hot       [cm]          z-height of hot cell
+    z_cld       [cm]          z_height of cold cell
+    t_plate     [cm]          thickness of separating plate
+    t_hot       [cm]          fin thickness in liquid
+    t_cld       [cm]          fin thickness in gas
+    A_hot       [cm^2]        area of hot fin
+    A_cld       [cm^2]        area of cold fin
 
 
      Upper Unbounded

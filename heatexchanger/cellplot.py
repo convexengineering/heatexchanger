@@ -71,8 +71,8 @@ def hist_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
     ylim([0, wpos])
     xlim([0, dpos])
     a.set_frame_on(False)
-    a.set_xlabel("width traveled by air [m]")
-    a.set_ylabel("depth traveled by water [m]")
+    a.set_xlabel("width traveled by air [cm]")
+    a.set_ylabel("depth traveled by water [cm]")
     return f, arun
 
 def gen_plots(m,sol, Nw, Na):
@@ -97,13 +97,13 @@ def gen_plots(m,sol, Nw, Na):
     # Water velocity in each cell
     f, a = plot_cells(m, sol(m.waterpipes.v_avg), cm=cm.Blues,
                       zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
-    a.set_title("Average velocity in water cell")
+    a.set_title("Average velocity in water cell (m/s)")
     f.savefig("plots/waterV.png")
 
     # Air velocity in each cell
     f, a = plot_cells(m, sol(m.airpipes.v_avg).T, cm=cm.Reds,
                       zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
-    a.set_title("Average velocity in air cell")
+    a.set_title("Average velocity in air cell (m/s)")
     f.savefig("plots/airV.png")
 
     # Wall temperature
@@ -115,30 +115,30 @@ def gen_plots(m,sol, Nw, Na):
     # Hot cell height
     f, a = plot_cells(m, sol(m.c.z_hot), cm=cm.Reds,
                       zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
-    a.set_title("Hot cell height (m)")
+    a.set_title("Hot cell height (cm)")
     f.savefig("plots/z_hot.png")
 
     # Cold cell height
     f, a = plot_cells(m, sol(m.c.z_cld), cm=cm.Blues,
                       zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
-    a.set_title("Cold cell height (m)")
+    a.set_title("Cold cell height (cm)")
     f.savefig("plots/z_cld.png")
 
     # Total cell height
     f, a = plot_cells(m, sol(m.c.z_cld)+sol(m.c.z_hot)+sol(m.c.t_plate), cm=cm.Blues,
                       zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
-    a.set_title("Total cell height (m)")
+    a.set_title("Total cell height (cm)")
     f.savefig("plots/z.png")
 
     # Hot fin thickness
     f, a = plot_cells(m, sol(m.c.t_hot), cm=cm.Reds,
                       zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
-    a.set_title("Hot fin thickness (m)")
+    a.set_title("Hot fin thickness (cm)")
     f.savefig("plots/t_hot.png")
 
     # Cold fin thickness
     f, a = plot_cells(m, sol(m.c.t_cld), cm=cm.Blues,
                       zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
-    a.set_title("Cold fin thickness (m)")
+    a.set_title("Cold fin thickness (cm)")
     f.savefig("plots/t_cld.png")
 

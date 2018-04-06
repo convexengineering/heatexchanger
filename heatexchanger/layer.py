@@ -91,7 +91,7 @@ class Layer(Model):
                              n_fins >= 1.,
                              ])
 
-        # Linking pipes in c
+        # Linking pipes in HXArea
         for i in range(Nwaterpipes):
             for j in range(Nairpipes):
                 geom.extend([
