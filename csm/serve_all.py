@@ -13,11 +13,12 @@ def wait_until_file_exists(filename):
 
 try:
     os.remove("HX.csm")
-    os.remove("port7681.jrnl")
+    os.remove("HX_000.egads")
 except OSError:
     pass
 Popen(["python", os.sep.join(["..", "heatexchanger", "server.py"])])
 wait_until_file_exists("HX.csm")
 Popen(["serveCSM", "HX.csm"])
 wait_until_file_exists("HX_000.egads")
+sleep(3)
 webbrowser.open_new(os.sep.join(["..", "ESP", "ESP-localhost7681.html"]))
