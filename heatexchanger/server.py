@@ -19,16 +19,11 @@ class HXGPServer(WebSocket):
             self.data = json.loads(self.data)
             print self.data
 
-            try:
-                Nairpipes = self.data["Air_Channels"]
-                Nwaterpipes = self.data["Water_Channels"]
-            except Exception:
-                Nairpipes, Nwaterpipes = 5, 5
+            Nairpipes = self.data["Air_Channels"]
+            Nwaterpipes = self.data["Water_Channels"]
 
-            for key in gpkit.MODELNUM_LOOKUP:
-                gpkit.MODELNUM_LOOKUP[key] = 0
             m = Layer(Nairpipes, Nwaterpipes)
-            m.cost = (m.D_air+m.D_wat)/m.Q
+            m.cost = 1/m.Q
 
             for name, value in self.data.items():
                 try:
@@ -42,7 +37,9 @@ class HXGPServer(WebSocket):
             gencsm(m, sol)
 
             self.send({"status": "optimal",
-                       "msg": "Successfully optimized!"})
+                       "msg": ("Successfully optimized."
+                               " Optimal heat transfer: %.1f watts "
+                               % sol["variables"][m.Q])})
         except Exception as e:
             self.send({"status": "unknown", "msg": "The last solution"
                       " raised an exception; tweak it and send again."})
@@ -61,9 +58,9 @@ class HXGPServer(WebSocket):
 
 if __name__ == "__main__":
     # TODO: uncomment to produce the initial CSM file before serving
-    m = Layer(5, 5)
-    m.cost = (m.D_air+m.D_wat)/m.Q
+    m = Layer(3, 3)
+    m.cost = 1/m.Q
     sol = m.localsolve()
     gensoltxt(m, sol)
     gencsm(m, sol)
-    # SimpleWebSocketServer('', 8000, HXGPServer).serveforever()
+    SimpleWebSocketServer('', 8000, HXGPServer).serveforever()

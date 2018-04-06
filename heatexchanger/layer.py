@@ -15,8 +15,8 @@ class Layer(Model):
     Variables
     ---------
     Q               [W]       heat transferred from air to liquid
-    D_air           [N]       total air drag
-    D_wat           [N]       total water drag
+    D_air      0.01 [N]       total air drag
+    D_wat      0.1  [N]       total water drag
     V_tot           [cm^3]    total volume
     V_mtrl          [cm^3]    volume of material
     g          9.81 [m*s^-2]  gravitational acceleration
@@ -28,10 +28,6 @@ class Layer(Model):
     v_in_water 1    [m/s]     inlet speed of water
     T_in_air   303  [K]       inlet temperature of air
     v_in_air   20   [m/s]     inlet speed of air
-
-    Upper Unbounded
-    ---------------
-    D_air, D_wat
 
     Lower Unbounded
     ---------------
@@ -65,6 +61,8 @@ class Layer(Model):
             ("z_width", z_dim),
             ("Air_Channels", self.Nairpipes),
             ("Water_Channels", self.Nwaterpipes),
+            ("Air_Drag", D_air),
+            ("Water_Drag", D_wat),
             ("c_metal", self.material.c),
             ("k_metal", self.material.k),
             ("rho_metal", self.material.rho),

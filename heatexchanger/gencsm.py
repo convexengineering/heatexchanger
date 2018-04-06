@@ -5,7 +5,7 @@ from scipy.interpolate import interp2d
 def gencsm(m, sol):
     nu = m.Nwaterpipes
     nwater = nu
-    nv = 1
+    nv = 2
     nw = m.Nairpipes
     nair = nw
     nParams = 8
@@ -44,33 +44,36 @@ def gencsm(m, sol):
 #       /         ^   ^
 #      v  z,v     |hot|
 
-# knot locations for tile placement
-dimension uknots   1 7 1
-despmtr   uknots   0.00;0.10;0.22;0.36;0.54;0.74;1.00
-
-dimension vknots   1 3 1
-despmtr   vknots   0.0;0.5;1.0
-
-dimension wknots   1 5 1
-despmtr   wknots   0.00;0.14;0.34;0.62;1.00
-
 # flow quantities
 """)
     for name, val in m.design_parameters.items():
         if val in m.substitutions:
             val = m.substitutions[val]
         f.write("despmtr   %s   %s\n" % (name, val))
+
+    f.write("""
+# knot locations for tile placement
+dimension uknots   1 %i 1
+despmtr   uknots   %s
+
+dimension vknots   1 3 1
+despmtr   vknots   0.0;0.5;1.0
+
+dimension wknots   1 %i 1
+despmtr   wknots   %s
+""" % (1+m.Nairpipes, ";".join(["%.2f" % (w/max(x)) for w in x]),
+       1+m.Nwaterpipes, ";".join(["%.2f" % (w/max(y)) for w in y])))
     f.write("""
 # duct definition (regular hexahedron)
 dimension corners  8 3 0
-set       corners  "0.0;   0.0;   0.0;   \\
-                    0.0;   0.0;   z_dim; \\
-                    0.0;   y_dim; 0.0;   \\
-                    0.0;   y_dim; z_dim; \\
-                    x_dim; 0.0;   0.0;   \\
-                    x_dim; 0.0;   z_dim; \\
-                    x_dim; y_dim; 0.0;   \\
-                    x_dim; y_dim; z_dim;"
+set       corners  "0.0;     0.0;     0.0;     \\
+                    0.0;     0.0;     z_width; \\
+                    0.0;     y_width; 0.0;     \\
+                    0.0;     y_width; z_width; \\
+                    x_width; 0.0;     0.0;     \\
+                    x_width; 0.0;     z_width; \\
+                    x_width; y_width; 0.0;     \\
+                    x_width; y_width; z_width;"
 
 udparg    hex       corners   corners
 udparg    hex       uknots    vknots     # u and v switched because
@@ -82,12 +85,14 @@ store duct
 restore duct
 udparg tile filename  $$/demo_tile.csm
 udparg tile tablename <<
-    7   3   5   4
-0.00   0.10   0.22   0.36   0.54   0.74   1.00
+    %i   3   %i   4
+%s
 0.00   0.50   1.00
-0.00   0.14   0.34   0.62   1.00
+%s
 
-""")
+""" % (1+m.Nairpipes, 1+m.Nwaterpipes,
+       "   ".join(["%.2f" % (w/max(x)) for w in x]),
+       "   ".join(["%.2f" % (w/max(y)) for w in y])))
 
     f.write('thkPlate' + '\n')
     f.write('v' + '\n')
