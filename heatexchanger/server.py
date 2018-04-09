@@ -2,6 +2,7 @@ from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 import json
 from layer import Layer
 from gencsm import gencsm
+from shutil import copyfile
 
 EXIT = [False]
 ID = 0
@@ -11,6 +12,7 @@ def genfiles(m, sol):
     global ID
     gensoltxt(m, sol, ID)
     gencsm(m, sol, ID)
+    copyfile("HX.csm", "HX_%03i.csm" % ID)
     ID += 1
 
 
