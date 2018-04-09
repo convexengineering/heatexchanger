@@ -142,3 +142,15 @@ def gen_plots(m,sol, Nw, Na):
     a.set_title("Cold fin thickness (cm)")
     f.savefig("plots/t_cld.png")
 
+    # Velocity area (to confirm mass flow rates) on hot side
+    f, a = plot_cells(m, sol(m.waterpipes.v)*sol(m.waterpipes.A), cm=cm.Reds,
+                      zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
+    a.set_title("Velocity*area of hot flow (cm)")
+    f.savefig("plots/vA_hot.png")
+
+    # Velocity area (to confirm mass flow rates) on cold side
+    f, a = plot_cells(m,(sol(m.airpipes.v)*sol(m.airpipes.A)).T, cm=cm.Reds,
+                      zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
+    a.set_title("Velocity*area of cold flow (m^3/s)")
+    f.savefig("plots/vA_cld.png")
+
