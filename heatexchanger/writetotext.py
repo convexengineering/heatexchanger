@@ -2,16 +2,16 @@ import numpy as np
 from scipy.interpolate import interp2d
 
 def genHXData(m,sol):
-    nu = m.Nwaterpipes
-    nwater = nu
+    nu = m.Nhotpipes
+    nhot = nu
     nv = 1
-    nw = m.Nairpipes
-    nair = nw
+    nw = m.Ncoldpipes
+    ncold = nw
     nParams = 8
 
     # Creating corner coordinates
-    x = [sum(sol(m.waterpipes.w)[0:i].magnitude) for i in range(nu+1)]
-    y = [sum(sol(m.airpipes.w)[0:i].magnitude) for i in range(nw+1)]
+    x = [sum(sol(m.hotpipes.w)[0:i].magnitude) for i in range(nu+1)]
+    y = [sum(sol(m.coldpipes.w)[0:i].magnitude) for i in range(nw+1)]
     xy = np.array([(x[i],y[j]) for j in range(nw+1) for i in range(nu+1)])
     xycent = np.array([[(x[i+1]+ x[i])/2,(y[j+1]+y[j])/2] for j in range (nw) for i in range(nu)])
     z = sol(m.c.z_hot) + sol(m.c.z_cld) + 2*sol(m.c.t_plate)
