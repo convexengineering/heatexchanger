@@ -28,6 +28,7 @@ class RectangularPipe(Model):
     v                     [m/s]    fluid velocity
     T                     [K]      fluid temperature
     P0                    [Pa]     fluid total pressure
+    A                     [cm^2]   area
 
     Variables of length Nsegments
     -----------------------------
@@ -85,7 +86,7 @@ class RectangularPipe(Model):
         alpha = T[1:] / T[:-1]
 
         with SignomialsEnabled():
-            flow = [mdot == Nfins * fluid.rho * v_avg * A_seg,  # mass conservation
+            flow = [mdot == Nfins * fluid.rho * v * A,  # mass conservation
                     v_in == v[0],
                     v_out == v[-1],
                     v_avg**2 == v[0:-1] * v[1:],
@@ -97,7 +98,8 @@ class RectangularPipe(Model):
                     v_out**2,  # exit total pressure
                     P0[0] >= P0[-1] + 0.5 * fluid.rho * v_in**2 * Pf,
                     P0[:-1] >= P0[1:] + dP,
-                    dP <= fluid.rho * v[0:-1] * (v[0:-1] - v[1:]),
+                    dP <= mdot * (v[0:-1]/A[0:-1] - v[1:]/A[1:]),
+                    A_seg**2 == A[0:-1]*A[1:],
                     dP == 0.5 * fluid.rho * v_avg**2 * Cf * l_seg / dh,
 
                     # effectiveness fit

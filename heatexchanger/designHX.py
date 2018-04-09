@@ -5,7 +5,7 @@ from matplotlib.pyplot import *
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 
-from gpkit import Model
+from gpkit import Model, units
 from relaxed_constants import relaxed_constants
 from gpkit.constraints.bounded import Bounded
 
@@ -18,7 +18,13 @@ Nw, Na = 5, 5
 m = layer.Layer(Na, Nw)
 
 # Model input parameters
-m.substitutions.update({m.n_fins: 5})
+m.substitutions.update({
+                        # Geometric parameters,
+                        m.n_fins:      5.,
+                        m.x_dim:       5.*units('cm'),
+                        m.y_dim:       10.*units('cm'),
+                        m.z_dim:       1.*units('cm')
+                        })
 
 # Objective function
 m.cost = (m.D_air+m.D_wat)/m.Q

@@ -42,8 +42,8 @@ def plot_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
     ylim([0, wpos])
     xlim([0, dpos])
     a.set_frame_on(False)
-    a.set_xlabel("width traveled by air [m]")
-    a.set_ylabel("depth traveled by water [m]")
+    a.set_xlabel("width traveled by air [cm]")
+    a.set_ylabel("depth traveled by water [cm]")
     return f, a
 
 
