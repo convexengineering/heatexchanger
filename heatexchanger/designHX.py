@@ -12,12 +12,11 @@ from relaxed_constants import relaxed_constants
 from gpkit.constraints.bounded import Bounded
 
 from cellplot import gen_plots
-from writetotext import genHXData
 
 # Initializing SP single-layer HX model
 imp.reload(layer)
-Ncold, Nhot = 5, 5
-m = layer.Layer(Ncold, Nhot, Air(), Water(), StainlessSteel())
+Ncold, Nhot = 3, 3
+m = layer.Layer(Ncold, Nhot)
 
 # Model input parameters
 m.substitutions.update({
@@ -29,7 +28,7 @@ m.substitutions.update({
                         })
 
 # Objective function
-m.cost = (m.D_hot+m.D_cold)/m.Q
+m.cost = 1/m.Q
 #m = Model(m.cost,Bounded(m))
 #m = relaxed_constants(m)
 
@@ -44,6 +43,3 @@ gen_plots(m, sol, Ncold, Nhot)
 # Writing complete solution file sol.txt
 with open("sol.txt", "w") as f:
     f.write(sol.table())
-
-# Generating ESP data file
-genHXData(m, sol)
