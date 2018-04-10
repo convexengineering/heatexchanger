@@ -79,7 +79,7 @@ def gen_plots(m, sol, Ncld, Nhot):
     f, a = plot_cells(m, sol(m.c.T_hot), cm=cm.Reds,
                       zscale=1 / Nhot / Ncld, zoff=0.625 / Nhot / Ncld, verbosity=2)
     a.set_title("Hot fluid temperature [K]")
-    f.savefig("plots/T_liq.png")
+    f.savefig("plots/T_hot.png")
 
     # Air temperature
     f, a = plot_cells(m, sol(m.c.T_cld), cm=cm.Blues,
@@ -98,13 +98,13 @@ def gen_plots(m, sol, Ncld, Nhot):
     f, a = plot_cells(m, sol(m.hotpipes.v_avg), cm=cm.Blues,
                       zscale=1 / Nhot / Ncld, zoff=0.625 / Nhot / Ncld, verbosity=2)
     a.set_title("Average velocity in hot cell (m/s)")
-    f.savefig("plots/hotV.png")
+    f.savefig("plots/v_hot.png")
 
     # Air velocity in each cell
     f, a = plot_cells(m, sol(m.coldpipes.v_avg).T, cm=cm.Reds,
                       zscale=1 / Nhot / Ncld, zoff=0.625 / Nhot / Ncld, verbosity=2)
     a.set_title("Average velocity in cold cell (m/s)")
-    f.savefig("plots/coldV.png")
+    f.savefig("plots/v_cld.png")
 
     # Wall temperature
     f, a = plot_cells(m, sol(m.c.T_r), cm=cm.Reds,
