@@ -15,8 +15,8 @@ class Layer(Model):
     Variables
     ---------
     Q               [W]       heat transferred from air to liquid
-    D_air       [N]       total air drag
-    D_wat        [N]       total water drag
+    D_air      0.01 [N]       total air drag
+    D_wat      0.01 [N]       total water drag
     V_tot           [cm^3]    total volume
     V_mtrl          [cm^3]    volume of material
     g          9.81 [m*s^-2]  gravitational acceleration
@@ -26,15 +26,11 @@ class Layer(Model):
     n_fins          [-]       fins per tile
     maxAR      5    [-]       max tile width variation
     T_max_hot  450  [K]       max temp. out
-    T_max_cld       [K]       min temp. out
+    T_min_cld    1  [K]       min temp. out
     T_in_water 500  [K]       inlet temperature of water
     v_in_water 1    [m/s]     inlet speed of water
     T_in_air   303  [K]       inlet temperature of air
     v_in_air   20   [m/s]     inlet speed of air
-
-    Upper Unbounded
-    ---------------
-    D_air, D_wat
 
     Lower Unbounded
     ---------------
@@ -50,11 +46,13 @@ class Layer(Model):
 
         air = self.air = Air()
         with Vectorize(Nairpipes):
-            airpipes = RectangularPipe(Nwaterpipes, n_fins, air, increasingT=True)
+            airpipes = RectangularPipe(Nwaterpipes, n_fins, air,
+                                       increasingT=True)
             self.airpipes = airpipes
         water = self.water = Water()
         with Vectorize(Nwaterpipes):
-            waterpipes = RectangularPipe(Nairpipes, n_fins, water, increasingT=False)
+            waterpipes = RectangularPipe(Nairpipes, n_fins, water,
+                                         increasingT=False)
             self.waterpipes = waterpipes
         pipes = [airpipes,
                  airpipes.T_in == T_in_air, airpipes.v_in == v_in_air,
@@ -62,6 +60,7 @@ class Layer(Model):
                  waterpipes.T_in == T_in_water, waterpipes.v_in == v_in_water]
 
         self.design_parameters = OrderedDict([
+            # add T_max_hot, T_min_cld?
             ("gravity", g),
             ("x_width", x_dim),
             ("y_width", y_dim),
@@ -102,53 +101,40 @@ class Layer(Model):
             #       it's already alllllmost GP, solving in 3-9 GP solves
             SP_Qsum = Q <= c.dQ.sum()
 
-        geom = [V_tot >= sum(sum(waterpipes.V_seg)) + sum(sum(airpipes.V_seg)) + V_mtrl]
+        geom = [
+            V_tot >= waterpipes.V_seg.sum() + airpipes.V_seg.sum() + V_mtrl,
+            c.x_cell == airpipes.l_seg.T,
+            c.y_cell == waterpipes.l_seg,
+            maxAR >= c.y_cell/c.x_cell,
+            maxAR >= c.x_cell/c.y_cell,
+            # Differentiating between flow width and cell width
+            c.x_cell >= n_fins*(c.t_hot + waterpipes.w_fluid),
+            c.y_cell >= n_fins*(c.t_cld + airpipes.w_fluid),
+            # Making sure there is at least 1 (non-integer) number of fins
+            n_fins >= 1.,
+            c.dQ == waterpipes.dQ,
+            c.dQ == airpipes.dQ.T,
+            c.Tr_hot == waterpipes.Tr_int,
+            c.Tr_cld == airpipes.Tr_int.T,
+            c.T_hot == waterpipes.T_avg,
+            c.T_cld == airpipes.T_avg.T,
+            c.h_hot == waterpipes.h,
+            c.h_cld == airpipes.h.T,
+            c.z_hot == waterpipes.h_seg,
+            c.z_cld == airpipes.h_seg.T,
+            x_dim >= waterpipes.w.sum(),
+            y_dim >= airpipes.w.sum(),
+            z_dim >= c.z_hot+c.z_cld+c.t_plate,
+            T_max_hot >= c.T_hot[-1, :],
+            T_min_cld <= c.T_cld[:, -1],
+            T_min_cld <= T_max_hot
+        ]
 
         for i in range(Nwaterpipes):
             for j in range(Nairpipes):
-                print c.x_cell[i,j]
                 geom.extend([c.x_cell[i,j] == waterpipes.w[i],
-                             c.x_cell[i,j] == airpipes.l_seg[j,i],
                              c.y_cell[i,j] == airpipes.w[j],
-                             c.y_cell[i,j] == waterpipes.l_seg[i,j],
-                             maxAR >= c.y_cell[i,j]/c.x_cell[i,j],
-                             maxAR >= c.x_cell[i,j]/c.y_cell[i,j],
-                             # Arbitrary bounding for convergence.
-                             c.x_cell[i,j] >= 0.1*units('cm'),
-                             c.y_cell[i,j] >= 0.1*units('cm'),
-                             # Differentiating between flow width and cell width
-                             c.x_cell[i,j] >= n_fins*(c.t_hot[i,j] + waterpipes.w_fluid[i,j]),
-                             c.y_cell[i,j] >= n_fins*(c.t_cld[i,j] + airpipes.w_fluid[i,j]),
-                             # Making sure there is at least 1 (non-integer) number of fins
-                             n_fins >= 1.,
                              ])
-
-        # Linking pipes in HXArea
-        for i in range(Nwaterpipes):
-            for j in range(Nairpipes):
-                geom.extend([
-                        c.dQ[i,j]     == waterpipes.dQ[i,j],
-                        c.dQ[i,j]     == airpipes.dQ[j,i],
-                        c.Tr_hot[i,j] == waterpipes.Tr_int[i,j],
-                        c.Tr_cld[i,j] == airpipes.Tr_int[j,i],
-                        c.T_hot[i,j]  == waterpipes.T_avg[i,j],
-                        c.T_cld[i,j]  == airpipes.T_avg[j,i],
-                        c.h_hot[i,j]  == waterpipes.h[i,j],
-                        c.h_cld[i,j]  == airpipes.h[j,i],
-                        c.z_hot[i,j]  == waterpipes.h_seg[i,j],
-                        c.z_cld[i,j]  == airpipes.h_seg[j,i],
-                        waterpipes.h_seg[i,j] >= 0.1*units('cm'),
-                        waterpipes.h_seg[i,j] <= 1.0*units('cm'),
-                        airpipes.h_seg[j,i] >= 0.1*units('cm'),
-                        airpipes.h_seg[j,i] <= 1.0*units('cm'),
-                        x_dim >= waterpipes.w.sum(),
-                        y_dim >= airpipes.w.sum(),
-                        z_dim >= c.z_hot+c.z_cld+c.t_plate,
-                        c.T_hot[-1,:] <= T_max_hot,
-                        c.T_cld[:,-1] >= T_max_cld,
-                        T_max_cld <= T_max_hot,
-                        T_max_cld >= 1*units('K'),
-                        ])
 
         return [
             # SIZING
@@ -167,7 +153,7 @@ class Layer(Model):
             airCf,
 
             # TOTAL VOLUME REQUIREMENT
-            V_tot <= 100*units('cm^3'),
+            V_tot <= x_dim*y_dim*z_dim,
 
             # MATERIAL VOLUME
             V_mtrl >= (n_fins*c.z_hot*c.t_hot*c.x_cell).sum()+(n_fins*c.z_cld*c.t_cld*c.y_cell).sum()+(c.x_cell*c.y_cell*c.t_plate).sum(),
