@@ -1,7 +1,8 @@
 from matplotlib.pyplot import *
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
-
+import imp
+import layer
 
 def nsf(num, n=1):
     """n-Significant Figures"""
@@ -13,15 +14,15 @@ def plot_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
     "Plots a given array for every heat-exchange cell"
     f, a = subplots(figsize=(12, 12))
     sol = m.solution
-    Nwaterpipes = m.Nwaterpipes
-    Nairpipes = m.Nairpipes
+    Nhotpipes = m.Nhotpipes
+    Ncoldpipes = m.Ncoldpipes
     Zmin, Zmax = Z.min(), Z.max()
     dpos = 0
-    for i in range(Nwaterpipes):
+    for i in range(Nhotpipes):
         wpos = 0
-        for j in range(Nairpipes):
-            wcell = sol(m.airpipes.w)[j].magnitude
-            dcell = sol(m.waterpipes.w)[i].magnitude
+        for j in range(Ncoldpipes):
+            wcell = sol(m.coldpipes.w)[j].magnitude
+            dcell = sol(m.hotpipes.w)[i].magnitude
             if not zscale:
                 z = ((Z[j, i] - Zmin) / (Zmax - Zmin)).magnitude
             else:
@@ -41,16 +42,16 @@ def plot_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
     ylim([0, wpos])
     xlim([0, dpos])
     a.set_frame_on(False)
-    a.set_xlabel("width traveled by air [m]")
-    a.set_ylabel("depth traveled by water [m]")
+    a.set_xlabel("width traveled by cold fluid [cm]")
+    a.set_ylabel("depth traveled by hot fluid [cm]")
     return f, a
 
 
 def hist_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
     "Plots a given array for every heat-exchange cell"
     sol = m.solution
-    Nwaterpipes = m.Nwaterpipes
-    Nairpipes = m.Nairpipes
+    Nhotpipes = m.Nhotpipes
+    Ncoldpipes = m.Ncoldpipes
     Zmin, Zmax = Z.min(), Z.max()
     dpos = 0
 
@@ -70,50 +71,86 @@ def hist_cells(m, Z, cm=cm.RdBu_r, verbosity=0, zscale=None, zoff=None):
     ylim([0, wpos])
     xlim([0, dpos])
     a.set_frame_on(False)
-    a.set_xlabel("width traveled by air [m]")
-    a.set_ylabel("depth traveled by water [m]")
+    a.set_xlabel("width traveled by cold fluid [cm]")
+    a.set_ylabel("depth traveled by hot fluid [cm]")
     return f, arun
 
-
-if __name__ == "__main__":
-    from layer import Layer
-    Na, Nw = 5, 5
-    m = Layer(Na, Nw)
-    m.cost = (m.D_air+m.D_wat)/m.Q
-    sol = m.localsolve(verbosity=1)
-    # Liquid temperature
+def gen_plots(m, sol, Ncld, Nhot):
     f, a = plot_cells(m, sol(m.c.T_hot), cm=cm.Reds,
-                      zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
-    a.set_title("Liquid Temperature [K]")
-    f.savefig("plots/T_liq.png")
+                      zscale=1 / Nhot / Ncld, zoff=0.625 / Nhot / Ncld, verbosity=2)
+    a.set_title("Hot fluid temperature [K]")
+    f.savefig("plots/T_hot.png")
 
     # Air temperature
     f, a = plot_cells(m, sol(m.c.T_cld), cm=cm.Blues,
-                      zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
-    a.set_title("Air Temperature [K]")
-    f.savefig("plots/T_air.png")
+                      zscale=1 / Nhot / Ncld, zoff=0.625 / Nhot / Ncld, verbosity=2)
+    a.set_title("Cold fluid temperature [K]")
+    f.savefig("plots/T_cld.png")
 
     # Heat transfer
     Q = sol(m.Q).magnitude
     f, a = plot_cells(m, sol(m.c.dQ), cm=cm.Reds,
-                      zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
-    a.set_title("Heat Transfer (%.2f Watts total)" % Q)
+                      zscale=1 / Nhot / Ncld, zoff=0.625 / Nhot / Ncld, verbosity=2)
+    a.set_title("Heat transfer (%.2f Watts total)" % Q)
     f.savefig("plots/dQ.png")
 
     # Water velocity in each cell
-    f, a = plot_cells(m, sol(m.waterpipes.v_avg), cm=cm.Blues,
-                      zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
-    a.set_title("Average velocity in water cell")
-    f.savefig("plots/waterV.png")
+    f, a = plot_cells(m, sol(m.hotpipes.v_avg), cm=cm.Blues,
+                      zscale=1 / Nhot / Ncld, zoff=0.625 / Nhot / Ncld, verbosity=2)
+    a.set_title("Average velocity in hot cell (m/s)")
+    f.savefig("plots/v_hot.png")
 
     # Air velocity in each cell
-    f, a = plot_cells(m, sol(m.airpipes.v_avg).T, cm=cm.Reds,
-                      zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
-    a.set_title("Average velocity in air cell")
-    f.savefig("plots/airV.png")
+    f, a = plot_cells(m, sol(m.coldpipes.v_avg).T, cm=cm.Reds,
+                      zscale=1 / Nhot / Ncld, zoff=0.625 / Nhot / Ncld, verbosity=2)
+    a.set_title("Average velocity in cold cell (m/s)")
+    f.savefig("plots/v_cld.png")
 
     # Wall temperature
     f, a = plot_cells(m, sol(m.c.T_r), cm=cm.Reds,
-                      zscale=1 / Nw / Na, zoff=0.625 / Nw / Na, verbosity=2)
+                      zscale=1 / Nhot / Ncld, zoff=0.625 / Nhot / Ncld, verbosity=2)
     a.set_title("Mean wall temperature (K)")
     f.savefig("plots/Tr.png")
+
+    # Hot cell height
+    f, a = plot_cells(m, sol(m.c.z_hot), cm=cm.Reds,
+                      zscale=1 / Nhot / Ncld, zoff=0.625 / Nhot / Ncld, verbosity=2)
+    a.set_title("Hot cell height (cm)")
+    f.savefig("plots/z_hot.png")
+
+    # Cold cell height
+    f, a = plot_cells(m, sol(m.c.z_cld), cm=cm.Blues,
+                      zscale=1 / Nhot / Ncld, zoff=0.625 / Nhot / Ncld, verbosity=2)
+    a.set_title("Cold cell height (cm)")
+    f.savefig("plots/z_cld.png")
+
+    # Total cell height
+    f, a = plot_cells(m, sol(m.c.z_cld)+sol(m.c.z_hot)+sol(m.c.t_plate), cm=cm.Blues,
+                      zscale=1 / Nhot / Ncld, zoff=0.625 / Nhot / Ncld, verbosity=2)
+    a.set_title("Total cell height (cm)")
+    f.savefig("plots/z.png")
+
+    # Hot fin thickness
+    f, a = plot_cells(m, sol(m.c.t_hot), cm=cm.Reds,
+                      zscale=1 / Nhot / Ncld, zoff=0.625 / Nhot / Ncld, verbosity=2)
+    a.set_title("Hot fin thickness (cm)")
+    f.savefig("plots/t_hot.png")
+
+    # Cold fin thickness
+    f, a = plot_cells(m, sol(m.c.t_cld), cm=cm.Blues,
+                      zscale=1 / Nhot / Ncld, zoff=0.625 / Nhot / Ncld, verbosity=2)
+    a.set_title("Cold fin thickness (cm)")
+    f.savefig("plots/t_cld.png")
+
+    # Velocity area (to confirm mass flow rates) on hot side
+    f, a = plot_cells(m, sol(m.hotpipes.v)*sol(m.hotpipes.A), cm=cm.Reds,
+                      zscale=1 / Nhot / Ncld, zoff=0.625 / Nhot / Ncld, verbosity=2)
+    a.set_title("Velocity*area of hot flow (cm)")
+    f.savefig("plots/vA_hot.png")
+
+    # Velocity area (to confirm mass flow rates) on cold side
+    f, a = plot_cells(m,(sol(m.coldpipes.v)*sol(m.coldpipes.A)).T, cm=cm.Reds,
+                      zscale=1 / Nhot / Ncld, zoff=0.625 / Nhot / Ncld, verbosity=2)
+    a.set_title("Velocity*area of cold flow (m^3/s)")
+    f.savefig("plots/vA_cld.png")
+

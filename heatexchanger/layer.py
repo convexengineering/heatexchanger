@@ -15,115 +15,131 @@ class Layer(Model):
     Variables
     ---------
     Q               [W]       heat transferred from air to liquid
-    D_air      0.01 [N]       total air drag
-    D_wat      0.1  [N]       total water drag
+    D_cold     0.01 [N]       total air drag
+    D_hot      0.01 [N]       total water drag
     V_tot           [cm^3]    total volume
     V_mtrl          [cm^3]    volume of material
     g          9.81 [m*s^-2]  gravitational acceleration
     x_dim      5    [cm]      max hot length
-    y_dim      10    [cm]      max cold length
+    y_dim      10   [cm]      max cold length
     z_dim      1    [cm]      max height
-    maxAR      8    [-]       max aspect ratio of tiles
-    T_in_water 500  [K]       inlet temperature of water
-    v_in_water 1    [m/s]     inlet speed of water
-    T_in_air   303  [K]       inlet temperature of air
-    v_in_air   20   [m/s]     inlet speed of air
+    n_fins          [-]       fins per tile
+    maxAR      5    [-]       max tile width variation
+    T_max_hot  450  [K]       max temp. out
+    T_min_cold   1  [K]       min temp. out
+    T_in_hot 500    [K]       inlet temperature of hot fluid
+    v_in_hot 1      [m/s]     inlet speed of hot fluid
+    T_in_cold   303 [K]       inlet temperature of cold fluid
+    v_in_cold   20  [m/s]     inlet speed of cold fluid
 
     Lower Unbounded
     ---------------
     Q
 
     """
-    def setup(self, Nairpipes, Nwaterpipes):
-        self.Nwaterpipes = Nwaterpipes
-        self.Nairpipes = Nairpipes
+
+    coldfluid_model = Air
+    hotfluid_model = Water
+    material_model = StainlessSteel
+
+    def setup(self, Ncoldpipes, Nhotpipes):
+        self.Ncoldpipes = Ncoldpipes
+        self.Nhotpipes = Nhotpipes
+
         exec parse_variables(Layer.__doc__)
 
-        self.material = StainlessSteel()
-
-        air = self.air = Air()
-        with Vectorize(Nairpipes):
-            airpipes = RectangularPipe(Nwaterpipes, air, increasingT=True)
-            self.airpipes = airpipes
-        water = self.water = Water()
-        with Vectorize(Nwaterpipes):
-            waterpipes = RectangularPipe(Nairpipes, water, increasingT=False)
-            self.waterpipes = waterpipes
-        pipes = [airpipes,
-                 airpipes.T_in == T_in_air, airpipes.v_in == v_in_air,
-                 waterpipes,
-                 waterpipes.T_in == T_in_water, waterpipes.v_in == v_in_water]
+        self.material = self.material_model()
+        coldfluid = self.coldfluid_model()
+        with Vectorize(Ncoldpipes):
+            coldpipes = RectangularPipe(Nhotpipes, n_fins, coldfluid,
+                                        increasingT=True)
+            self.coldpipes = coldpipes
+        hotfluid = self.hotfluid_model()
+        with Vectorize(Nhotpipes):
+            hotpipes = RectangularPipe(Ncoldpipes, n_fins, hotfluid,
+                                       increasingT=False)
+            self.hotpipes = hotpipes
+        pipes = [coldpipes,
+                 coldpipes.T_in == T_in_cold, coldpipes.v_in == v_in_cold,
+                 hotpipes,
+                 hotpipes.T_in == T_in_hot, hotpipes.v_in == v_in_hot]
 
         self.design_parameters = OrderedDict([
+            # add T_max_hot, T_min_cold?
             ("gravity", g),
             ("x_width", x_dim),
             ("y_width", y_dim),
             ("z_width", z_dim),
-            ("Air_Channels", self.Nairpipes),
-            ("Water_Channels", self.Nwaterpipes),
-            ("Air_Drag", D_air),
-            ("Water_Drag", D_wat),
+            ("Hot_Channels", self.Ncoldpipes),
+            ("Cold_Channels", self.Nhotpipes),
+            ("Hot_Drag", D_hot),
+            ("Cold_Drag", D_cold),
             ("c_metal", self.material.c),
             ("k_metal", self.material.k),
             ("rho_metal", self.material.rho),
             ("t_min_metal", self.material.t_min),
-            ("c_air", air.c),
-            ("k_air", air.k),
-            ("rho_air", air.rho),
-            ("mu_air", air.mu),
-            ("Ti_air", T_in_air),
-            ("vi_air", v_in_air),
-            ("c_water", water.c),
-            ("k_water", water.k),
-            ("rho_water", water.rho),
-            ("mu_water", water.mu),
-            ("Ti_water", T_in_water),
-            ("vi_water", v_in_water),
+            ("c_coldfluid", coldfluid.c),
+            ("k_coldfluid", coldfluid.k),
+            ("rho_coldfluid", coldfluid.rho),
+            ("mu_coldfluid", coldfluid.mu),
+            ("Ti_coldfluid", T_in_cold),
+            ("vi_coldfluid", v_in_cold),
+            ("c_hotfluid", hotfluid.c),
+            ("k_hotfluid", hotfluid.k),
+            ("rho_hotfluid", hotfluid.rho),
+            ("mu_hotfluid", hotfluid.mu),
+            ("Ti_hotfluid", T_in_hot),
+            ("vi_hotfluid", v_in_hot),
         ])
 
-        with Vectorize(Nwaterpipes):
-            with Vectorize(Nairpipes):
-                c = self.c = HXArea(self.material)
+        with Vectorize(Nhotpipes):
+            with Vectorize(Ncoldpipes):
+                c = self.c = HXArea(n_fins, self.material)
 
-        waterCf = [waterpipes.D[i] >= waterpipes.fr[i]*waterpipes.A_seg[i, 0]
-                   for i in range(Nwaterpipes)]
-        airCf = [airpipes.D[i] >= airpipes.fr[i]*airpipes.A_seg[i, 0]
-                 for i in range(Nairpipes)]
+        hotCf = []
+        coldCf = []
 
         with SignomialsEnabled():
-            SP_Qsum = [Q <= c.dQ.sum()]
+            # NOTE: unfortunately this appears unavoidable.
+            #       perhaps an entropy-based approach could get around it?
+            #       as the mass flows in each pipe become quite similar,
+            #       it's already alllllmost GP, solving in 3-9 GP solves
+            SP_Qsum = Q <= c.dQ.sum()
 
         geom = [
-            V_tot >= waterpipes.V_seg.sum() + airpipes.V_seg.sum() + V_mtrl,
-            maxAR >= c.x_cell/c.y_cell,
+            V_tot >= hotpipes.V_seg.sum() + coldpipes.V_seg.sum() + V_mtrl,
+            c.x_cell == coldpipes.l_seg.T,
+            c.y_cell == hotpipes.l_seg,
             maxAR >= c.y_cell/c.x_cell,
-            c.dQ     == waterpipes.dQ,
-            c.dQ     == airpipes.dQ.T,
-            c.Tr_hot == waterpipes.Tr_int,
-            c.Tr_cld == airpipes.Tr_int.T,
-            c.T_hot  == waterpipes.T_avg,
-            c.T_cld  == airpipes.T_avg.T,
-            c.h_hot  == waterpipes.h,
-            c.h_cld  == airpipes.h.T,
-            c.z_hot  == waterpipes.h_seg,
-            c.z_cld  == airpipes.h_seg.T,
-            x_dim >= waterpipes.w.sum(),
-            y_dim >= airpipes.w.sum()
+            maxAR >= c.x_cell/c.y_cell,
+            # Differentiating between flow width and cell width
+            c.x_cell >= n_fins*(c.t_hot + hotpipes.w_fluid),
+            c.y_cell >= n_fins*(c.t_cld + coldpipes.w_fluid.T),
+            # Making sure there is at least 1 (non-integer) number of fins
+            n_fins >= 1.,
+            c.dQ == hotpipes.dQ,
+            c.dQ == coldpipes.dQ.T,
+            c.Tr_hot == hotpipes.Tr_int,
+            c.Tr_cld == coldpipes.Tr_int.T,
+            c.T_hot == hotpipes.T_avg,
+            c.T_cld == coldpipes.T_avg.T,
+            c.h_hot == hotpipes.h,
+            c.h_cld == coldpipes.h.T,
+            c.z_hot == hotpipes.h_seg,
+            c.z_cld == coldpipes.h_seg.T,
+            x_dim >= hotpipes.w.sum(),
+            y_dim >= coldpipes.w.sum(),
+            z_dim >= c.z_hot+c.z_cld+c.t_plate,
+            T_max_hot >= c.T_hot[-1, :],
+            T_min_cold <= c.T_cld[:, -1],
+            T_min_cold <= T_max_hot
         ]
 
-        for i in range(Nwaterpipes):
-            for j in range(Nairpipes):
-                waterCf.extend([waterpipes.l[i,j] == (j+1)*airpipes.w[0:j+1].prod()**(1./(j+1))])
-                airCf.extend([airpipes.l[j,i] == (i+1)*waterpipes.w[0:i+1].prod()**(1./(i+1))])
-
-                geom.extend([
-                        c.x_cell[i,j] == waterpipes.w[i],
-                        c.x_cell[i,j] == airpipes.l_seg[j,i],
-                        c.y_cell[i,j] == airpipes.w[j],
-                        c.y_cell[i,j] == waterpipes.l_seg[i,j],
-                        c.t_hot[i,j]  >= 0.05/((i+1.)**3*(j+1.)**3.)**(1./3.)*units('cm'),
-                        c.t_cld[i,j]  >= 0.05/((i+1.)**3*(j+1.)**3.)**(1./3.)*units('cm'),
-                    ])
+        for j in range(Nhotpipes):
+            for i in range(Ncoldpipes):
+                geom.extend([c.x_cell[i,j] == hotpipes.w[j],
+                             c.y_cell[i,j] == coldpipes.w[i],
+                             ])
 
         return [
             # SIZING
@@ -136,30 +152,14 @@ class Layer(Model):
             c,
 
             #DRAG
-            D_wat >= self.waterpipes.D.sum(),
-            D_air >= self.airpipes.D.sum(),
-            waterCf,
-            airCf,
-
-            # HEAT EXCHANGE REQUIREMENT
-            #waterpipes.T[:,-1] <= 400*units('K'),
+            D_hot >= self.hotpipes.D.sum(),
+            D_cold >= self.coldpipes.D.sum(),
+            hotCf,
+            coldCf,
 
             # TOTAL VOLUME REQUIREMENT
-            V_tot <= 100*units('cm^3'),
+            V_tot <= x_dim*y_dim*z_dim,
 
             # MATERIAL VOLUME
-            V_mtrl >= (c.z_hot*c.t_hot*c.x_cell).sum()+(c.z_cld*c.t_cld*c.y_cell).sum()+(c.x_cell*c.y_cell*c.t_plate).sum(),
+            V_mtrl >= (n_fins*c.z_hot*c.t_hot*c.x_cell).sum()+(n_fins*c.z_cld*c.t_cld*c.y_cell).sum()+(c.x_cell*c.y_cell*c.t_plate).sum(),
         ]
-
-
-if __name__ == "__main__":
-    m = Layer(5, 5)
-    m.cost = (m.D_air+m.D_wat)/m.Q
-    sol = m.localsolve(verbosity=1)
-    print sol("Q")
-
-    with open("sol.txt", "w") as f:
-        f.write(sol.table())
-
-    from writetotext import genHXData
-    genHXData(m, sol)
