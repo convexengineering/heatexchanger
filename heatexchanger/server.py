@@ -6,6 +6,7 @@ from shutil import copyfile
 
 EXIT = [False]
 ID = 0
+LASTSOL = [None]
 
 
 def genfiles(m, sol):
@@ -33,6 +34,10 @@ class HXGPServer(WebSocket):
 
             Nairpipes = self.data["Air_Channels"]
             Nwaterpipes = self.data["Water_Channels"]
+            if (Nwaterpipes, Nairpipes) == LASTSOL[0][0]:
+                x0 = LASTSOL[0][1]["variables"]
+            else:
+                x0 = None
 
             m = Layer(Nairpipes, Nwaterpipes)
             m.cost = 1/m.Q
@@ -44,7 +49,8 @@ class HXGPServer(WebSocket):
                 except KeyError as e:
                     print repr(e)
 
-            sol = m.localsolve()
+            sol = m.localsolve(x0=x0)
+            LASTSOL[0] = ((Nwaterpipes, Nairpipes), sol)
             genfiles(m, sol)
 
             self.send({"status": "optimal",
@@ -73,6 +79,7 @@ if __name__ == "__main__":
     m = Layer(3, 3)
     m.cost = 1/m.Q
     sol = m.localsolve()
+    LASTSOL[0] = ((3, 3), sol)
     genfiles(m, sol)
     server = SimpleWebSocketServer('', 8000, HXGPServer)
     while not EXIT[0]:
