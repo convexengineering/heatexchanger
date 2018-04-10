@@ -5,6 +5,7 @@ from hxarea import HXArea
 from rectpipe import RectangularPipe
 from relaxed_constants import relaxed_constants, post_process
 import numpy as np
+from collections import OrderedDict
 
 
 class Layer(Model):
@@ -14,8 +15,8 @@ class Layer(Model):
     Variables
     ---------
     Q               [W]       heat transferred from air to liquid
-    D_air           [N]       total air drag
-    D_wat           [N]       total water drag
+    D_air       [N]       total air drag
+    D_wat        [N]       total water drag
     V_tot           [cm^3]    total volume
     V_mtrl          [cm^3]    volume of material
     g          9.81 [m*s^-2]  gravitational acceleration
@@ -26,6 +27,10 @@ class Layer(Model):
     maxAR      5    [-]       max tile width variation
     T_max_hot  450  [K]       max temp. out
     T_max_cld       [K]       min temp. out
+    T_in_water 500  [K]       inlet temperature of water
+    v_in_water 1    [m/s]     inlet speed of water
+    T_in_air   303  [K]       inlet temperature of air
+    v_in_air   20   [m/s]     inlet speed of air
 
     Upper Unbounded
     ---------------
@@ -45,16 +50,43 @@ class Layer(Model):
 
         air = self.air = Air()
         with Vectorize(Nairpipes):
-            airpipes = RectangularPipe(Nwaterpipes, n_fins, air, increasingT=True,
-                                       substitutions={"T_in": 303,
-                                                      "v_in": 20})
+            airpipes = RectangularPipe(Nwaterpipes, n_fins, air, increasingT=True)
             self.airpipes = airpipes
         water = self.water = Water()
         with Vectorize(Nwaterpipes):
-            waterpipes = RectangularPipe(Nairpipes, n_fins, water, increasingT=False,
-                                         substitutions={"T_in": 500,
-                                                        "v_in": 1})
+            waterpipes = RectangularPipe(Nairpipes, n_fins, water, increasingT=False)
             self.waterpipes = waterpipes
+        pipes = [airpipes,
+                 airpipes.T_in == T_in_air, airpipes.v_in == v_in_air,
+                 waterpipes,
+                 waterpipes.T_in == T_in_water, waterpipes.v_in == v_in_water]
+
+        self.design_parameters = OrderedDict([
+            ("gravity", g),
+            ("x_width", x_dim),
+            ("y_width", y_dim),
+            ("z_width", z_dim),
+            ("Air_Channels", self.Nairpipes),
+            ("Water_Channels", self.Nwaterpipes),
+            ("Air_Drag", D_air),
+            ("Water_Drag", D_wat),
+            ("c_metal", self.material.c),
+            ("k_metal", self.material.k),
+            ("rho_metal", self.material.rho),
+            ("t_min_metal", self.material.t_min),
+            ("c_air", air.c),
+            ("k_air", air.k),
+            ("rho_air", air.rho),
+            ("mu_air", air.mu),
+            ("Ti_air", T_in_air),
+            ("vi_air", v_in_air),
+            ("c_water", water.c),
+            ("k_water", water.k),
+            ("rho_water", water.rho),
+            ("mu_water", water.mu),
+            ("Ti_water", T_in_water),
+            ("vi_water", v_in_water),
+        ])
 
         with Vectorize(Nwaterpipes):
             with Vectorize(Nairpipes):
@@ -121,8 +153,7 @@ class Layer(Model):
         return [
             # SIZING
             geom,
-            waterpipes,
-            airpipes,
+            pipes,
             self.material,
 
             # CONSERVATION OF HEAT

@@ -5,17 +5,27 @@ window.gp = {
 
   dom: {},
 
-  sol: {Lbar: 0,
-        Rbar: 0.15,
-        T: 0.5,
-        D: 2,
-        Rout: 1.2,
-        Rfil: 0.1},
+  sol: {},
 
   esp: {build_outdated: false,
+        build: function() {
+          postMessage("Attempting to open \""+wv.filename+"\" ...");
+          browserToServer("open|"+wv.filename+"|");
+          wv.nchanges = 0;
+          browserToServer("getPmtrs|");
+          wv.pmtrStat = 6000;
+          browserToServer("getBrchs|");
+          wv.brchStat = 6000;
+
+          var button = document.getElementById("buildButton");
+          button["innerHTML"] = "Re-building...";
+          button.style.backgroundColor = "#FFFF3F";
+
+          //inactivate buttons until build is done
+          changeMode(-1);
+        },
         update: function() {
             gp.dom.buildButton.disabled = false
-            browserToServer("getCsmFile|")
             window.oldactivateBuildButton()
           },
         },
@@ -29,10 +39,7 @@ window.gp = {
 
     for (var i=0; i < pmtr.length; i++) {
       console.log(i, pmtr[i].name, pmtr[i].value[0], gp.sol[pmtr[i].name])
-      if (gp.sol[pmtr[i].name] !== undefined) {
-        // gp var with same name as a design parameter
-        gp.sol[pmtr[i].name] = pmtr[i].value[0]
-      }
+      gp.sol[pmtr[i].name] = pmtr[i].value[0]
     }
 
     console.log(gp.sol)
@@ -48,6 +55,7 @@ gp.websocket.onmessage = function(evt) {
   data = JSON.parse(evt.data);
   console.log("Data received:", data)
   postMessage("GP: " + data.msg)
+  console.log(data.status)
   if (data.status == "optimal") {
     gp.dom.optimizeButton.innerText = "Optimized"
     gp.dom.optimizeButton.style.backgroundColor = null
@@ -67,7 +75,12 @@ window.activateBuildButton = function() {
 gp.dom.buttonForm = document.getElementById("butnfrm")
 gp.dom.buildButton = document.getElementById("buildButton")
 gp.dom.buildButton.disabled = true
-gp.dom.optimizeButton = document.createElement("button")
+gp.dom.buildButton.onclick = gp.esp.build
+
+if (!document.getElementById("optButton"))
+  gp.dom.optimizeButton = document.createElement("button")
+else
+  gp.dom.optimizeButton = document.getElementById("optButton")
 gp.dom.optimizeButton.id = "optButton"
 gp.dom.optimizeButton.type = "button"
 gp.dom.optimizeButton.innerText = "Optimized"

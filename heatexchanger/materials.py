@@ -34,7 +34,7 @@ class StainlessSteel(Model):
     rho     7700       [kg/m^3]    density of steel
     c       500        [J/K/kg]    heat capacity of steel
     k       19         [W/(m*K)]   thermal conductivity of steel
-    t_min   0.3        [mm]        minimum thickness of steel
+    t_min   3          [mm]        minimum thickness of steel
     """
     def setup(self):
         exec parse_variables(StainlessSteel.__doc__)
