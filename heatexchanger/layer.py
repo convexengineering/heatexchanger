@@ -109,7 +109,7 @@ class Layer(Model):
             maxAR >= c.x_cell/c.y_cell,
             # Differentiating between flow width and cell width
             c.x_cell >= n_fins*(c.t_hot + waterpipes.w_fluid),
-            c.y_cell >= n_fins*(c.t_cld + airpipes.w_fluid),
+            c.y_cell >= n_fins*(c.t_cld + airpipes.w_fluid.T),
             # Making sure there is at least 1 (non-integer) number of fins
             n_fins >= 1.,
             c.dQ == waterpipes.dQ,
@@ -130,10 +130,10 @@ class Layer(Model):
             T_min_cld <= T_max_hot
         ]
 
-        for i in range(Nwaterpipes):
-            for j in range(Nairpipes):
-                geom.extend([c.x_cell[i,j] == waterpipes.w[i],
-                             c.y_cell[i,j] == airpipes.w[j],
+        for j in range(Nwaterpipes):
+            for i in range(Nairpipes):
+                geom.extend([c.x_cell[i,j] == waterpipes.w[j],
+                             c.y_cell[i,j] == airpipes.w[i],
                              ])
 
         return [
