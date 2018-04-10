@@ -1,11 +1,13 @@
 import layer
 import cellplot
+from materials import *
+
 import imp
 from matplotlib.pyplot import *
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 
-from gpkit import Model
+from gpkit import Model, units
 from relaxed_constants import relaxed_constants
 from gpkit.constraints.bounded import Bounded
 
@@ -14,14 +16,20 @@ from writetotext import genHXData
 
 # Initializing SP single-layer HX model
 imp.reload(layer)
-Nw, Na = 5, 5
-m = layer.Layer(Na, Nw)
+Ncold, Nhot = 5, 5
+m = layer.Layer(Ncold, Nhot, Air(), Water(), StainlessSteel())
 
 # Model input parameters
-m.substitutions.update({m.n_fins: 5})
+m.substitutions.update({
+                        # Geometric parameters,
+                        m.n_fins:      5.,
+                        m.x_dim:       5.*units('cm'),
+                        m.y_dim:       10.*units('cm'),
+                        m.z_dim:       1.*units('cm')
+                        })
 
 # Objective function
-m.cost = (m.D_air+m.D_wat)/m.Q
+m.cost = (m.D_hot+m.D_cold)/m.Q
 #m = Model(m.cost,Bounded(m))
 #m = relaxed_constants(m)
 
@@ -31,7 +39,7 @@ sol = m.localsolve(verbosity=2)
 print sol('Q')
 
 # Generating 2D plots
-gen_plots(m, sol, Nw, Na)
+gen_plots(m, sol, Ncold, Nhot)
 
 # Writing complete solution file sol.txt
 with open("sol.txt", "w") as f:
