@@ -31,10 +31,10 @@ class HXGPServer(WebSocket):
             self.data = json.loads(self.data)
             print self.data
 
-            Nairpipes = self.data["Air_Channels"]
-            Nwaterpipes = self.data["Water_Channels"]
+            Ncoldpipes = self.data["Cold_Channels"]
+            Nhotpipes = self.data["Hot_Channels"]
 
-            m = Layer(Nairpipes, Nwaterpipes)
+            m = Layer(Ncoldpipes, Nhotpipes)
             m.cost = 1/m.Q
 
             for name, value in self.data.items():
