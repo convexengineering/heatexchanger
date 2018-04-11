@@ -34,7 +34,7 @@ class HXGPServer(WebSocket):
 
             Ncoldpipes = self.data["Cold_Channels"]
             Nhotpipes = self.data["Hot_Channels"]
-            if (Nwaterpipes, Nairpipes) == LASTSOL[0][0]:
+            if (Ncoldpipes, Nhotpipes) == LASTSOL[0][0]:
                 x0 = LASTSOL[0][1]["variables"]
             else:
                 x0 = None
@@ -50,7 +50,7 @@ class HXGPServer(WebSocket):
                     print repr(e)
 
             sol = m.localsolve(x0=x0)
-            LASTSOL[0] = ((Nwaterpipes, Nairpipes), sol)
+            LASTSOL[0] = ((Ncoldpipes, Nhotpipes), sol)
             genfiles(m, sol)
 
             self.send({"status": "optimal",
