@@ -60,8 +60,8 @@ despmtr   vknots   0.0;0.5;1.0
 
 dimension wknots   1 %i 1
 despmtr   wknots   %s
-""" % (1+m.Ncoldpipes, ";".join(["%.2f" % (w/max(x)) for w in x]),
-       1+m.Nhotpipes, ";".join(["%.2f" % (w/max(y)) for w in y])))
+""" % (1+m.Nhotpipes, ";".join(["%.2f" % (w/max(x)) for w in x]),
+       1+m.Ncoldpipes, ";".join(["%.2f" % (w/max(y)) for w in y])))
     f.write("""
 # duct definition (regular hexahedron)
 dimension corners  8 3 0
@@ -89,7 +89,7 @@ udparg tile tablename <<
 0.00   0.50   1.00
 %s
 
-""" % (1+m.Ncoldpipes, 1+m.Nhotpipes,
+""" % (1+m.Nhotpipes, 1+m.Ncoldpipes,
        "   ".join(["%.2f" % (w/max(x)) for w in x]),
        "   ".join(["%.2f" % (w/max(y)) for w in y])))
 
