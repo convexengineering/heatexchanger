@@ -26,10 +26,11 @@ m = layer.Layer(Ncoldpipes, Nhotpipes, coldFluid, hotFluid, material)
 # Model input parameters
 m.substitutions.update({
                         # Geometric parameters,
-                        m.n_fins:      n_fins,
-                        m.x_dim:       5.*units('cm'),
-                        m.y_dim:       10.*units('cm'),
-                        m.z_dim:       1.*units('cm')
+                        m.n_fins:         n_fins,
+                        m.max_porosity:   0.7,
+                        m.x_dim:          5.*units('cm'),
+                        m.y_dim:          10.*units('cm'),
+                        m.z_dim:          1.*units('cm')
                         })
 
 # Objective function

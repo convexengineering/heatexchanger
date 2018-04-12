@@ -27,10 +27,11 @@ class Layer(Model):
     T_max_hot  450  [K]       max temp. out
     T_max_cld       [K]       min temp. out
     porosity        [-]       1-porosity of HX
+    max_porosity    [-]       max (1-porosity) allowed
 
     Upper Unbounded
     ---------------
-    D_cold, D_hot
+    D_cold, D_hot, max_porosity
 
     Lower Unbounded
     ---------------
@@ -122,6 +123,7 @@ class Layer(Model):
             coldpipes,
             self.material,
             porosity == V_mtrl/V_tot,
+            porosity <= max_porosity,
 
             # CONSERVATION OF HEAT
             SP_Qsum,

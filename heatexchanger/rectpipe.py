@@ -98,7 +98,7 @@ class RectangularPipe(Model):
                     v_out**2,  # exit total pressure
                     P0[0] >= P0[-1] + 0.5 * fluid.rho * v_in**2 * Pf,
                     P0[:-1] >= P0[1:] + dP,
-                    dP <= mdot * (v[0:-1]/A[0:-1] - v[1:]/A[1:]),
+                    dP <= mdot/Nfins * (v[0:-1]/A[0:-1] - v[1:]/A[1:]),
                     A_seg**2 == A[0:-1]*A[1:],
                     dP == 0.5 * fluid.rho * v_avg**2 * Cf * l_seg / dh,
 
@@ -110,7 +110,7 @@ class RectangularPipe(Model):
                     Pf_rat**0.155 >= 0.475 * \
                     Re_rat[-1]**0.00121 + 0.0338 * Re_rat[-1]**-0.336,
 
-                    D >= fr * Nfins * A_seg[0]
+                    D >= fr * Nfins * A[0]
                     ]  # turns into a posynomial
 
         # Geometry definitions

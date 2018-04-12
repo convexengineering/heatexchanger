@@ -5,23 +5,23 @@ class HXArea(Model):
     """
     Variables
     ---------
-    dQ          [W]          heat transferred from liquid to air by cell
-    h_hot       [W/K/m^2]    convective heat transfer coefficient of liquid
-    h_cld       [W/K/m^2]    convective heat transfer coefficient of air
-    T_hot       [K]          liquid temperature in cell
-    T_cld       [K]          air temperature in cell
+    dQ          [W]          heat transferred in cell
+    h_hot       [W/K/m^2]    convective heat transfer coefficient of hot fluid
+    h_cld       [W/K/m^2]    convective heat transfer coefficient of cold fluid
+    T_hot       [K]          hot fluid temperature in cell
+    T_cld       [K]          cold fluid temperature in cell
     T_r         [K]          wall internal temperature in cell
     Tr_hot      [K]          hot fluid-wall interface temperature
     Tr_cld      [K]          cold fluid-wall interface temperature
-    x_cell      [cm]          x-width of cell
-    y_cell      [cm]          y-width of cell
-    z_hot       [cm]          z-height of hot cell
-    z_cld       [cm]          z_height of cold cell
-    t_plate     [cm]          thickness of separating plate
-    t_hot       [cm]          fin thickness in liquid
-    t_cld       [cm]          fin thickness in gas
-    A_hot       [cm^2]        area of hot fin
-    A_cld       [cm^2]        area of cold fin
+    x_cell      [cm]         x-width of cell
+    y_cell      [cm]         y-width of cell
+    z_hot       [cm]         z-height of hot cell
+    z_cld       [cm]         z_height of cold cell
+    t_plate     [cm]         thickness of separating plate
+    t_hot       [cm]         fin thickness in hot fluid
+    t_cld       [cm]         fin thickness in cold fluid
+    A_hot       [cm^2]       area of hot fin
+    A_cld       [cm^2]       area of cold fin
 
 
      Upper Unbounded
