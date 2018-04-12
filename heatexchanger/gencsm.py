@@ -3,20 +3,19 @@ from scipy.interpolate import interp2d
 
 
 def gencsm(m, sol, ID):
-    nu = m.Nhotpipes
+    nu = m.Ncoldpipes
     nhot = nu
     nv = 2
-    nw = m.Ncoldpipes
+    nw = m.Nhotpipes
     ncold = nw
     nParams = 8
 
     # Creating corner coordinates
-    x = [sum(sol(m.hotpipes.w)[0:i].to("m").magnitude) for i in range(nu+1)]
-    y = [sum(sol(m.coldpipes.w)[0:i].to("m").magnitude) for i in range(nw+1)]
+    x = [sum(sol(m.coldpipes.w)[0:i].to("m").magnitude) for i in range(nu+1)]
+    y = [sum(sol(m.hotpipes.w)[0:i].to("m").magnitude) for i in range(nw+1)]
     xy = np.array([(x[i], y[j]) for j in range(nw+1) for i in range(nu+1)])
     xycent = np.array([[(x[i+1] + x[i])/2, (y[j+1]+y[j])/2]
                        for j in range(nw) for i in range(nu)])
-    z = sol(m.c.z_hot) + sol(m.c.z_cld) + 2*sol(m.c.t_plate)
 
     hxVals = [10*sol(m.c.t_plate).to("m").magnitude,
               10*sol(m.c.t_hot).to("m").magnitude,
@@ -60,8 +59,8 @@ despmtr   vknots   0.0;0.5;1.0
 
 dimension wknots   1 %i 1
 despmtr   wknots   %s
-""" % (1+m.Nhotpipes, ";".join(["%.2f" % (w/max(x)) for w in x]),
-       1+m.Ncoldpipes, ";".join(["%.2f" % (w/max(y)) for w in y])))
+""" % (1+nu, ";".join(["%.2f" % (w/max(x)) for w in x]),
+       1+nw, ";".join(["%.2f" % (w/max(y)) for w in y])))
     f.write("""
 # duct definition (regular hexahedron)
 dimension corners  8 3 0
@@ -89,7 +88,7 @@ udparg tile tablename <<
 0.00   0.50   1.00
 %s
 
-""" % (1+m.Nhotpipes, 1+m.Ncoldpipes,
+""" % (1+nu, 1+nw,
        "   ".join(["%.2f" % (w/max(x)) for w in x]),
        "   ".join(["%.2f" % (w/max(y)) for w in y])))
 
