@@ -14,7 +14,7 @@ class Layer(Model):
     Variables
     ---------
     Q               [W]       heat power from hot to cold fluid
-    D_cold           [N]      total cold fluid drag
+    D_cold          [N]       total cold fluid drag
     D_hot           [N]       total hot fluid drag
     V_tot           [cm^3]    total volume
     V_mtrl          [cm^3]    volume of material
@@ -26,6 +26,7 @@ class Layer(Model):
     maxAR      5    [-]       max tile width variation
     T_max_hot  450  [K]       max temp. out
     T_max_cld       [K]       min temp. out
+    porosity        [-]       1-porosity of HX
 
     Upper Unbounded
     ---------------
@@ -76,16 +77,12 @@ class Layer(Model):
         # REMEMBER: LEFTMOST, INNERMOST RULE OF VECTORIZATION
         for i in range(Nhotpipes):
             for j in range(Ncoldpipes):
-                print c.x_cell[j,i]
                 geom.extend([c.x_cell[j,i] == hotpipes.w[i],
                              c.x_cell[j,i] == coldpipes.l_seg[i,j],
                              c.y_cell[j,i] == coldpipes.w[j],
                              c.y_cell[j,i] == hotpipes.l_seg[j,i],
                              maxAR >= c.y_cell[j,i]/c.x_cell[j,i],
                              maxAR >= c.x_cell[j,i]/c.y_cell[j,i],
-                             # Arbitrary bounding for convergence.
-                             c.x_cell[j,i] >= 0.1*units('cm'),
-                             c.y_cell[j,i] >= 0.1*units('cm'),
                              # Differentiating between flow width and cell width
                              c.x_cell[j,i] >= n_fins*(c.t_hot[j,i] + hotpipes.w_fluid[j,i]),
                              c.y_cell[j,i] >= n_fins*(c.t_cld[j,i] + coldpipes.w_fluid[i,j]),
@@ -108,9 +105,7 @@ class Layer(Model):
                         c.z_hot[j,i]  == hotpipes.h_seg[j,i],
                         c.z_cld[j,i]  == coldpipes.h_seg[i,j],
                         hotpipes.h_seg[j,i] >= 0.1*units('cm'),
-                        hotpipes.h_seg[j,i] <= 1.0*units('cm'),
                         coldpipes.h_seg[i,j] >= 0.1*units('cm'),
-                        coldpipes.h_seg[i,j] <= 1.0*units('cm'),
                         x_dim >= hotpipes.w.sum(),
                         y_dim >= coldpipes.w.sum(),
                         z_dim >= c.z_hot+c.z_cld+c.t_plate,
@@ -126,6 +121,7 @@ class Layer(Model):
             hotpipes,
             coldpipes,
             self.material,
+            porosity == V_mtrl/V_tot,
 
             # CONSERVATION OF HEAT
             SP_Qsum,
@@ -138,7 +134,7 @@ class Layer(Model):
             coldCf,
 
             # TOTAL VOLUME REQUIREMENT
-            V_tot <= 100*units('cm^3'),
+            V_tot <= x_dim*y_dim*z_dim,
 
             # MATERIAL VOLUME
             V_mtrl >= (n_fins*c.z_hot*c.t_hot*c.x_cell).sum()+(n_fins*c.z_cld*c.t_cld*c.y_cell).sum()+(c.x_cell*c.y_cell*c.t_plate).sum(),
