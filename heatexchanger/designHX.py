@@ -16,7 +16,7 @@ from writetotext import genHXData
 
 # Initializing SP single-layer HX model
 imp.reload(layer)
-Ncoldpipes, Nhotpipes = 5, 4
+Ncoldpipes, Nhotpipes = 4,3
 coldFluid = Air()
 hotFluid = Water()
 material = StainlessSteel()
@@ -30,11 +30,22 @@ m.substitutions.update({
                         m.max_porosity:   0.7,
                         m.x_dim:          5.*units('cm'),
                         m.y_dim:          10.*units('cm'),
-                        m.z_dim:          1.*units('cm')
+                        m.z_dim:          1.*units('cm'),
+
+                        # Inlet flow parameters
+                        m.v_in_hot:       1.*units('m/s'),
+                        m.v_in_cold:      20.*units('m/s'),
+
+                        # Heat transfer parameters
+                        #m.T_min_cold:     300.*units('K'),
+                        m.T_max_hot:      450.*units('K'),
+                        m.T_in_hot:       500.*units('K'),
+                        m.T_in_cold:      303.*units('K'),
                         })
 
 # Objective function
 m.cost = (m.D_hot+m.D_cold)/m.Q
+
 #m = Model(m.cost,Bounded(m))
 #m = relaxed_constants(m)
 

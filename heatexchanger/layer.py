@@ -18,24 +18,28 @@ class Layer(Model):
     D_hot           [N]       total hot fluid drag
     V_tot           [cm^3]    total volume
     V_mtrl          [cm^3]    volume of material
-    g          9.81 [m*s^-2]  gravitational acceleration
-    x_dim      5    [cm]      max hot length
-    y_dim      10   [cm]      max cold length
-    z_dim      1    [cm]      max height
+    g        9.81   [m*s^-2]  gravitational acceleration
+    x_dim           [cm]      max hot length
+    y_dim           [cm]      max cold length
+    z_dim           [cm]      max height
     n_fins          [-]       fins per tile
     maxAR      5    [-]       max tile width variation
-    T_max_hot  450  [K]       max temp. out
-    T_max_cld       [K]       min temp. out
+    T_in_hot        [K]       inlet temp. of hot fluid
+    T_in_cold       [K]       inlet temp. of cold fluid
+    v_in_hot        [m/s]     inlet velocity of hot fluid
+    v_in_cold       [m/s]     inlet velocity of cold fluid
+    T_max_hot       [K]       max temp. out
+    T_min_cold       [K]       min temp. out
     porosity        [-]       1-porosity of HX
     max_porosity    [-]       max (1-porosity) allowed
 
     Upper Unbounded
     ---------------
-    D_cold, D_hot, max_porosity
+    D_cold, D_hot, max_porosity, x_dim, y_dim, z_dim, T_in_hot, T_max_hot
 
     Lower Unbounded
     ---------------
-    Q
+    Q, T_in_cold
 
     """
     def setup(self, Ncoldpipes, Nhotpipes, coldFluid, hotFluid, material):
@@ -47,21 +51,22 @@ class Layer(Model):
 
         exec parse_variables(Layer.__doc__)
 
-
         with Vectorize(Ncoldpipes):
-            coldpipes = RectangularPipe(Nhotpipes, n_fins, coldFluid, increasingT=True,
-                                       substitutions={"T_in": 303,
-                                                      "v_in": 20})
-            self.coldpipes = coldpipes
+            coldpipes = RectangularPipe(Nhotpipes, n_fins, coldFluid, increasingT=True)
+        self.coldpipes = coldpipes
         with Vectorize(Nhotpipes):
-            hotpipes = RectangularPipe(Ncoldpipes, n_fins, hotFluid, increasingT=False,
-                                         substitutions={"T_in": 500,
-                                                        "v_in": 1})
-            self.hotpipes = hotpipes
+            hotpipes = RectangularPipe(Ncoldpipes, n_fins, hotFluid, increasingT=False)
+        self.hotpipes = hotpipes
 
         with Vectorize(Nhotpipes):
             with Vectorize(Ncoldpipes):
                 c = self.c = HXArea(n_fins, self.material)
+
+        # Matching inlet quantities
+        inlet = [coldpipes.v_in[:] == v_in_cold,
+                 hotpipes.v_in[:] == v_in_hot,
+                 coldpipes.T_in[:] == T_in_cold,
+                 hotpipes.T_in[:] == T_in_hot]
 
         hotCf = []
         coldCf = []
@@ -111,9 +116,9 @@ class Layer(Model):
                         y_dim >= coldpipes.w.sum(),
                         z_dim >= c.z_hot+c.z_cld+c.t_plate,
                         c.T_hot[-1,:] <= T_max_hot,
-                        c.T_cld[:,-1] >= T_max_cld,
-                        T_max_cld <= T_max_hot,
-                        T_max_cld >= 1*units('K'),
+                        c.T_cld[:,-1] >= T_min_cold,
+                        T_min_cold <= T_max_hot,
+                        T_min_cold >= 1*units('K'),
                         ])
 
         return [
@@ -132,6 +137,7 @@ class Layer(Model):
             #DRAG
             D_hot >= self.hotpipes.D.sum(),
             D_cold >= self.coldpipes.D.sum(),
+            inlet,
             hotCf,
             coldCf,
 

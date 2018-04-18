@@ -52,11 +52,11 @@ class RectangularPipe(Model):
 
     Upper Unbounded
     --------------
-    w, w_fluid, dh, l_seg, V_seg, D, Tr_int (if increasingT), h_seg
+    w, w_fluid, dh, h_seg, l_seg, V_seg, D, Tr_int (if increasingT), T_in (if not increasingT)
 
     Lower Unbounded
     ---------------
-    w, h_seg, Nu_notlast, dQ, Tr_int (if not increasingT), dP
+    w, h_seg, Nu_notlast, dQ, dP, Tr_int (if not increasingT), T_in (if increasingT)
 
     """
 
