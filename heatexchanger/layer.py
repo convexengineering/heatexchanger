@@ -5,6 +5,7 @@ from hxarea import HXArea
 from rectpipe import RectangularPipe
 from relaxed_constants import relaxed_constants, post_process
 import numpy as np
+from collections import OrderedDict
 
 
 class Layer(Model):
@@ -13,54 +14,85 @@ class Layer(Model):
 
     Variables
     ---------
-    Q               [W]       heat power from hot to cold fluid
-    D_cold          [N]       total cold fluid drag
-    D_hot           [N]       total hot fluid drag
-    V_tot           [cm^3]    total volume
-    V_mtrl          [cm^3]    volume of material
-    g        9.81   [m*s^-2]  gravitational acceleration
-    x_dim           [cm]      max hot length
-    y_dim           [cm]      max cold length
-    z_dim           [cm]      max height
-    n_fins          [-]       fins per tile
-    maxAR      4    [-]       max tile width variation
-    T_max_hot       [K]       max temp. out
-    T_min_cold      [K]       min temp. out
-    porosity        [-]       1-porosity of HX
-    max_porosity    [-]       max (1-porosity) allowed
-
-    Upper Unbounded
-    ---------------
-    D_cold, D_hot, max_porosity, x_dim, y_dim, z_dim, T_max_hot, P_in_hot, P_in_cold, T_in_hot
+    Q                [W]       heat transferred from  hot to cold fluid
+    D_cold      0.01 [N]       total air drag
+    D_hot       0.01 [N]       total water drag
+    V_tot            [cm^3]    total volume
+    V_mtrl           [cm^3]    volume of material
+    g           9.81 [m*s^-2]  gravitational acceleration
+    x_dim          5 [cm]      max hot length
+    y_dim         10 [cm]      max cold length
+    z_dim          1 [cm]      max height
+    n_fins           [-]       fins per tile
+    maxAR          4 [-]       max tile width variation
+    T_max_hot    450 [K]       max temp. out
+    T_min_cold     1 [K]       min temp. out
+    T_in_hot     500 [K]       inlet temperature of hot fluid
+    v_in_hot       1 [m/s]     inlet speed of hot fluid
+    T_in_cold    303 [K]       inlet temperature of cold fluid
+    v_in_cold     20 [m/s]     inlet speed of cold fluid
+    porosity         [-]       1-porosity of HX
+    max_porosity 0.7 [-]       max (1-porosity) allowed
 
     Lower Unbounded
     ---------------
-    Q, P_out_hot, P_out_cold, T_in_cold
+    Q
 
     """
-    def setup(self, Ncoldpipes, Nhotpipes, coldFluid, hotFluid, material):
+
+    coldfluid_model = Air
+    hotfluid_model = Water
+    material_model = StainlessSteel
+
+    def setup(self, Ncoldpipes, Nhotpipes):
         self.Ncoldpipes = Ncoldpipes
         self.Nhotpipes = Nhotpipes
-        self.coldFluid = coldFluid
-        self.hotFluid = hotFluid
-        self.material = material
 
         exec parse_variables(Layer.__doc__)
 
+        self.material = self.material_model()
+        coldfluid = self.coldfluid_model()
         with Vectorize(Ncoldpipes):
-            coldpipes = RectangularPipe(Nhotpipes, n_fins, coldFluid, increasingT=True)
-        self.coldpipes = coldpipes
+            coldpipes = RectangularPipe(Nhotpipes, n_fins, coldfluid,
+                                        increasingT=True)
+            self.coldpipes = coldpipes
+        hotfluid = self.hotfluid_model()
         with Vectorize(Nhotpipes):
-            hotpipes = RectangularPipe(Ncoldpipes, n_fins, hotFluid, increasingT=False)
-        self.hotpipes = hotpipes
+            hotpipes = RectangularPipe(Ncoldpipes, n_fins, hotfluid,
+                                       increasingT=False)
+            self.hotpipes = hotpipes
+        pipes = [coldpipes,
+                 coldpipes.T_in == T_in_cold, coldpipes.v_in == v_in_cold,
+                 hotpipes,
+                 hotpipes.T_in == T_in_hot, hotpipes.v_in == v_in_hot]
 
-        # Unbounded variables from hierarchy
-        self.P_in_hot = self.hotpipes.P_in
-        self.P_in_cold = self.coldpipes.P_in
-        self.P_out_hot = self.hotpipes.P_out
-        self.P_out_cold = self.coldpipes.P_out
-        self.T_in_hot = self.hotpipes.T_in
-        self.T_in_cold = self.coldpipes.T_in
+        self.design_parameters = OrderedDict([
+            # add T_max_hot, T_min_cold?
+            ("gravity", g),
+            ("x_width", x_dim),
+            ("y_width", y_dim),
+            ("z_width", z_dim),
+            ("Hot_Channels", self.Nhotpipes),
+            ("Cold_Channels", self.Ncoldpipes),
+            ("Hot_Drag", D_hot),
+            ("Cold_Drag", D_cold),
+            ("c_metal", self.material.c),
+            ("k_metal", self.material.k),
+            ("rho_metal", self.material.rho),
+            ("t_min_metal", self.material.t_min),
+            ("c_coldfluid", coldfluid.c),
+            ("k_coldfluid", coldfluid.k),
+            ("rho_coldfluid", coldfluid.rho),
+            ("mu_coldfluid", coldfluid.mu),
+            ("Ti_coldfluid", T_in_cold),
+            ("vi_coldfluid", v_in_cold),
+            ("c_hotfluid", hotfluid.c),
+            ("k_hotfluid", hotfluid.k),
+            ("rho_hotfluid", hotfluid.rho),
+            ("mu_hotfluid", hotfluid.mu),
+            ("Ti_hotfluid", T_in_hot),
+            ("vi_hotfluid", v_in_hot),
+        ])
 
         with Vectorize(Nhotpipes):
             with Vectorize(Ncoldpipes):
@@ -76,54 +108,45 @@ class Layer(Model):
             #       it's already alllllmost GP, solving in 3-9 GP solves
             SP_Qsum = Q <= c.dQ.sum()
 
-        geom = [V_tot >= sum(sum(hotpipes.V_seg)) + sum(sum(coldpipes.V_seg)) + V_mtrl]
+        geom = [
+            V_tot >= hotpipes.V_seg.sum() + coldpipes.V_seg.sum() + V_mtrl,
+            c.x_cell == coldpipes.l_seg.T,
+            c.y_cell == hotpipes.l_seg,
+            maxAR >= c.y_cell/c.x_cell,
+            maxAR >= c.x_cell/c.y_cell,
+            # Differentiating between flow width and cell width
+            c.x_cell >= n_fins*(c.t_hot + hotpipes.w_fluid),
+            c.y_cell >= n_fins*(c.t_cld + coldpipes.w_fluid.T),
+            # Making sure there is at least 1 (non-integer) number of fins
+            n_fins >= 1.,
+            c.dQ == hotpipes.dQ,
+            c.dQ == coldpipes.dQ.T,
+            c.Tr_hot == hotpipes.Tr_int,
+            c.Tr_cld == coldpipes.Tr_int.T,
+            c.T_hot == hotpipes.T_avg,
+            c.T_cld == coldpipes.T_avg.T,
+            c.h_hot == hotpipes.h,
+            c.h_cld == coldpipes.h.T,
+            c.z_hot == hotpipes.h_seg,
+            c.z_cld == coldpipes.h_seg.T,
+            x_dim >= hotpipes.w.sum(),
+            y_dim >= coldpipes.w.sum(),
+            z_dim >= c.z_hot+c.z_cld+c.t_plate,
+            T_max_hot >= c.T_hot[-1, :],
+            T_min_cold <= c.T_cld[:, -1],
+            T_min_cold <= T_max_hot
+        ]
 
-        # REMEMBER: LEFTMOST, INNERMOST RULE OF VECTORIZATION
-        for i in range(Nhotpipes):
-            for j in range(Ncoldpipes):
-                geom.extend([c.x_cell[j,i] == hotpipes.w[i],
-                             c.x_cell[j,i] == coldpipes.l_seg[i,j],
-                             c.y_cell[j,i] == coldpipes.w[j],
-                             c.y_cell[j,i] == hotpipes.l_seg[j,i],
-                             maxAR >= c.y_cell[j,i]/c.x_cell[j,i],
-                             maxAR >= c.x_cell[j,i]/c.y_cell[j,i],
-                             # Differentiating between flow width and cell width
-                             c.x_cell[j,i] >= n_fins*(c.t_hot[j,i] + hotpipes.w_fluid[j,i]),
-                             c.y_cell[j,i] >= n_fins*(c.t_cld[j,i] + coldpipes.w_fluid[i,j]),
-                             # Making sure there is at least 1 (non-integer) number of fins
-                             n_fins >= 1.,
+        for j in range(Nhotpipes):
+            for i in range(Ncoldpipes):
+                geom.extend([c.x_cell[i,j] == hotpipes.w[j],
+                             c.y_cell[i,j] == coldpipes.w[i],
                              ])
-
-        # Linking pipes in HXArea
-        for i in range(Nhotpipes):
-            for j in range(Ncoldpipes):
-                geom.extend([
-                        c.dQ[j,i]     == hotpipes.dQ[j,i],
-                        c.dQ[j,i]     == coldpipes.dQ[i,j],
-                        c.Tr_hot[j,i] == hotpipes.Tr_int[j,i],
-                        c.Tr_cld[j,i] == coldpipes.Tr_int[i,j],
-                        c.T_hot[j,i]  == hotpipes.T_avg[j,i],
-                        c.T_cld[j,i]  == coldpipes.T_avg[i,j],
-                        c.h_hot[j,i]  == hotpipes.h[j,i],
-                        c.h_cld[j,i]  == coldpipes.h[i,j],
-                        c.z_hot[j,i]  == hotpipes.h_seg[j,i],
-                        c.z_cld[j,i]  == coldpipes.h_seg[i,j],
-                        hotpipes.h_seg[j,i] >= 0.1*units('cm'),
-                        coldpipes.h_seg[i,j] >= 0.1*units('cm'),
-                        x_dim >= hotpipes.w.sum(),
-                        y_dim >= coldpipes.w.sum(),
-                        z_dim >= c.z_hot+c.z_cld+c.t_plate,
-                        c.T_hot[-1,:] <= T_max_hot,
-                        c.T_cld[:,-1] >= T_min_cold,
-                        T_min_cold <= T_max_hot,
-                        T_min_cold >= 1*units('K'),
-                        ])
 
         return [
             # SIZING
             geom,
-            hotpipes,
-            coldpipes,
+            pipes,
             self.material,
             porosity == V_mtrl/V_tot,
             porosity <= max_porosity,

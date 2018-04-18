@@ -12,8 +12,8 @@ class RectangularPipe(Model):
     T_in                  [K]      input temperature
     v_in                  [m/s]    input velocity
     v_out                 [m/s]    output velocity
-    P_in                  [Pa]     input static pressure
-    P_out                 [Pa]     output static pressure
+    P_in         10100    [Pa]     input static pressure
+    P_out        10100    [Pa]     output static pressure
     D                     [N]      total drag
     eta_h                 [-]      effectiveness
     eta_h_ref   0.917     [-]      reference effectiveness
@@ -52,11 +52,13 @@ class RectangularPipe(Model):
 
     Upper Unbounded
     --------------
-    w, w_fluid, dh, h_seg, l_seg, V_seg, D, Tr_int (if increasingT), T_in (if not increasingT), P_in
+    w, dh, l_seg, V_seg, D, h_seg
+    Tr_int (if increasingT), T_in (if not increasingT)
 
     Lower Unbounded
     ---------------
-    w, h_seg, Nu_notlast, dQ, dP, Tr_int (if not increasingT), T_in (if increasingT), P_out
+    w, Re_notlast, dQ, dP
+    Tr_int (if not increasingT), T_in (if increasingT)
 
     """
 
@@ -65,71 +67,71 @@ class RectangularPipe(Model):
         self.increasingT = increasingT
 
         exec parse_variables(RectangularPipe.__doc__)
-        self.Nu_notlast = Nu[:-1]
+        self.Re_notlast = Re[:-1]  # unbounded b/c only Re[-1] is fit
 
         temp = [T_avg**2 == T[1:] * T[:-1],
                 T_in == T[0]]
 
+        # TODO: why is Tr_int not just equal to T[1:]?
+
         if increasingT:
             temp.extend([T[1:] >= T[:-1] + dT,
                          # definition of effectiveness
-                         dT * eta_h**-1 + T[0:-1] <= Tr_int,
+                         dT * eta_h**-1 + T[:-1] <= Tr_int,
                          Tr_int >= T[1:]])
         else:
             temp.extend([T[:-1] >= T[1:] + dT,
-                         dT * eta_h**-1 + Tr_int <= T[0:-1],
+                         dT * eta_h**-1 + Tr_int <= T[:-1],
                          Tr_int <= T[1:]])
 
-        Pf_rat = Pf / Pf_ref
-        Re_rat = Re / Re_ref
-        eta_h_rat = eta_h / eta_h_ref
-        alpha = T[1:] / T[:-1]
-
         with SignomialsEnabled():
-            flow = [mdot == Nfins * fluid.rho * v * A,  # mass conservation
-                    v_in == v[0],
-                    v_out == v[-1],
-                    v_avg**2 == v[0:-1] * v[1:],
-                    # force per frontal area
-                    fr == Pf * (0.5 * fluid.rho * v_in**2),
-                    # inlet total pressure # signomial
-                    P0[0] <= P_in + 0.5 * fluid.rho * v_in**2,
-                    P0[-1] >= P_out + 0.5 * fluid.rho * \
-                    v_out**2,  # exit total pressure
-                    P0[0] >= P0[-1] + 0.5 * fluid.rho * v_in**2 * Pf,
-                    P0[:-1] >= P0[1:] + dP,
-                    dP <= mdot/Nfins * (v[0:-1]/A[0:-1] - v[1:]/A[1:]),
-                    A_seg**2 == A[0:-1]*A[1:],
-                    dP == 0.5 * fluid.rho * v_avg**2 * Cf * l_seg / dh,
+            # except where noted these constraints become posynomial
+            flow = [
+                mdot == Nfins * fluid.rho * v * A,  # mass conservation
+                v_in == v[0],
+                v_out == v[-1],
+                v_avg**2 == v[:-1] * v[1:],
+                # force per frontal area
+                fr == Pf * (0.5 * fluid.rho * v_in**2),
+                # inlet total pressure # SIGNOMIAL
+                P0[0] <= P_in + 0.5 * fluid.rho * v_in**2,
+                # exit total pressure
+                P0[-1] >= P_out + 0.5 * fluid.rho * v_out**2,
+                P0[0] >= P0[-1] + 0.5 * fluid.rho * v_in**2 * Pf,
+                P0[:-1] >= P0[1:] + dP,
+                dP <= mdot * (v[:-1]/A[:-1] - v[1:]/A[1:]),
+                A_seg**2 == A[:-1]*A[1:],
+                dP == 0.5 * fluid.rho * v_avg**2 * Cf * l_seg / dh,
 
-                    # effectiveness fit
-                    eta_h / eta_h_ref == 0.799 * Re_rat[-1]**-0.0296,
-                    eta_h <= 0.844,  # boundary to make sure fit is valid
+                # effectiveness fit
+                eta_h / eta_h_ref == 0.799 * (Re[-1]/Re_ref)**-0.0296,
+                eta_h <= 0.844,  # boundary to make sure fit is valid
 
-                    # pressure drop fit
-                    Pf_rat**0.155 >= 0.475 * \
-                    Re_rat[-1]**0.00121 + 0.0338 * Re_rat[-1]**-0.336,
+                # pressure drop fit
+                (Pf/Pf_ref)**0.155 >= (0.475*(Re[-1]/Re_ref)**0.00121
+                                       + 0.0338*(Re[-1]/Re_ref)**-0.336),
 
-                    D >= fr * Nfins * A[0]
-                    ]  # turns into a posynomial
+                D >= fr * Nfins * A[0]
+            ]
 
         # Geometry definitions
-        geom = [A_seg == w_fluid * h_seg,  # cross sectional area of single channel
+        geom = [A_seg == w_fluid * h_seg,  # cross sectional area of channel
                 V_seg == Nfins * A_seg * l_seg,  # total volume of all channels
                 # hydraulic diameter with geometric mean approximation
                 dh * (w_fluid * h_seg)**0.5 == 2 * A_seg,
+                h_seg >= 0.1*units('cm'),
                 ]
         with SignomialsEnabled():
             for i in range(Nsegments):
-                geom.extend([l[i] <= l_seg[0:i + 1].sum()])
+                geom.extend([l[i] <= l_seg[:i + 1].sum()])
 
         # Friction and heat transfer
         friction = [dQ <= mdot * fluid.c * dT,
                     Cf**5 * Re == (0.059)**5,
-                    Re == (fluid.rho * v_avg * l / fluid.mu),
+                    Re == fluid.rho * v_avg * l / fluid.mu,
                     Pr == fluid.mu * fluid.c / fluid.k,
                     # Nusselt number definition (fully turbulent)
-                    Nu == 0.0296 * Re**(4. / 5.) * Pr**(1. / 3.),
+                    Nu == 0.0296 * Re**(4./5) * Pr**(1./3),
                     h * l == Nu * fluid.k,
                     ]
 
