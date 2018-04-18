@@ -14,23 +14,25 @@ class Layer(Model):
 
     Variables
     ---------
-    Q               [W]       heat transferred from air to liquid
-    D_cold     0.01 [N]       total air drag
-    D_hot      0.01 [N]       total water drag
-    V_tot           [cm^3]    total volume
-    V_mtrl          [cm^3]    volume of material
-    g          9.81 [m*s^-2]  gravitational acceleration
-    x_dim      5    [cm]      max hot length
-    y_dim      10   [cm]      max cold length
-    z_dim      1    [cm]      max height
-    n_fins          [-]       fins per tile
-    maxAR      5    [-]       max tile width variation
-    T_max_hot  450  [K]       max temp. out
-    T_min_cold   1  [K]       min temp. out
-    T_in_hot 500    [K]       inlet temperature of hot fluid
-    v_in_hot 1      [m/s]     inlet speed of hot fluid
-    T_in_cold   303 [K]       inlet temperature of cold fluid
-    v_in_cold   20  [m/s]     inlet speed of cold fluid
+    Q                [W]       heat transferred from  hot to cold fluid
+    D_cold      0.01 [N]       total air drag
+    D_hot       0.01 [N]       total water drag
+    V_tot            [cm^3]    total volume
+    V_mtrl           [cm^3]    volume of material
+    g           9.81 [m*s^-2]  gravitational acceleration
+    x_dim          5 [cm]      max hot length
+    y_dim         10 [cm]      max cold length
+    z_dim          1 [cm]      max height
+    n_fins           [-]       fins per tile
+    maxAR          5 [-]       max tile width variation
+    T_max_hot    450 [K]       max temp. out
+    T_min_cold     1 [K]       min temp. out
+    T_in_hot     500 [K]       inlet temperature of hot fluid
+    v_in_hot       1 [m/s]     inlet speed of hot fluid
+    T_in_cold    303 [K]       inlet temperature of cold fluid
+    v_in_cold     20 [m/s]     inlet speed of cold fluid
+    porosity         [-]       1-porosity of HX
+    max_porosity 0.8 [-]       max (1-porosity) allowed
 
     Lower Unbounded
     ---------------
@@ -146,6 +148,8 @@ class Layer(Model):
             geom,
             pipes,
             self.material,
+            porosity == V_mtrl/V_tot,
+            porosity <= max_porosity,
 
             # CONSERVATION OF HEAT
             SP_Qsum,

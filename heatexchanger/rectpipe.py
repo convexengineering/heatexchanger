@@ -12,8 +12,8 @@ class RectangularPipe(Model):
     T_in                  [K]      input temperature
     v_in                  [m/s]    input velocity
     v_out                 [m/s]    output velocity
-    P_in        101000    [Pa]     input static pressure
-    P_out       101000    [Pa]     output static pressure
+    P_in         101000   [Pa]     input static pressure
+    P_out        101000  [Pa]     output static pressure
     D                     [N]      total drag
     eta_h                 [-]      effectiveness
     eta_h_ref   0.917     [-]      reference effectiveness
@@ -99,8 +99,8 @@ class RectangularPipe(Model):
                 P0[-1] >= P_out + 0.5 * fluid.rho * v_out**2,
                 P0[0] >= P0[-1] + 0.5 * fluid.rho * v_in**2 * Pf,
                 P0[:-1] >= P0[1:] + dP,
-                dP <= mdot * (v[0:-1]/A[0:-1] - v[1:]/A[1:]),
-                A_seg**2 == A[0:-1]*A[1:],
+                dP <= mdot * (v[:-1]/A[:-1] - v[1:]/A[1:]),
+                A_seg**2 == A[:-1]*A[1:],
                 dP == 0.5 * fluid.rho * v_avg**2 * Cf * l_seg / dh,
 
                 # effectiveness fit

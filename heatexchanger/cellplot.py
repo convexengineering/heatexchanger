@@ -134,13 +134,13 @@ def gen_plots(m, sol, Ncld, Nhot):
     f, a = plot_cells(m, sol(m.c.t_hot), cm=cm.Reds,
                       zscale=1 / Nhot / Ncld, zoff=0.625 / Nhot / Ncld, verbosity=2)
     a.set_title("Hot fin thickness (cm)")
-    f.savefig("plots/t_hot.png")
+    f.savefig("plots/f_hot.png")
 
     # Cold fin thickness
     f, a = plot_cells(m, sol(m.c.t_cld), cm=cm.Blues,
                       zscale=1 / Nhot / Ncld, zoff=0.625 / Nhot / Ncld, verbosity=2)
     a.set_title("Cold fin thickness (cm)")
-    f.savefig("plots/t_cld.png")
+    f.savefig("plots/f_cld.png")
 
     # Velocity area (to confirm mass flow rates) on hot side
     f, a = plot_cells(m, sol(m.hotpipes.v)*sol(m.hotpipes.A), cm=cm.Reds,
