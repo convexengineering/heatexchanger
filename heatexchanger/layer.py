@@ -23,23 +23,19 @@ class Layer(Model):
     y_dim           [cm]      max cold length
     z_dim           [cm]      max height
     n_fins          [-]       fins per tile
-    maxAR      5    [-]       max tile width variation
-    T_in_hot        [K]       inlet temp. of hot fluid
-    T_in_cold       [K]       inlet temp. of cold fluid
-    v_in_hot        [m/s]     inlet velocity of hot fluid
-    v_in_cold       [m/s]     inlet velocity of cold fluid
+    maxAR      4    [-]       max tile width variation
     T_max_hot       [K]       max temp. out
-    T_min_cold       [K]       min temp. out
+    T_min_cold      [K]       min temp. out
     porosity        [-]       1-porosity of HX
     max_porosity    [-]       max (1-porosity) allowed
 
     Upper Unbounded
     ---------------
-    D_cold, D_hot, max_porosity, x_dim, y_dim, z_dim, T_in_hot, T_max_hot
+    D_cold, D_hot, max_porosity, x_dim, y_dim, z_dim, T_max_hot, P_in_hot, P_in_cold, T_in_hot
 
     Lower Unbounded
     ---------------
-    Q, T_in_cold
+    Q, P_out_hot, P_out_cold, T_in_cold
 
     """
     def setup(self, Ncoldpipes, Nhotpipes, coldFluid, hotFluid, material):
@@ -58,15 +54,17 @@ class Layer(Model):
             hotpipes = RectangularPipe(Ncoldpipes, n_fins, hotFluid, increasingT=False)
         self.hotpipes = hotpipes
 
+        # Unbounded variables from hierarchy
+        self.P_in_hot = self.hotpipes.P_in
+        self.P_in_cold = self.coldpipes.P_in
+        self.P_out_hot = self.hotpipes.P_out
+        self.P_out_cold = self.coldpipes.P_out
+        self.T_in_hot = self.hotpipes.T_in
+        self.T_in_cold = self.coldpipes.T_in
+
         with Vectorize(Nhotpipes):
             with Vectorize(Ncoldpipes):
                 c = self.c = HXArea(n_fins, self.material)
-
-        # Matching inlet quantities
-        inlet = [coldpipes.v_in[:] == v_in_cold,
-                 hotpipes.v_in[:] == v_in_hot,
-                 coldpipes.T_in[:] == T_in_cold,
-                 hotpipes.T_in[:] == T_in_hot]
 
         hotCf = []
         coldCf = []
@@ -137,7 +135,6 @@ class Layer(Model):
             #DRAG
             D_hot >= self.hotpipes.D.sum(),
             D_cold >= self.coldpipes.D.sum(),
-            inlet,
             hotCf,
             coldCf,
 

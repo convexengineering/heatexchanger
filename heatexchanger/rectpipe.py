@@ -12,8 +12,8 @@ class RectangularPipe(Model):
     T_in                  [K]      input temperature
     v_in                  [m/s]    input velocity
     v_out                 [m/s]    output velocity
-    P_in        101000    [Pa]     input static pressure
-    P_out       101000    [Pa]     output static pressure
+    P_in                  [Pa]     input static pressure
+    P_out                 [Pa]     output static pressure
     D                     [N]      total drag
     eta_h                 [-]      effectiveness
     eta_h_ref   0.917     [-]      reference effectiveness
@@ -52,11 +52,11 @@ class RectangularPipe(Model):
 
     Upper Unbounded
     --------------
-    w, w_fluid, dh, h_seg, l_seg, V_seg, D, Tr_int (if increasingT), T_in (if not increasingT)
+    w, w_fluid, dh, h_seg, l_seg, V_seg, D, Tr_int (if increasingT), T_in (if not increasingT), P_in
 
     Lower Unbounded
     ---------------
-    w, h_seg, Nu_notlast, dQ, dP, Tr_int (if not increasingT), T_in (if increasingT)
+    w, h_seg, Nu_notlast, dQ, dP, Tr_int (if not increasingT), T_in (if increasingT), P_out
 
     """
 

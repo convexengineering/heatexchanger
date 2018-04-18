@@ -1,5 +1,6 @@
 import layer
 import cellplot
+import rectpipe
 from materials import *
 
 import imp
@@ -16,7 +17,8 @@ from writetotext import genHXData
 
 # Initializing SP single-layer HX model
 imp.reload(layer)
-Ncoldpipes, Nhotpipes = 4,3
+imp.reload(rectpipe)
+Ncoldpipes, Nhotpipes = 4,4
 coldFluid = Air()
 hotFluid = Water()
 material = StainlessSteel()
@@ -28,19 +30,23 @@ m.substitutions.update({
                         # Geometric parameters,
                         m.n_fins:         n_fins,
                         m.max_porosity:   0.7,
-                        m.x_dim:          5.*units('cm'),
-                        m.y_dim:          10.*units('cm'),
-                        m.z_dim:          1.*units('cm'),
+                        m.x_dim:          5.*units('cm'),      # max length of cold flow
+                        m.y_dim:          10.*units('cm'),     # max length of hot flow
+                        m.z_dim:          1.*units('cm'),      # max height of layer
 
                         # Inlet flow parameters
-                        m.v_in_hot:       1.*units('m/s'),
-                        m.v_in_cold:      20.*units('m/s'),
+                        m.coldpipes.v_in:    20.*np.ones(Ncoldpipes)*units('m/s'),
+                        m.hotpipes.v_in:     1.*np.ones(Nhotpipes)*units('m/s'),
+                        m.coldpipes.P_in:    101000*np.ones(Ncoldpipes)*units('Pa'),
+                        m.coldpipes.P_out:   101000*np.ones(Ncoldpipes)*units('Pa'),
+                        m.hotpipes.P_in:     101000*np.ones(Nhotpipes)*units('Pa'),
+                        m.hotpipes.P_out:    101000*np.ones(Nhotpipes)*units('Pa'),
 
                         # Heat transfer parameters
-                        #m.T_min_cold:     300.*units('K'),
-                        m.T_max_hot:      450.*units('K'),
-                        m.T_in_hot:       500.*units('K'),
-                        m.T_in_cold:      303.*units('K'),
+                        #m.T_min_cold:         300.*units('K'),
+                        m.T_max_hot:           450.*units('K'),
+                        m.hotpipes.T_in:       500.*np.ones(Nhotpipes)*units('K'),
+                        m.coldpipes.T_in:      303.*np.ones(Ncoldpipes)*units('K'),
                         })
 
 # Objective function
