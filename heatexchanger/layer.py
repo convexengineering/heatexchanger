@@ -40,19 +40,23 @@ class Layer(Model):
 
     """
 
-    def setup(self, Ncoldpipes, Nhotpipes, coldfluid_model, hotfluid_model, material_model):
+    material_model = StainlessSteel
+    coldfluid_model = Air
+    hotfluid_model = Water
+
+    def setup(self, Ncoldpipes, Nhotpipes):
         self.Ncoldpipes = Ncoldpipes
         self.Nhotpipes = Nhotpipes
 
         exec parse_variables(Layer.__doc__)
 
-        self.material = material_model()
-        coldfluid = coldfluid_model()
+        self.material = self.material_model()
+        coldfluid = self.coldfluid_model()
         with Vectorize(Ncoldpipes):
             coldpipes = RectangularPipe(Nhotpipes, n_fins, coldfluid,
                                         increasingT=True)
         self.coldpipes = coldpipes
-        hotfluid = hotfluid_model()
+        hotfluid = self.hotfluid_model()
         with Vectorize(Nhotpipes):
             hotpipes = RectangularPipe(Ncoldpipes, n_fins, hotfluid,
                                        increasingT=False)
@@ -88,6 +92,7 @@ class Layer(Model):
             ("mu_hotfluid", hotfluid.mu),
             ("Ti_hotfluid", T_in_hot),
             ("vi_hotfluid", v_in_hot),
+            ("max_fill_fraction", max_porosity)
         ])
 
         with Vectorize(Nhotpipes):
