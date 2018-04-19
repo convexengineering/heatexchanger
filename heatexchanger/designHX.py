@@ -18,12 +18,15 @@ from cellplot import gen_plots
 imp.reload(layer)
 imp.reload(rectpipe)
 Ncoldpipes, Nhotpipes = 4, 4
-m = layer.Layer(Ncold, Nhot)
+coldfluid_model = Air
+hotfluid_model = Water
+material_model = StainlessSteel
+m = layer.Layer(Ncoldpipes, Nhotpipes, coldfluid_model, hotfluid_model, material_model)
 
 # Model input parameters
 m.substitutions.update({
                         # Geometric parameters,
-                        m.n_fins:         n_fins,
+                        #m.n_fins:         n_fins,
                         m.max_porosity:   0.7,
                         m.x_dim:          5.*units('cm'),      # max length of cold flow
                         m.y_dim:          10.*units('cm'),     # max length of hot flow
