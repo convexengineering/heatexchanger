@@ -1,18 +1,18 @@
 import layer
-import cellplot
+#import cellplot
 import rectpipe
 from materials import *
 
 import imp
 from matplotlib.pyplot import *
 import numpy as np
-from mpl_toolkits.mplot3d import Axes3D
+#from mpl_toolkits.mplot3d import Axes3D
 
 from gpkit import Model, units
 from relaxed_constants import relaxed_constants
 from gpkit.constraints.bounded import Bounded
 
-from cellplot import gen_plots
+#from cellplot import gen_plots
 
 # Initializing SP single-layer HX model
 imp.reload(layer)
@@ -58,7 +58,7 @@ sol = m.localsolve(verbosity=2)
 print sol('Q')
 
 # Generating 2D plots
-gen_plots(m, sol, Ncoldpipes, Nhotpipes)
+#gen_plots(m, sol, Ncoldpipes, Nhotpipes)
 
 # Writing complete solution file sol.txt
 with open("sol.txt", "w") as f:
