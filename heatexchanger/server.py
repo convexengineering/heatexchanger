@@ -3,6 +3,7 @@ import json
 from layer import Layer
 from gencsm import gencsm
 from shutil import copyfile
+from designHX import designHX
 
 EXIT = [False]
 ID = 0
@@ -76,10 +77,8 @@ class HXGPServer(WebSocket):
 
 if __name__ == "__main__":
     # TODO: uncomment to produce the initial CSM file before serving
-    m = Layer(3, 3)
-    m.cost = 1/m.Q
-    sol = m.localsolve()
-    LASTSOL[0] = ((3, 3), sol)
+    m, sol = designHX()
+    LASTSOL[0] = ((m.Ncoldpipes,m.Nhotpipes), sol)
     genfiles(m, sol)
     server = SimpleWebSocketServer('', 8000, HXGPServer)
     while not EXIT[0]:
