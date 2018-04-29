@@ -14,21 +14,17 @@ from gpkit.constraints.bounded import Bounded
 
 #from cellplot import gen_plots
 
-def designHX():
+def designHX(Ncoldpipes, Nhotpipes, coldfluid_model, hotfluid_model, material_model):
       # Initializing SP single-layer HX model
       imp.reload(layer)
       imp.reload(rectpipe)
-      Ncoldpipes, Nhotpipes = 3,3
-      coldfluid_model = Air
-      hotfluid_model = Water
-      material_model = StainlessSteel
       m = layer.Layer(Ncoldpipes, Nhotpipes, coldfluid_model, hotfluid_model, material_model)
 
       # Model input parameters
       m.substitutions.update({
                               # Geometric parameters,
                               #m.n_fins:         n_fins,
-                              m.max_porosity:   0.7,
+                              m.max_solidity:   0.7,
                               m.x_dim:          5.*units('cm'),      # max length of cold flow
                               m.y_dim:          10.*units('cm'),     # max length of hot flow
                               m.z_dim:          1.*units('cm'),      # max height of layer
@@ -70,4 +66,8 @@ def designHX():
       return m, sol
 
 if __name__ == "__main__":
-      m,sol = designHX()
+      Ncoldpipes, Nhotpipes = 3,3
+      coldfluid_model = Air
+      hotfluid_model = Water
+      material_model = StainlessSteel
+      m,sol = designHX(Ncoldpipes, Nhotpipes, coldfluid_model, hotfluid_model, material_model)

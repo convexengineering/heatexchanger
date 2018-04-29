@@ -31,13 +31,13 @@ class Layer(Model):
     v_in_hot         [m/s]     inlet speed of hot fluid
     T_in_cold        [K]       inlet temperature of cold fluid
     v_in_cold        [m/s]     inlet speed of cold fluid
-    porosity         [-]       1-porosity of HX
-    max_porosity     [-]       max (1-porosity) allowed
+    solidity         [-]       solidity of HX
+    max_solidity     [-]       max solidity allowed
 
     Upper Unbounded
     ---------------
     
-    D_cold, D_hot, max_porosity, x_dim, y_dim, z_dim, T_max_hot, T_in_hot
+    D_cold, D_hot, max_solidity, x_dim, y_dim, z_dim, T_max_hot, T_in_hot
 
 
     Lower Unbounded
@@ -159,8 +159,8 @@ class Layer(Model):
             geom,
             pipes,
             self.material,
-            porosity == V_mtrl/V_tot,
-            porosity <= max_porosity,
+            solidity == V_mtrl/V_tot,
+            solidity <= max_solidity,
 
             # CONSERVATION OF HEAT
             SP_Qsum,
