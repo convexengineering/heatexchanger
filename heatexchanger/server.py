@@ -41,7 +41,7 @@ class HXGPServer(WebSocket):
             else:
                 x0 = None
 
-            m = Layer(Ncoldpipes, Nhotpipes)
+            m = Layer(Ncoldpipes, Nhotpipes,coldfluid_model, hotfluid_model, material_model)
             m.cost = 1/m.Q
 
             for name, value in self.data.items():

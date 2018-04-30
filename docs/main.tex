@@ -114,15 +114,15 @@ The \textbf{Layer} model combines the aforementioned \textbf{Pipe} and \textbf{H
 
 \subsection{Inputs to model}
 
-However, different set of inputs can be used to converge the model as long as the unbounded variables described in \textbf{Layer} are appropriately bounded. These are the following:
+Different set of inputs can be used to converge the model as long as the unbounded variables described in \textbf{Layer} are appropriately bounded. These are the following:
 
 
 \subsubsection{Geometric parameters}
 \begin{itemize}
-\item max solidity: 1-porosity of the HX
+\item max solidity: ratio of material to total volume of the HX
 \item $x_{dim}$: Maximum x-dimension (cold flow length) of HX
 \item $y_{dim}$: Maximum y-dimension (hot flow length) of HX
-\item $z_{dim}$
+\item $z_{dim}$: Maximum height of a single layer of the HX
 \end{itemize}
 
 \subsubsection{Inlet flow parameters}
@@ -148,20 +148,36 @@ However, different set of inputs can be used to converge the model as long as th
 \end{itemize}
 
 \subsection{Objective}
+\label{ss:objectives}
 
-Currently, the objective of the model is the inverse of the total heat transfer. 
+Currently, the objective of the model is the inverse of the total heat transfer. However, other potential objective functions are possible. The non-exhaustive list is as follows:
+
+\begin{itemize}
+\item Inverse of heat transfer $Q$
+\item Frontal area
+\item Mass flow
+\item Drag force on flow
+\item Pumping power ($D \times v_{in}$)
+\item Total pressure of incoming flow
+\end{itemize}
 
 \subsection{Use cases for the model}
+
+The many possible objectives in Section~\ref{ss:objectives} makes the model flexible in performing different kinds of trade studies. Some possible ideas are described below. 
 
 \begin{itemize}
 	\item Design heat exchangers to be built with 3D printing (arbitrary wall thicknesses and cell dimensions).
 	\item Do trade studies of different cooling/heating fluids.
     \item Experiment with different materials. 
-    \item Determine the sensitivity of heat exchange performance of heat exchanger with respect to inflow/outflow parameters. 
+    \item Determine the sensitivity of heat exchange performance of heat exchanger with respect to inflow/outflow (pumping) parameters. 
 \end{itemize}
 
 \subsection{Future work}
 
-There is plenty to be done to improve the robustness of the optimization method and to generalize it to arbitrary cell tile shapes. 
+\begin{itemize}
+\item Improve the robustness of the optimization method.
+\item Generalize the method to arbitrary cell tile shapes.
+\item Implement multi-point design methods. 
+\end{itemize}
 
 \end{document}
