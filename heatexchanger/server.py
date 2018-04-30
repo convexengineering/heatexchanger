@@ -41,7 +41,10 @@ class HXGPServer(WebSocket):
             else:
                 x0 = None
 
-            m = Layer(Ncoldpipes, Nhotpipes,coldfluid_model, hotfluid_model, material_model)
+            coldfluid_model = Air
+            hotfluid_model = Water
+            material_model = StainlessSteel
+            m = designHX(Ncoldpipes, Nhotpipes, coldfluid_model, hotfluid_model, material_model)
             m.cost = 1/m.Q
 
             for name, value in self.data.items():
@@ -82,7 +85,8 @@ if __name__ == "__main__":
     coldfluid_model = Air
     hotfluid_model = Water
     material_model = StainlessSteel
-    m,sol = designHX(Ncoldpipes, Nhotpipes, coldfluid_model, hotfluid_model, material_model)
+    m = designHX(Ncoldpipes, Nhotpipes, coldfluid_model, hotfluid_model, material_model)
+    sol = m.localsolve(verbosity=2)
     LASTSOL[0] = ((m.Ncoldpipes,m.Nhotpipes), sol)
     genfiles(m, sol)
     server = SimpleWebSocketServer('', 8000, HXGPServer)

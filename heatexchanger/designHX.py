@@ -51,6 +51,14 @@ def designHX(Ncoldpipes, Nhotpipes, coldfluid_model, hotfluid_model, material_mo
       #m = Model(m.cost,Bounded(m))
       #m = relaxed_constants(m)
 
+      return m
+
+if __name__ == "__main__":
+      Ncoldpipes, Nhotpipes = 3,3
+      coldfluid_model = Air
+      hotfluid_model = Water
+      material_model = StainlessSteel
+      m = designHX(Ncoldpipes, Nhotpipes, coldfluid_model, hotfluid_model, material_model)
       # Solving HX problem
       sol = m.localsolve(verbosity=2)
       #post_process(sol)
@@ -62,12 +70,3 @@ def designHX(Ncoldpipes, Nhotpipes, coldfluid_model, hotfluid_model, material_mo
       # Writing complete solution file sol.txt
       with open("sol.txt", "w") as f:
           f.write(sol.table())
-
-      return m, sol
-
-if __name__ == "__main__":
-      Ncoldpipes, Nhotpipes = 3,3
-      coldfluid_model = Air
-      hotfluid_model = Water
-      material_model = StainlessSteel
-      m,sol = designHX(Ncoldpipes, Nhotpipes, coldfluid_model, hotfluid_model, material_model)
