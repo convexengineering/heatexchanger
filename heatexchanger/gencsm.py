@@ -45,8 +45,8 @@ def gencsm(m, sol, ID):
 # flow quantities
 """)
     for name, val in m.design_parameters.items():
-        if val in m.substitutions:
-            val = m.substitutions[val]
+        if not isinstance(val, int):  # Npipes
+            val = sol["variables"][val]
         f.write("despmtr   %s   %s\n" % (name, val))
 
     f.write("""

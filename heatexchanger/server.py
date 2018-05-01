@@ -1,8 +1,10 @@
 from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 import json
 from layer import Layer
+from materials import *
 from gencsm import gencsm
 from shutil import copyfile
+from designHX import designHX
 
 EXIT = [False]
 ID = 0
@@ -39,7 +41,10 @@ class HXGPServer(WebSocket):
             else:
                 x0 = None
 
-            m = Layer(Ncoldpipes, Nhotpipes)
+            coldfluid_model = Air
+            hotfluid_model = Water
+            material_model = StainlessSteel
+            m = designHX(Ncoldpipes, Nhotpipes, coldfluid_model, hotfluid_model, material_model)
             m.cost = 1/m.Q
 
             for name, value in self.data.items():
@@ -76,10 +81,13 @@ class HXGPServer(WebSocket):
 
 if __name__ == "__main__":
     # TODO: uncomment to produce the initial CSM file before serving
-    m = Layer(3, 3)
-    m.cost = 1/m.Q
-    sol = m.localsolve()
-    LASTSOL[0] = ((3, 3), sol)
+    Ncoldpipes, Nhotpipes = 3,3
+    coldfluid_model = Air
+    hotfluid_model = Water
+    material_model = StainlessSteel
+    m = designHX(Ncoldpipes, Nhotpipes, coldfluid_model, hotfluid_model, material_model)
+    sol = m.localsolve(verbosity=2)
+    LASTSOL[0] = ((m.Ncoldpipes,m.Nhotpipes), sol)
     genfiles(m, sol)
     server = SimpleWebSocketServer('', 8000, HXGPServer)
     while not EXIT[0]:

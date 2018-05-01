@@ -15,28 +15,34 @@ class Layer(Model):
     Variables
     ---------
     Q                [W]       heat transferred from  hot to cold fluid
-    D_cold      0.01 [N]       total air drag
-    D_hot       0.01 [N]       total water drag
+    D_cold           [N]       total air drag
+    D_hot            [N]       total water drag
     V_tot            [cm^3]    total volume
     V_mtrl           [cm^3]    volume of material
     g           9.81 [m*s^-2]  gravitational acceleration
-    x_dim          5 [cm]      max hot length
-    y_dim         10 [cm]      max cold length
-    z_dim          1 [cm]      max height
+    x_dim            [cm]      max hot length
+    y_dim            [cm]      max cold length
+    z_dim            [cm]      max height
     n_fins           [-]       fins per tile
     maxAR          5 [-]       max tile width variation
-    T_max_hot    450 [K]       max temp. out
-    T_min_cold     1 [K]       min temp. out
-    T_in_hot     500 [K]       inlet temperature of hot fluid
-    v_in_hot       1 [m/s]     inlet speed of hot fluid
-    T_in_cold    303 [K]       inlet temperature of cold fluid
-    v_in_cold     20 [m/s]     inlet speed of cold fluid
-    porosity         [-]       1-porosity of HX
-    max_porosity 0.8 [-]       max (1-porosity) allowed
+    T_max_hot        [K]       max temp. out
+    T_min_cold       [K]       min temp. out
+    T_in_hot         [K]       inlet temperature of hot fluid
+    v_in_hot         [m/s]     inlet speed of hot fluid
+    T_in_cold        [K]       inlet temperature of cold fluid
+    v_in_cold        [m/s]     inlet speed of cold fluid
+    solidity         [-]       solidity of HX
+    max_solidity     [-]       max solidity allowed
+
+    Upper Unbounded
+    ---------------
+    
+    D_cold, D_hot, max_solidity, x_dim, y_dim, z_dim, T_max_hot, T_in_hot
+
 
     Lower Unbounded
     ---------------
-    Q
+    Q, T_in_cold
 
     """
 
@@ -95,6 +101,14 @@ class Layer(Model):
             ("max_fill_fraction", max_porosity)
         ])
 
+        # Unbounded variables from hierarchy
+        self.P_in_hot = self.hotpipes.P_in
+        self.P_in_cold = self.coldpipes.P_in
+        self.P_out_hot = self.hotpipes.P_out
+        self.P_out_cold = self.coldpipes.P_out
+        self.T_in_hot = self.hotpipes.T_in
+        self.T_in_cold = self.coldpipes.T_in
+
         with Vectorize(Nhotpipes):
             with Vectorize(Ncoldpipes):
                 c = self.c = HXArea(n_fins, self.material)
@@ -135,7 +149,8 @@ class Layer(Model):
             z_dim >= c.z_hot+c.z_cld+c.t_plate,
             T_max_hot >= c.T_hot[-1, :],
             T_min_cold <= c.T_cld[:, -1],
-            T_min_cold <= T_max_hot
+            T_min_cold <= T_max_hot,
+            T_min_cold >= 1*units('K'),
         ]
 
         for j in range(Nhotpipes):
@@ -149,8 +164,8 @@ class Layer(Model):
             geom,
             pipes,
             self.material,
-            porosity == V_mtrl/V_tot,
-            porosity <= max_porosity,
+            solidity == V_mtrl/V_tot,
+            solidity <= max_solidity,
 
             # CONSERVATION OF HEAT
             SP_Qsum,
