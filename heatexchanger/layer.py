@@ -31,8 +31,8 @@ class Layer(Model):
     v_in_hot       1 [m/s]     inlet speed of hot fluid
     T_in_cold    303 [K]       inlet temperature of cold fluid
     v_in_cold     20 [m/s]     inlet speed of cold fluid
-    porosity         [-]       1-porosity of HX
-    max_porosity 0.8 [-]       max (1-porosity) allowed
+    solidity         [-]       solidity of HX
+    max_solidity 0.8 [-]       max solidity allowed
 
     Lower Unbounded
     ---------------
@@ -92,7 +92,7 @@ class Layer(Model):
             ("mu_hotfluid", hotfluid.mu),
             ("Ti_hotfluid", T_in_hot),
             ("vi_hotfluid", v_in_hot),
-            ("max_fill_fraction", max_porosity)
+            ("max_solidity", max_solidity)
         ])
 
         with Vectorize(Nhotpipes):
@@ -149,8 +149,8 @@ class Layer(Model):
             geom,
             pipes,
             self.material,
-            porosity == V_mtrl/V_tot,
-            porosity <= max_porosity,
+            solidity == V_mtrl/V_tot,
+            solidity <= max_solidity,
 
             # CONSERVATION OF HEAT
             SP_Qsum,
