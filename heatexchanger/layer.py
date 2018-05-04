@@ -23,7 +23,6 @@ class Layer(Model):
     x_dim            [cm]      max hot length
     y_dim            [cm]      max cold length
     z_dim            [cm]      max height
-    n_fins           [-]       fins per tile
     maxAR          5 [-]       max tile width variation
     T_max_hot        [K]       max temp. out
     T_min_cold       [K]       min temp. out
@@ -55,12 +54,12 @@ class Layer(Model):
         self.material = material_model()
         coldfluid = coldfluid_model()
         with Vectorize(Ncoldpipes):
-            coldpipes = RectangularPipe(Nhotpipes, n_fins, coldfluid,
+            coldpipes = RectangularPipe(Nhotpipes, coldfluid,
                                         increasingT=True)
         self.coldpipes = coldpipes
         hotfluid = hotfluid_model()
         with Vectorize(Nhotpipes):
-            hotpipes = RectangularPipe(Ncoldpipes, n_fins, hotfluid,
+            hotpipes = RectangularPipe(Ncoldpipes, hotfluid,
                                        increasingT=False)
         self.hotpipes = hotpipes
         pipes = [coldpipes,
@@ -106,7 +105,7 @@ class Layer(Model):
 
         with Vectorize(Nhotpipes):
             with Vectorize(Ncoldpipes):
-                c = self.c = HXArea(n_fins, self.material)
+                c = self.c = HXArea(self.material)
 
         hotCf = []
         coldCf = []
@@ -125,10 +124,9 @@ class Layer(Model):
             maxAR >= c.y_cell/c.x_cell,
             maxAR >= c.x_cell/c.y_cell,
             # Differentiating between flow width and cell width
-            c.x_cell >= n_fins*(c.t_hot + hotpipes.w_fluid),
-            c.y_cell >= n_fins*(c.t_cld + coldpipes.w_fluid.T),
+            c.x_cell >= c.n_fins_hot*(c.t_hot + hotpipes.w_fluid),
+            c.y_cell >= c.n_fins_cld*(c.t_cld + coldpipes.w_fluid.T),
             # Making sure there is at least 1 (non-integer) number of fins
-            n_fins >= 1.,
             c.dQ == hotpipes.dQ,
             c.dQ == coldpipes.dQ.T,
             c.Tr_hot == hotpipes.Tr_int,
@@ -145,13 +143,15 @@ class Layer(Model):
             T_max_hot >= c.T_hot[-1, :],
             T_min_cold <= c.T_cld[:, -1],
             T_min_cold <= T_max_hot,
-            T_min_cold >= 1*units('K'),
+            T_min_cold >= 1*units('K')
         ]
 
         for j in range(Nhotpipes):
             for i in range(Ncoldpipes):
                 geom.extend([c.x_cell[i,j] == hotpipes.w[j],
                              c.y_cell[i,j] == coldpipes.w[i],
+                             c.n_fins_hot[i,j] == hotpipes.n_fins[j],
+                             c.n_fins_cld[i,j] == coldpipes.n_fins[i],
                              ])
 
         return [
@@ -176,5 +176,5 @@ class Layer(Model):
             V_tot <= x_dim*y_dim*z_dim,
 
             # MATERIAL VOLUME
-            V_mtrl >= (n_fins*c.z_hot*c.t_hot*c.x_cell).sum()+(n_fins*c.z_cld*c.t_cld*c.y_cell).sum()+(c.x_cell*c.y_cell*c.t_plate).sum(),
+            V_mtrl >= (c.n_fins_hot*c.z_hot*c.t_hot*c.x_cell).sum()+(c.n_fins_cld*c.z_cld*c.t_cld*c.y_cell).sum()+(c.x_cell*c.y_cell*c.t_plate).sum(),
         ]

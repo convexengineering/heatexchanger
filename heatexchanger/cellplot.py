@@ -154,3 +154,15 @@ def gen_plots(m, sol, Ncld, Nhot):
     a.set_title("Velocity*area of cold flow (m^3/s)")
     f.savefig("plots/vA_cld.png")
 
+    # Number of fins on hot side
+    f, a = plot_cells(m,sol(m.c.n_fins_hot), cm=cm.Reds,
+                      zscale=1 / Nhot / Ncld, zoff=0.625 / Nhot / Ncld, verbosity=2)
+    a.set_title("Number of fins on hot side")
+    f.savefig("plots/n_fins_hot.png")
+
+    # Number of fins on cold side
+    f, a = plot_cells(m,sol(m.c.n_fins_cld), cm=cm.Blues,
+                      zscale=1 / Nhot / Ncld, zoff=0.625 / Nhot / Ncld, verbosity=2)
+    a.set_title("Number of fins on cold side")
+    f.savefig("plots/n_fins_cld.png")
+

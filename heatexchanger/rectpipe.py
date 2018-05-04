@@ -7,8 +7,9 @@ class RectangularPipe(Model):
 
     Variables
     ---------
+    n_fins                 [-]      number of fins
     mdot                  [kg/s]   mass flow rate
-    w                     [cm]      pipe width
+    w                     [cm]     pipe width
     T_in                  [K]      input temperature
     v_in                  [m/s]    input velocity
     v_out                 [m/s]    output velocity
@@ -62,7 +63,7 @@ class RectangularPipe(Model):
 
     """
 
-    def setup(self, Nsegments, Nfins, fluid, increasingT):
+    def setup(self, Nsegments, fluid, increasingT):
         self.fluid = fluid
         self.increasingT = increasingT
 
@@ -87,7 +88,7 @@ class RectangularPipe(Model):
         with SignomialsEnabled():
             # except where noted these constraints become posynomial
             flow = [
-                mdot == Nfins * fluid.rho * v * A,  # mass conservation
+                mdot == n_fins * fluid.rho * v * A,  # mass conservation
                 v_in == v[0],
                 v_out == v[-1],
                 v_avg**2 == v[:-1] * v[1:],
@@ -111,15 +112,16 @@ class RectangularPipe(Model):
                 (Pf/Pf_ref)**0.155 >= (0.475*(Re[-1]/Re_ref)**0.00121
                                        + 0.0338*(Re[-1]/Re_ref)**-0.336),
 
-                D >= fr * Nfins * A_seg[0]
+                D >= fr * n_fins * A_seg[0]
             ]
 
         # Geometry definitions
         geom = [A_seg == w_fluid * h_seg,  # cross sectional area of channel
-                V_seg == Nfins * A_seg * l_seg,  # total volume of all channels
+                V_seg == n_fins * A_seg * l_seg,  # total volume of all channels
                 # hydraulic diameter with geometric mean approximation
                 dh * (w_fluid * h_seg)**0.5 == 2 * A_seg,
                 h_seg >= 0.1*units('cm'),
+                n_fins >= 1.,
                 ]
         with SignomialsEnabled():
             for i in range(Nsegments):
