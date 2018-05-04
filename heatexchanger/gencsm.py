@@ -17,9 +17,9 @@ def gencsm(m, sol, ID):
     xycent = np.array([[(x[i+1] + x[i])/2, (y[j+1]+y[j])/2]
                        for j in range(nw) for i in range(nu)])
 
-    hxVals = [10*sol(m.c.t_plate).to("m").magnitude,
-              10*sol(m.c.t_hot).to("m").magnitude,
-              10*sol(m.c.t_cld).to("m").magnitude,
+    hxVals = [sol(m.c.t_plate).to("m").magnitude,
+              sol(m.c.t_hot).to("m").magnitude,
+              sol(m.c.t_cld).to("m").magnitude,
               (sol(m.c.z_hot)/sol(m.c.z_cld)).magnitude]
     intlist = [interp2d(xycent[:, 0], xycent[:, 1], hxVals[i], kind='linear')
                for i in range(len(hxVals))]
