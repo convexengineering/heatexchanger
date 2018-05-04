@@ -75,7 +75,6 @@ class HXGPServer(WebSocket):
 
 
 if __name__ == "__main__":
-    # TODO: uncomment to produce the initial CSM file before serving
     m = Layer(3, 3)
     m.cost = 1/m.Q
     sol = m.localsolve()

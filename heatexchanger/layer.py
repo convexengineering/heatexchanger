@@ -1,16 +1,12 @@
-from gpkit import Model, parse_variables, Vectorize, SignomialsEnabled, units
-from gpkit.constraints.bounded import Bounded
+from gpkit import Model, parse_variables, Vectorize, SignomialsEnabled
 from materials import Air, Water, StainlessSteel
 from hxarea import HXArea
 from rectpipe import RectangularPipe
-from relaxed_constants import relaxed_constants, post_process
-import numpy as np
 from collections import OrderedDict
 
 
 class Layer(Model):
-    """
-    Combines heat exchanger pipes into a 2D layer
+    """Combines heat exchanger pipes into a 2D layer
 
     Variables
     ---------
@@ -47,10 +43,13 @@ class Layer(Model):
     def setup(self, Ncoldpipes, Nhotpipes):
         self.Ncoldpipes = Ncoldpipes
         self.Nhotpipes = Nhotpipes
-
         exec parse_variables(Layer.__doc__)
 
         self.material = self.material_model()
+        with Vectorize(Nhotpipes):
+            with Vectorize(Ncoldpipes):
+                cells = self.cells = HXArea(n_fins, self.material)
+
         coldfluid = self.coldfluid_model()
         with Vectorize(Ncoldpipes):
             coldpipes = RectangularPipe(Nhotpipes, n_fins, coldfluid,
@@ -61,13 +60,15 @@ class Layer(Model):
             hotpipes = RectangularPipe(Ncoldpipes, n_fins, hotfluid,
                                        increasingT=False)
         self.hotpipes = hotpipes
-        pipes = [coldpipes,
-                 coldpipes.T_in == T_in_cold, coldpipes.v_in == v_in_cold,
-                 hotpipes,
-                 hotpipes.T_in == T_in_hot, hotpipes.v_in == v_in_hot]
+        pipes = [
+            coldpipes,
+            coldpipes.T_in == T_in_cold, coldpipes.v_in == v_in_cold,
+            hotpipes,
+            hotpipes.T_in == T_in_hot, hotpipes.v_in == v_in_hot
+        ]
 
         self.design_parameters = OrderedDict([
-            # add T_max_hot, T_min_cold?
+            # TODO: add T_max_hot, T_min_cold?
             ("gravity", g),
             ("x_width", x_dim),
             ("y_width", y_dim),
@@ -95,76 +96,58 @@ class Layer(Model):
             ("max_solidity", max_solidity)
         ])
 
-        with Vectorize(Nhotpipes):
-            with Vectorize(Ncoldpipes):
-                c = self.c = HXArea(n_fins, self.material)
-
-        hotCf = []
-        coldCf = []
-
-        with SignomialsEnabled():
-            # NOTE: unfortunately this appears unavoidable.
-            #       perhaps an entropy-based approach could get around it?
-            #       as the mass flows in each pipe become quite similar,
-            #       it's already alllllmost GP, solving in 3-9 GP solves
-            SP_Qsum = Q <= c.dQ.sum()
-
         geom = [
             V_tot >= hotpipes.V_seg.sum() + coldpipes.V_seg.sum() + V_mtrl,
-            c.x_cell == coldpipes.l_seg.T,
-            c.y_cell == hotpipes.l_seg,
-            maxAR >= c.y_cell/c.x_cell,
-            maxAR >= c.x_cell/c.y_cell,
+            cells.x_cell == coldpipes.l_seg.T,
+            cells.y_cell == hotpipes.l_seg,
+            maxAR >= cells.y_cell/cells.x_cell,
+            maxAR >= cells.x_cell/cells.y_cell,
             # Differentiating between flow width and cell width
-            c.x_cell >= n_fins*(c.t_hot + hotpipes.w_fluid),
-            c.y_cell >= n_fins*(c.t_cld + coldpipes.w_fluid.T),
-            # Making sure there is at least 1 (non-integer) number of fins
-            n_fins >= 1.,
-            c.dQ == hotpipes.dQ,
-            c.dQ == coldpipes.dQ.T,
-            c.Tr_hot == hotpipes.Tr_int,
-            c.Tr_cld == coldpipes.Tr_int.T,
-            c.T_hot == hotpipes.T_avg,
-            c.T_cld == coldpipes.T_avg.T,
-            c.h_hot == hotpipes.h,
-            c.h_cld == coldpipes.h.T,
-            c.z_hot == hotpipes.h_seg,
-            c.z_cld == coldpipes.h_seg.T,
+            cells.x_cell >= n_fins*(cells.t_hot + hotpipes.w_fluid),
+            cells.y_cell >= n_fins*(cells.t_cld + coldpipes.w_fluid.T),
+            n_fins >= 1.,  # Making sure there is at least 1 fin
+            cells.dQ == hotpipes.dQ,
+            cells.dQ == coldpipes.dQ.T,
+            cells.Tr_hot == hotpipes.Tr_int,
+            cells.Tr_cld == coldpipes.Tr_int.T,
+            cells.T_hot == hotpipes.T_avg,
+            cells.T_cld == coldpipes.T_avg.T,
+            cells.h_hot == hotpipes.h,
+            cells.h_cld == coldpipes.h.T,
+            cells.z_hot == hotpipes.h_seg,
+            cells.z_cld == coldpipes.h_seg.T,
             x_dim >= hotpipes.w.sum(),
             y_dim >= coldpipes.w.sum(),
-            z_dim >= c.z_hot+c.z_cld+c.t_plate,
-            T_max_hot >= c.T_hot[-1, :],
-            T_min_cold <= c.T_cld[:, -1],
+            z_dim >= cells.z_hot + cells.z_cld + cells.t_plate,
+            T_max_hot >= cells.T_hot[-1, :],
+            T_min_cold <= cells.T_cld[:, -1],
             T_min_cold <= T_max_hot
         ]
 
         for j in range(Nhotpipes):
             for i in range(Ncoldpipes):
-                geom.extend([c.x_cell[i,j] == hotpipes.w[j],
-                             c.y_cell[i,j] == coldpipes.w[i],
-                             ])
+                geom.extend([
+                    cells.x_cell[i, j] == hotpipes.w[j],
+                    cells.y_cell[i, j] == coldpipes.w[i],
+                ])
+
+        with SignomialsEnabled():
+            SP_Qsum = Q <= cells.dQ.sum()
 
         return [
-            # SIZING
-            geom,
-            pipes,
-            self.material,
+            SP_Qsum, cells, pipes, geom, self.material,
+
+            # SOLIDITY
             solidity == V_mtrl/V_tot,
             solidity <= max_solidity,
 
-            # CONSERVATION OF HEAT
-            SP_Qsum,
-            c,
-
-            #DRAG
+            # DRAG
             D_hot >= self.hotpipes.D.sum(),
             D_cold >= self.coldpipes.D.sum(),
-            hotCf,
-            coldCf,
 
             # TOTAL VOLUME REQUIREMENT
             V_tot <= x_dim*y_dim*z_dim,
 
             # MATERIAL VOLUME
-            V_mtrl >= (n_fins*c.z_hot*c.t_hot*c.x_cell).sum()+(n_fins*c.z_cld*c.t_cld*c.y_cell).sum()+(c.x_cell*c.y_cell*c.t_plate).sum(),
+            V_mtrl >= (n_fins*cells.z_hot*cells.t_hot*cells.x_cell).sum()+(n_fins*cells.z_cld*cells.t_cld*cells.y_cell).sum()+(cells.x_cell*cells.y_cell*cells.t_plate).sum(),
         ]

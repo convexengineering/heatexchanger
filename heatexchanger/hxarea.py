@@ -1,4 +1,4 @@
-from gpkit import Model, parse_variables, SignomialsEnabled, units
+from gpkit import Model, parse_variables, SignomialsEnabled
 
 # Assumes hot water going S->N, and cold air going W->E, [0,0] at RH corner
 class HXArea(Model):
@@ -39,12 +39,13 @@ class HXArea(Model):
         with SignomialsEnabled():  # note that these turn into posynomials
             dQ_definition = [dQ <= (T_hot-Tr_hot)*h_hot*A_hot,
                              dQ <= (Tr_cld-T_cld)*h_cld*A_cld]
-        return [material, dQ_definition,
-                A_hot == n_fins*(2*y_cell*z_hot),
-                A_cld == n_fins*(2*x_cell*z_cld),
-                Tr_hot   >= T_r + 0.33*(dQ/n_fins*z_hot/(material.k*t_hot*y_cell)), #TODO: Refine
-                T_r      >= Tr_cld + 0.33*(dQ/n_fins*z_cld/(material.k*t_cld*x_cell)), #TODO: Refine
-                t_plate  == material.t_min,
-                t_hot    >= material.t_min,
-                t_cld    >= material.t_min,
-                ]
+        return [
+            material, dQ_definition,
+            A_hot == n_fins*(2*y_cell*z_hot),
+            A_cld == n_fins*(2*x_cell*z_cld),
+            Tr_hot >= T_r + 0.33*(dQ/n_fins*z_hot/(material.k*t_hot*y_cell)), #TODO: Refine
+            T_r >= Tr_cld + 0.33*(dQ/n_fins*z_cld/(material.k*t_cld*x_cell)), #TODO: Refine
+            t_plate == material.t_min,
+            t_hot >= material.t_min,
+            t_cld >= material.t_min,
+        ]
