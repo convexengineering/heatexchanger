@@ -21,13 +21,13 @@ Ncoldpipes, Nhotpipes = 4, 4
 coldfluid_model = Air
 hotfluid_model = Water
 material_model = StainlessSteel
-m = layer.Layer(Ncoldpipes, Nhotpipes, coldfluid_model, hotfluid_model, material_model)
+m = layer.Layer(Ncoldpipes, Nhotpipes)
 
 # Model input parameters
 m.substitutions.update({
                         # Geometric parameters,
                         #m.n_fins:         n_fins,
-                        m.max_porosity:   0.7,
+                        m.max_solidity:   0.7,
                         m.x_dim:          5.*units('cm'),      # max length of cold flow
                         m.y_dim:          10.*units('cm'),     # max length of hot flow
                         m.z_dim:          1.*units('cm'),      # max height of layer
@@ -43,8 +43,8 @@ m.substitutions.update({
                         # Heat transfer parameters
                         #m.T_min_cold:         300.*units('K'),
                         m.T_max_hot:           450.*units('K'),
-                        m.hotpipes.T_in:       500.*np.ones(Nhotpipes)*units('K'),
-                        m.coldpipes.T_in:      303.*np.ones(Ncoldpipes)*units('K'),
+                        m.T_in_hot:       500.*units('K'),
+                        m.T_in_cold:      303.*units('K'),
                         })
 
 # Objective function

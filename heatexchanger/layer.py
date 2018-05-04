@@ -149,5 +149,7 @@ class Layer(Model):
             V_tot <= x_dim*y_dim*z_dim,
 
             # MATERIAL VOLUME
-            V_mtrl >= (n_fins*cells.z_hot*cells.t_hot*cells.x_cell).sum()+(n_fins*cells.z_cld*cells.t_cld*cells.y_cell).sum()+(cells.x_cell*cells.y_cell*cells.t_plate).sum(),
+            V_mtrl >= ((n_fins*cells.z_hot*cells.t_hot*cells.x_cell).sum()
+                       + (n_fins*cells.z_cld*cells.t_cld*cells.y_cell).sum()
+                       + (cells.x_cell*cells.y_cell*cells.t_plate).sum()),
         ]
