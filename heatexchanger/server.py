@@ -20,7 +20,8 @@ def genfiles(m, sol):
 def gensoltxt(m, sol, ID):
     with open("sol_%03i.txt" % ID, "w") as f:
         for var in sorted(m.varkeys, key=str):
-            f.write("%s [%s]\t\t%f\n" % (var, var.unitstr(dimless="-"),
+            f.write("%s [%s]\t\t%f\n" % (var, var.unitstr(options=":~",
+                                                          dimless="-"),
                                          sol["variables"][var]))
 
 
